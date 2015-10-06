@@ -6,8 +6,7 @@
 ####Testing Tools
 * [Karma](http://karma-runner.github.io/) - Test Runner
 * [Jasmine](http://jasmine.github.io/2.3/introduction.html) - Unit & Integration Testing
-<!--* [Isparta](https://github.com/douglasduteil/isparta) - ES2015 Code Coverage Tool
-* [Istanbul](https://gotwarlost.github.io/istanbul/) - Code Coverage Reporter-->
+* [Istanbul](https://gotwarlost.github.io/istanbul/) - Code Coverage Reporter
 
 ####Code Quality Tools
 * [ESLint](http://usejsdoc.org/) - eslint webpack loader to help with code quality
@@ -17,7 +16,8 @@
 
 ###Build Tasks
 * $ webpack
-* $ gulp test:unit:watch
-* $ gulp test:integration:watch
+* $ gulp development
+* $ gulp release
+
 
 

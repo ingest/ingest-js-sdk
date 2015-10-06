@@ -5,6 +5,7 @@ function IngestAPI () {
 IngestAPI.prototype.init = function () {
 
   return this.name;
+
 };
 
 module.exports = IngestAPI;

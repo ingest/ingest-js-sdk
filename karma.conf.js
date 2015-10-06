@@ -9,8 +9,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'dist/ingest.js',
-      'integration-tests/**/*.spec.js'
+      './dist/ingest.js',
+      './integration-tests/**/*.spec.js'
     ],
 
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
@@ -20,11 +20,11 @@ module.exports = function(config) {
       // source files, that you wanna generate coverage for
       // do not include tests or libraries
       // (these files will be instrumented by Istanbul)
-      'dist/ingest.js': ['coverage', 'sourcemap'],
+      './dist/ingest.js': ['sourcemap', 'coverage'],
     },
 
     coverageReporter: {
-      dir: 'dist/integration-coverage',
+      dir: './dist/integration-coverage',
       reporters: [
         {
           type: 'html',
@@ -39,11 +39,6 @@ module.exports = function(config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['Chrome'],
-
-    // Run a dev server pointing at the code coverage.
-    devServer: {
-      contentBase: './dist/test-coverage/'
-    }
 
   });
 }
