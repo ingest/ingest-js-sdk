@@ -1,0 +1,32 @@
+{
+  "name": "javascript-sdk",
+  "version": "0.0.1",
+  "description": "Javascript SDK for communicating with Ingest's REST API.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.redspace.com/ing/javascript-sdk.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^1.5.1",
+    "eslint-loader": "^1.0.0",
+    "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.1",
+    "gulp-coverage": "^0.3.36",
+    "gulp-istanbul": "^0.10.1",
+    "gulp-jasmine": "^2.1.0",
+    "istanbul": "^0.3.21",
+    "jasmine-core": "^2.3.4",
+    "jasmine-spec-reporter": "^2.4.0",
+    "karma": "^0.13.10",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-coverage": "^0.5.2",
+    "karma-jasmine": "^0.3.6",
+    "karma-sourcemap-loader": "^0.3.5",
+    "karma-spec-reporter": "0.0.20",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.0"
+  }
+}
