@@ -10,7 +10,6 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       './dist/ingest.js',
-      './node_modules/qwest/qwest.min.js',
       './integration-tests/**/*.spec.js'
     ],
 
