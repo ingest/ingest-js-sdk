@@ -3,6 +3,12 @@ var config = require('../gulp.config.js');
 var path = require('path');
 var _ = require('lodash');
 var webpack = require('webpack');
+var path = require('path');
+
+gulp.task('build:copy:vendor', function () {
+  return gulp.src(config.vendor_scripts)
+    .pipe(concat());
+});
 
 // Base config for webpack.
 var webpackConfig = {
@@ -28,6 +34,11 @@ var webpackConfig = {
       }
     ]
   },
+  resolve: {
+    alias: {
+      bluebird: path.resolve(__dirname, '../../node_modules/bluebird/js/browser/bluebird.js')
+    }
+  },
   eslint: {
     failOnWarning: false
   },
@@ -36,43 +47,43 @@ var webpackConfig = {
 };
 
 // Build the development stack.
-gulp.task('build:development', function(done) {
+gulp.task('build:development', function (done) {
 
   var config = _.clone(webpackConfig, true);
 
   config.eslint.failOnWarning = false;
 
-  webpack(config, function(error, stats) {
+  webpack(config, function (error, stats) {
 
-      if (error) {
-        throw new Error('Error with webpack : ', error);
-      }
+    if (error) {
+      throw new Error('Error with webpack : ', error);
+    }
 
-      done();
+    done();
   });
 
 });
 
 // Release the package, minifiy the code.
-gulp.task('build:release', function(done) {
+gulp.task('build:release', function (done) {
 
   var config = _.clone(webpackConfig, true);
 
-  config.plugins = [
-      new webpack.optimize.UglifyJsPlugin({
-        sourceMap: true
-      })
-  ];
+  config.plugins = [(
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true
+    })
+  )];
 
   config.eslint.failOnWarning = true;
 
-    return webpack(config, function(error, stats) {
+  return webpack(config, function (error, stats) {
 
-      if (error) {
-        throw new Error('Error with webpack : ', error);
-      }
+    if (error) {
+      throw new Error('Error with webpack : ', error);
+    }
 
-      done();
+    done();
 
   });
 

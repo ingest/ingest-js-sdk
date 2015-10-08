@@ -97,7 +97,7 @@
         "radix":                             0,         // require use of the second argument for parseInt()
         "vars-on-top":                       0,         // requires to declare all vars on top of their containing scope
         "wrap-iife":                         0,         // require immediate function invocation to be wrapped in parentheses ***
-        "yoda":                              [2, "always"],  // require or disallow Yoda conditions" ***
+        "yoda":                              0,  // require or disallow Yoda conditions" ***
 
         // Strict Mode
         // These rules relate to using strict mode.
