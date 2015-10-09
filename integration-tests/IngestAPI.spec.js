@@ -1,6 +1,6 @@
 var api;
 // Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ0NDA0NTM0LCJpYXQiOjE0NDQzMTgxMzQsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwianRpIjoiMjcyYmIxYWUtMDJhOS00OGIyLTkxYzYtODdmODc4ZDZmNjhlIiwibnR3IjoicmVkc3BhY2UiLCJzdWIiOiI3ZTZhODRhYi03ZjllLTQ3MGUtODJlNy02ZGQzZDllYzYxMmMifQ.YLsbv1Q_40jtPmbyC7ubpJNF9Pt8yuhXkpXmFWoEiB9fJM9nidDfuqIfZ3EleGN3RNZ0WhBCyNCgMB8Dum_XOHXzfTqBWBi5xzu-nR7bPyqs8HjH74TNgj1AaMnHJGQrAnAaQo6Kvi3FP7y4nJVKc7C5OXgUYYFLCV0I_uJTViN4UuSVIZUmkOYqGBmCWOR6I3_LPp2sSmIEV0Wi7H82uR03AiRuT8FJZv6vK7TUSUff0rZ-WTP0YIemfMpTci08eqUqY_TuzfmyoaejO1sYrQYSBhJckjHiAcsPJJm8SGaUNvZIuwUVP3_gJQAWWvUd3Np5-EYdW66A9yoQlL3aHw'; // eslint-disable-line
+var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ0NTAxOTk0LCJpYXQiOjE0NDQ0MTU1OTQsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwianRpIjoiMzE4ZjRjMmUtNmFhOS00YmRiLWE3ZTYtZTk2YTBlN2I3Njg4IiwibnR3IjoicmVkc3BhY2UiLCJzdWIiOiI3ZTZhODRhYi03ZjllLTQ3MGUtODJlNy02ZGQzZDllYzYxMmMifQ.EGjuG_8ltopY4R8wwSPXqLzelInNpP79XIyQlAgzLPhL2C-w_eWdfyLyhBB0L4MQ7ILZmZLvhJotBUJP41VDGKuDUKSlLM5oVBf6x8ASyVnn84SE_dGTvcfQGuxoP0Y5v5USC20uXt5CobXm5Y-aYQht-JisAYq-r7z85jfRgQz73FPXkQfLRj4i_4JAIGHYeQC8swJsYFJ79U10-oq-JiQRJMaObsERUI-NxselKI-oYLlzRLTtoU55pXSpk2u6g7wTq4NgS11bs57S79m5r72eYd0FlNCJmnnRSL6ZLRPxP_cg2T82VVQwLaAEFbzGmHGeYmzL6FheEY_cYciTCg'; // eslint-disable-line
 var validVideoId;
 
 describe('Ingest API', function () {
@@ -45,6 +45,8 @@ describe('Ingest API', function () {
         expect(response).toBeDefined();
 
         validVideoId = response[0].id;
+
+        expect(validVideoId).toBeDefined();
 
         done();
       }).catch(function (error) {
