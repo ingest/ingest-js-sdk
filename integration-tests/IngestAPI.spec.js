@@ -67,7 +67,7 @@ describe('Ingest API', function () {
       api.setToken('invalid-token');
 
       var request = api.getVideos().then(function (response) {
-        expect(respones).toBeUndefined();
+        expect(response).toBeUndefined();
 
         done();
       }).catch(function (error) {
@@ -92,7 +92,7 @@ describe('Ingest API', function () {
       api.setToken('');
 
       var request = api.getVideos().then(function (response) {
-        expect(respones).toBeUndefined();
+        expect(response).toBeUndefined();
 
         done();
       }).catch(function (error) {
