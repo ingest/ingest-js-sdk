@@ -1,25 +1,19 @@
 var IngestAPI = require('./IngestAPI.js');
-var utils = require('util');
 
 var api;
 
-describe('IngestAPI Wrapper', function() {
+describe('IngestAPI Wrapper', function () {
 
-  beforeAll(function() {
-    api = new IngestAPI();
-  });
+  it('Should expose the required functions.', function () {
 
-  it('Should work.', function() {
-    expect(api).toBeDefined();
-  });
+    var required = ['getVideos', 'getVideoById'];
+    var requiredLength = required.length;
+    var i, func;
 
-  it('Should be true', function() {
-
-    var name;
-
-    expect(api.init).toBeDefined();
-
-    expect(api.init()).toEqual('IngestAPI');
+    for (i = 0; i < requiredLength; i++) {
+      func = required[i];
+      expect(IngestAPI.prototype[func]).toBeDefined();
+    }
 
   });
 
