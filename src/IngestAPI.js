@@ -20,7 +20,7 @@ function IngestAPI (options) {
 
 /**
  * Set the auth token to use.
- * @param {String} token Auth token to use.
+ * @param   {String}        token Auth token to use.
  */
 IngestAPI.prototype.setToken = function (token) {
   this.token = token;
@@ -28,7 +28,7 @@ IngestAPI.prototype.setToken = function (token) {
 
 /**
  * Return the current auth token.
- * @return {String} Current auth token.
+ * @return  {String}        Current auth token.
  */
 IngestAPI.prototype.getToken = function () {
   return this.token;
@@ -36,7 +36,7 @@ IngestAPI.prototype.getToken = function () {
 
 /**
  * Return a list of videos for the current user and network.
- * @return {JSON} A JSON object representing the videos.
+ * @return  {JSON}          A JSON object representing the videos.
  */
 IngestAPI.prototype.getVideos = function () {
 
@@ -49,8 +49,8 @@ IngestAPI.prototype.getVideos = function () {
 
 /**
  * Return a video match the supplied id.
- * @param  {String} videoId ID for the requested video.
- * @return {JSON}         JSON object representing the requested video.
+ * @param   {String}       videoId ID for the requested video.
+ * @return  {JSON}         JSON object representing the requested video.
  */
 IngestAPI.prototype.getVideoById = function (videoId) {
 
@@ -66,6 +66,27 @@ IngestAPI.prototype.getVideoById = function (videoId) {
   return new Request({
     url: url,
     token: this.token
+  });
+
+};
+
+/**
+ * Add a new video.
+ * @param   {object}  videoObject An object representing the video to add.
+ */
+IngestAPI.prototype.addVideo = function (videoObject) {
+
+  if (!videoObject) {
+    // Wrap the error in a promise.
+    return Promise.reject('IngestAPI addVideo requires a video object.');
+  }
+
+  // Return the promise from the request.
+  return new Request({
+    url: RESTCONFIG.host + RESTCONFIG.videos,
+    token: this.token,
+    method: 'POST',
+    data: videoObject
   });
 
 };

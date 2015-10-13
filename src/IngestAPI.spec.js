@@ -1,12 +1,10 @@
 var IngestAPI = require('./IngestAPI.js');
 
-var api;
-
 describe('IngestAPI Wrapper', function () {
 
   it('Should expose the required functions.', function () {
 
-    var required = ['getVideos', 'getVideoById'];
+    var required = ['setToken', 'getToken', 'getVideos', 'getVideoById', 'addVideo'];
     var requiredLength = required.length;
     var i, func;
 
