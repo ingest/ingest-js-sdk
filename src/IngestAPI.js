@@ -23,6 +23,12 @@ function IngestAPI (options) {
  * @param   {String}        token Auth token to use.
  */
 IngestAPI.prototype.setToken = function (token) {
+
+  // Make sure a valid value is passed.
+  if (!token || typeof token !== 'string') {
+    throw new Error('IngestAPI requires an authentication token passed as a string.');
+  }
+
   this.token = token;
 };
 
@@ -54,9 +60,9 @@ IngestAPI.prototype.getVideos = function () {
  */
 IngestAPI.prototype.getVideoById = function (videoId) {
 
-  if (!videoId) {
+  if (!videoId || typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
-    return Promise.reject('IngestAPI getVideoById requires a videoId.');
+    return Promise.reject('IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
   var url = RESTCONFIG.host;
@@ -76,9 +82,17 @@ IngestAPI.prototype.getVideoById = function (videoId) {
  */
 IngestAPI.prototype.addVideo = function (videoObject) {
 
-  if (!videoObject) {
+  // Validate the object being passed in.
+  if (!videoObject || typeof videoObject !== 'object') {
     // Wrap the error in a promise.
     return Promise.reject('IngestAPI addVideo requires a video object.');
+  }
+
+  // Parse the JSON
+  try {
+    videoObject = JSON.stringify(videoObject);
+  } catch (error) {
+    return Promise.reject('IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
   }
 
   // Return the promise from the request.

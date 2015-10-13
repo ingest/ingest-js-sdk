@@ -103,7 +103,13 @@ Request.prototype.processResponse = function (response) {
 
   // Parse JSON if the result is JSON.
   if (responseType === 'application/json; charset=utf-8') {
-    result = JSON.parse(response);
+    try {
+      result = JSON.parse(response);
+    } catch (error) {
+      result = {
+        error: 'JSON parsing failed. ' + error.stack
+      };
+    }
   }
 
   return result;

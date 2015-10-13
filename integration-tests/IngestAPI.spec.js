@@ -88,28 +88,9 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should fail if there is no token is set.', function (done) {
+    it('Should fail if there is no token is set.', function () {
 
-      api.setToken('');
-
-      var request = api.getVideos().then(function (response) {
-        expect(response).toBeUndefined();
-
-        done();
-      }).catch(function (error) {
-
-        expect(error).toBeDefined();
-
-        // Reset the token;
-        api.setToken(access_token);
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
+      expect(api.setToken).toThrow();
 
     });
 
@@ -181,7 +162,7 @@ describe('Ingest API', function () {
         "description": "Test video."
       };
 
-      var request = api.addVideo(JSON.stringify(video)).then(function (response) {
+      var request = api.addVideo(video).then(function (response) {
 
         expect(response).toBeDefined();
 
@@ -193,6 +174,30 @@ describe('Ingest API', function () {
       }).catch(function (error) {
 
         expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+    it('Should fail if I only pass a string', function (done) {
+
+      var video = 'test video';
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeDefined();
+
         done();
 
       });
