@@ -102,6 +102,23 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 };
 
 /**
+ * Delete a video.
+ * @param  {string}   videoId   ID for the video to delete.
+ */
+IngestAPI.prototype.deleteVideo = function (videoId) {
+  if (!videoId || typeof videoId !== 'string') {
+    return Promise.reject('IngestAPI deleteVideo requires a video ID passed as a string.');
+  }
+
+  return new Request({
+    url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
+    token: this.token,
+    method: 'DELETE'
+  });
+
+};
+
+/**
  * Replace the ID in the template string with the supplied id.
  * @param  {string} template Template for the url.
  * @param  {string} id       Video ID to inject into the template.
