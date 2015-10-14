@@ -17,3 +17,6 @@ bower_components
 node_modules
 
 .coverrun
+
+dist/integration-coverage
+dist/unit-test-coverage

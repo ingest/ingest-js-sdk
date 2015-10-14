@@ -1,7 +1,8 @@
 var api;
 // Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ0NTAxOTk0LCJpYXQiOjE0NDQ0MTU1OTQsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwianRpIjoiMzE4ZjRjMmUtNmFhOS00YmRiLWE3ZTYtZTk2YTBlN2I3Njg4IiwibnR3IjoicmVkc3BhY2UiLCJzdWIiOiI3ZTZhODRhYi03ZjllLTQ3MGUtODJlNy02ZGQzZDllYzYxMmMifQ.EGjuG_8ltopY4R8wwSPXqLzelInNpP79XIyQlAgzLPhL2C-w_eWdfyLyhBB0L4MQ7ILZmZLvhJotBUJP41VDGKuDUKSlLM5oVBf6x8ASyVnn84SE_dGTvcfQGuxoP0Y5v5USC20uXt5CobXm5Y-aYQht-JisAYq-r7z85jfRgQz73FPXkQfLRj4i_4JAIGHYeQC8swJsYFJ79U10-oq-JiQRJMaObsERUI-NxselKI-oYLlzRLTtoU55pXSpk2u6g7wTq4NgS11bs57S79m5r72eYd0FlNCJmnnRSL6ZLRPxP_cg2T82VVQwLaAEFbzGmHGeYmzL6FheEY_cYciTCg'; // eslint-disable-line
+var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ0ODQ2ODcxLCJqdGkiOiJmMmQ0ZWE1Ni05NjYyLTQ4OGQtYWMwNy1hZDM0YmJmYThjYmUiLCJpYXQiOjE0NDQ3NjA0NzEsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwibnR3IjoicmVkc3BhY2UiLCJzY29wZSI6eyJ1c2VyIjp7ImFjdGlvbnMiOm51bGx9fSwic3ViIjoiN2U2YTg0YWItN2Y5ZS00NzBlLTgyZTctNmRkM2Q5ZWM2MTJjIn0.YWdDFjGaHyULAEgURht9lHq9PQ2e3PeUGfe2FECdmy8pd3pcZtY-0cf40HBbeHsEgj683-g3ia8c3NK-xtVFQs1LlFQjgs-ffDgqhaNybMFPTKH3aVlJGDVwdKuhcM04W6eMI_sFPpACUbc1KM_U3eQzoBVcWLpe0CtxsGj2Z35oWxo3GdivD9q5Q3xpuOpzs07-U-qV0mRrYUGr5NXZMYnzeCn5lblF-Sg9FA2uhyLbsdAoUNlue0akxPbK4zzSVhSxhTAew4Liaye5i5XVW-NPy4QysHIBBQrbhEBPIA5N4Q0Bdoc11hRnzR438AYvBokuvCAqnUaq9eAAEX5f1A'; // eslint-disable-line
 var validVideoId;
+var createdVideo;
 
 describe('Ingest API', function () {
 
@@ -87,28 +88,9 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should fail if there is no token is set.', function (done) {
+    it('Should fail if there is no token is set.', function () {
 
-      api.setToken('');
-
-      var request = api.getVideos().then(function (response) {
-        expect(response).toBeUndefined();
-
-        done();
-      }).catch(function (error) {
-
-        expect(error).toBeDefined();
-
-        // Reset the token;
-        api.setToken(access_token);
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
+      expect(api.setToken).toThrow();
 
     });
 
@@ -166,6 +148,64 @@ describe('Ingest API', function () {
       });
 
       expect(request.catch).toBeDefined();
+    });
+
+  });
+
+  describe('Ingest API : addVideo', function () {
+
+    it('Should add a video.', function (done) {
+
+      var video = {
+        "title": "blow-300.rise.of.an.empire.720p.bluray.x264-sample.mkve.mkv",
+        "size": 0,
+        "description": "Test video."
+      };
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        // Store the video to use later with the delete test.
+        createdVideo = response.id;
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+    it('Should fail if I only pass a string', function (done) {
+
+      var video = 'test video';
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
     });
 
   });
