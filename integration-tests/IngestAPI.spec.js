@@ -210,4 +210,30 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : deleteVideo', function () {
+
+    it('Should delete a video.', function (done) {
+
+      var request = api.deleteVideo(createdVideo).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+  });
+
 });
