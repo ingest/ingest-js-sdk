@@ -65,12 +65,8 @@ IngestAPI.prototype.getVideoById = function (videoId) {
     return Promise.reject('IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
-  var url = RESTCONFIG.host;
-
-  url = url + RESTCONFIG.videoById.replace('<%=id%>', videoId);
-
   return new Request({
-    url: url,
+    url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
     token: this.token
   });
 
@@ -103,6 +99,35 @@ IngestAPI.prototype.addVideo = function (videoObject) {
     data: videoObject
   });
 
+};
+
+/**
+ * Delete a video.
+ * @param  {string}   videoId   ID for the video to delete.
+ */
+IngestAPI.prototype.deleteVideo = function (videoId) {
+  if (!videoId || typeof videoId !== 'string') {
+    return Promise.reject('IngestAPI deleteVideo requires a video ID passed as a string.');
+  }
+
+  return new Request({
+    url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
+    token: this.token,
+    method: 'DELETE'
+  });
+
+};
+
+/**
+ * Replace the ID in the template string with the supplied id.
+ * @param  {string} template Template for the url.
+ * @param  {string} id       Video ID to inject into the template.
+ * @return {string}          Parsed string.
+ */
+IngestAPI.prototype.parseId = function (template, id) {
+  var result = template.replace('<%=id%>', id);
+
+  return result;
 };
 
 module.exports = IngestAPI;

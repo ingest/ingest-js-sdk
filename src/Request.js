@@ -1,7 +1,7 @@
 var Promise = require('bluebird');
 var extend = require('extend');
 
-var VALID_RESPONSE_CODES = [200, 201, 301, 302];
+var VALID_RESPONSE_CODES = [200, 201, 202, 204];
 
 /**
  * A wrapper around the XMLHttpRequest object.
