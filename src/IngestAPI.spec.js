@@ -5,7 +5,16 @@ describe('IngestAPI Wrapper', function () {
 
   it('Should expose the required functions.', function () {
 
-    var required = ['setToken', 'getToken', 'getVideos', 'getVideoById', 'addVideo'];
+    var required = [
+      'setToken',
+      'getToken',
+      'getVideos',
+      'getVideoById',
+      'addVideo',
+      'deleteVideo',
+      'parseId'
+    ];
+
     var requiredLength = required.length;
     var i, func;
 
