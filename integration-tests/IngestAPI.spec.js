@@ -16,21 +16,6 @@ describe('Ingest API', function () {
     expect(IngestAPI).toBeDefined();
   });
 
-  it('Should throw an error if no token is provided.', function () {
-
-    var localApi,
-      error;
-
-    try {
-      localApi = new IngestAPI();
-    } catch (e) {
-      error = e;
-    }
-
-    expect(error).toBeDefined();
-
-  });
-
   it('Should return the currently configured token.', function () {
 
     var token = api.getToken();

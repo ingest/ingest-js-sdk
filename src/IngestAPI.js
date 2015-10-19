@@ -9,7 +9,7 @@ var RESTCONFIG = {
 
 function IngestAPI (options) {
 
-  if (options.token) {
+  if (options && options.token) {
     // Store the token for future use.
     this.setToken(options.token);
   }
