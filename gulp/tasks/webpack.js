@@ -36,7 +36,8 @@ var webpackConfig = {
   },
   resolve: {
     alias: {
-      bluebird: path.resolve(__dirname, '../../node_modules/bluebird/js/browser/bluebird.js')
+      bluebird: path.resolve(__dirname, '../../node_modules/bluebird/js/browser/bluebird.js'),
+      extend: path.resolve(__dirname, '../../node_modules/extend/index.js')
     }
   },
   eslint: {

@@ -1,11 +1,21 @@
 var Promise = require('bluebird');
-var VALID_RESPONSE_CODES = [200, 301, 302];
+var extend = require('extend');
+
+var VALID_RESPONSE_CODES = [200, 201, 202, 204];
 
 /**
  * A wrapper around the XMLHttpRequest object.
- * @param {object} options Overrides for the default options.
+ * @param {object}  options         Options for the request.
+ * @param {boolean} options.async   Whether to perform the request asynchronously
+ * @param {string}  options.method  REST verb to use for the request.
+ * @param {string}  options.url     URL for the request.
  */
 var Request = function (options) {
+
+  this.defaults = {
+    async: true,
+    method: 'GET'
+  };
 
   this.resolver = Promise.pending();
 
@@ -15,15 +25,13 @@ var Request = function (options) {
   // Set up event listeners for this request.
   this.setupListeners();
 
-  // Store the url to be used throughout the object.
-  this.url = options.url;
-
   // Todo, merge some defaults with this.
-  this.options = options;
+  this.options = extend(true, this.defaults, options);
 
-  // Defaults
-  this.options.async = true;
-  this.options.method = 'GET';
+  // Make sure a url is passed before attempting to make the request.
+  if (!this.options.url) {
+    return this.resolver.reject('Request Error : a url is required to make the request.');
+  }
 
   // Make the actual request.
   this.makeRequest();
@@ -45,14 +53,19 @@ Request.prototype.setupListeners = function () {
  */
 Request.prototype.makeRequest = function () {
 
-  this.request.open(this.options.method, this.url, this.options.async);
+  this.request.open(this.options.method, this.options.url, this.options.async);
 
   // Make the token optional.
   if (this.options.token) {
     this.request.setRequestHeader('Authorization', this.options.token);
   }
 
-  this.request.send();
+  if (this.options.data) {
+    this.request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    this.request.send(this.options.data);
+  } else {
+    this.request.send();
+  }
 
 };
 
@@ -63,8 +76,8 @@ Request.prototype.makeRequest = function () {
 Request.prototype.requestComplete = function (response) {
   var result = 'reject';
 
-  // Parse the response as JSON.
-  this.response = JSON.parse(response);
+  // Process the result.
+  this.response = this.processResponse(response);
 
   // Resolve the promise.
   // This is a second check to validate the content, There could be a 200 response
@@ -76,6 +89,30 @@ Request.prototype.requestComplete = function (response) {
   }
 
   this.resolver[result](this.response);
+
+};
+
+/**
+ * Process the response and parse certain content types.
+ * @param  {*}  response  Response data from request.
+ * @return {*}            Processed response data.
+ */
+Request.prototype.processResponse = function (response) {
+  var responseType = this.request.getResponseHeader('Content-type');
+  var result = response;
+
+  // Parse JSON if the result is JSON.
+  if (responseType === 'application/json; charset=utf-8') {
+    try {
+      result = JSON.parse(response);
+    } catch (error) {
+      result = {
+        error: 'JSON parsing failed. ' + error.stack
+      };
+    }
+  }
+
+  return result;
 
 };
 

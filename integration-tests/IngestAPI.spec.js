@@ -1,7 +1,9 @@
 var api;
 // Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ1MzQ0MDI3LCJqdGkiOiJmMWMyNjA2OS1mMTA3LTRhNjItOTQxNy01MWU2ZWQ2NmQ5Y2QiLCJpYXQiOjE0NDUyNTc2MjcsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwibnR3IjoicmVkc3BhY2UiLCJzY29wZSI6eyJ1c2VyIjp7ImFjdGlvbnMiOm51bGx9fSwic3ViIjoiN2U2YTg0YWItN2Y5ZS00NzBlLTgyZTctNmRkM2Q5ZWM2MTJjIn0.lgZ_T8m-VkpuH_G09iqrzNHihLAmdL8R_WIRSh_40w8UZoCO2GkvWresFDVkI1vKnzmnbNdtkwFfFbSSU8jkeTZ_MS7doV5LwdAAXahSw8a59ZBAWthmjr4_Bxie8ITn18R97sQXmvX3f5DRPDEokFiVEUNUwrRvnzTA9Mw2XPsj-HFMOkBKw1NWe4PlhxKf6pOYwvhQFhYN5757yHD8V59VOVhPfVbE-XSIThs2HKSLNJrBY-792TKh997w4vF8JcI6-RTHm5TNNPh_8UogkY8IETp3UEIBv78wL0RzLcWZYnK1y0CcU1oNa6C0nAH1-4HKl7hbSzR04KN_nCyvPA'; // eslint-disable-line
+var access_token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovLyouaW5nZXN0LmlvIiwiY2lkIjoiSW5nZXN0RGV2IiwiZXhwIjoxNDQ0ODQ2ODcxLCJqdGkiOiJmMmQ0ZWE1Ni05NjYyLTQ4OGQtYWMwNy1hZDM0YmJmYThjYmUiLCJpYXQiOjE0NDQ3NjA0NzEsImlzcyI6Imh0dHBzOi8vbG9naW4uaW5nZXN0LmlvIiwibnR3IjoicmVkc3BhY2UiLCJzY29wZSI6eyJ1c2VyIjp7ImFjdGlvbnMiOm51bGx9fSwic3ViIjoiN2U2YTg0YWItN2Y5ZS00NzBlLTgyZTctNmRkM2Q5ZWM2MTJjIn0.YWdDFjGaHyULAEgURht9lHq9PQ2e3PeUGfe2FECdmy8pd3pcZtY-0cf40HBbeHsEgj683-g3ia8c3NK-xtVFQs1LlFQjgs-ffDgqhaNybMFPTKH3aVlJGDVwdKuhcM04W6eMI_sFPpACUbc1KM_U3eQzoBVcWLpe0CtxsGj2Z35oWxo3GdivD9q5Q3xpuOpzs07-U-qV0mRrYUGr5NXZMYnzeCn5lblF-Sg9FA2uhyLbsdAoUNlue0akxPbK4zzSVhSxhTAew4Liaye5i5XVW-NPy4QysHIBBQrbhEBPIA5N4Q0Bdoc11hRnzR438AYvBokuvCAqnUaq9eAAEX5f1A'; // eslint-disable-line
+
 var validVideoId;
+var createdVideo;
 
 describe('Ingest API', function () {
 
@@ -87,28 +89,9 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should fail if there is no token is set.', function (done) {
+    it('Should fail if there is no token is set.', function () {
 
-      api.setToken('');
-
-      var request = api.getVideos().then(function (response) {
-        expect(response).toBeUndefined();
-
-        done();
-      }).catch(function (error) {
-
-        expect(error).toBeDefined();
-
-        // Reset the token;
-        api.setToken(access_token);
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
+      expect(api.setToken).toThrow();
 
     });
 
@@ -166,6 +149,90 @@ describe('Ingest API', function () {
       });
 
       expect(request.catch).toBeDefined();
+    });
+
+  });
+
+  describe('Ingest API : addVideo', function () {
+
+    it('Should add a video.', function (done) {
+
+      var video = {
+        "title": "blow-300.rise.of.an.empire.720p.bluray.x264-sample.mkve.mkv",
+        "size": 0,
+        "description": "Test video."
+      };
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        // Store the video to use later with the delete test.
+        createdVideo = response.id;
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+    it('Should fail if I only pass a string', function (done) {
+
+      var video = 'test video';
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : deleteVideo', function () {
+
+    it('Should delete a video.', function (done) {
+
+      var request = api.deleteVideo(createdVideo).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
     });
 
   });
