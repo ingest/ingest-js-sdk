@@ -9,12 +9,10 @@ var RESTCONFIG = {
 
 function IngestAPI (options) {
 
-  if (!options || !options.token) {
-    throw new Error('IngestAPI requires an authentication token.');
+  if (options.token) {
+    // Store the token for future use.
+    this.setToken(options.token);
   }
-
-  // Store the token for future use.
-  this.setToken(options.token);
 
 }
 
@@ -37,6 +35,11 @@ IngestAPI.prototype.setToken = function (token) {
  * @return  {String}        Current auth token.
  */
 IngestAPI.prototype.getToken = function () {
+
+  if (!this.token) {
+    throw new Error('IngestAPI requires a token to be set.');
+  }
+
   return this.token;
 };
 
@@ -48,7 +51,7 @@ IngestAPI.prototype.getVideos = function () {
 
   return new Request({
     url: RESTCONFIG.host + RESTCONFIG.videos,
-    token: this.token
+    token: this.getToken()
   });
 
 };
@@ -67,7 +70,7 @@ IngestAPI.prototype.getVideoById = function (videoId) {
 
   return new Request({
     url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
-    token: this.token
+    token: this.getToken()
   });
 
 };
@@ -94,7 +97,7 @@ IngestAPI.prototype.addVideo = function (videoObject) {
   // Return the promise from the request.
   return new Request({
     url: RESTCONFIG.host + RESTCONFIG.videos,
-    token: this.token,
+    token: this.getToken(),
     method: 'POST',
     data: videoObject
   });
@@ -112,7 +115,7 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
 
   return new Request({
     url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
-    token: this.token,
+    token: this.getToken(),
     method: 'DELETE'
   });
 
