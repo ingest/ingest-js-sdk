@@ -1,5 +1,5 @@
 {
-  "name": "javascript-sdk",
+  "name": "ingest-js-sdk",
   "version": "0.0.2",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "index.js",
@@ -7,7 +7,6 @@
     "type": "git",
     "url": "ssh://git@stash.redspace.com/ing/ingest-js-sdk.git"
   },
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^1.5.1",
