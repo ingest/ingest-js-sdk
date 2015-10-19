@@ -1,11 +1,11 @@
 {
   "name": "javascript-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.redspace.com/ing/javascript-sdk.git"
+    "url": "ssh://git@stash.redspace.com/ing/ingest-js-sdk.git"
   },
   "author": "",
   "license": "ISC",
