@@ -112,7 +112,11 @@ Request.prototype.processResponse = function (response) {
     }
   }
 
-  return result;
+  return {
+    data: result,
+    headers: this.request.getResponseHeader.bind(this.request),
+    statusCode: this.request.status
+  };
 
 };
 
