@@ -9,6 +9,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'authToken.js',
       './dist/ingest.js',
       './integration-tests/**/*.spec.js'
     ],
