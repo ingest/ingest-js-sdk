@@ -45,13 +45,15 @@ IngestAPI.prototype.getToken = function () {
 
 /**
  * Return a list of videos for the current user and network.
+ * @param {object} headers Javascript object representing headers to apply to the call.
  * @return  {JSON}          A JSON object representing the videos.
  */
-IngestAPI.prototype.getVideos = function () {
+IngestAPI.prototype.getVideos = function (headers) {
 
   return new Request({
     url: RESTCONFIG.host + RESTCONFIG.videos,
-    token: this.getToken()
+    token: this.getToken(),
+    headers: headers
   });
 
 };

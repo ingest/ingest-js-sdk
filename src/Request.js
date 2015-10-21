@@ -55,16 +55,37 @@ Request.prototype.makeRequest = function () {
 
   this.request.open(this.options.method, this.options.url, this.options.async);
 
+  if (this.options.headers) {
+    this.applyRequestHeaders(this.options.headers);
+  }
+
   // Make the token optional.
   if (this.options.token) {
     this.request.setRequestHeader('Authorization', this.options.token);
   }
 
+  // If there is data then we need to pass that along with the request.
   if (this.options.data) {
     this.request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
     this.request.send(this.options.data);
   } else {
     this.request.send();
+  }
+
+};
+
+/**
+ * Apply any supplied headers to the request object.
+ * @param  {object} headers Array of headers to apply to the request object.
+ */
+Request.prototype.applyRequestHeaders = function (headers) {
+
+  // Loop through and add the keys to the requestHeaders.
+  for (key in headers) {
+    // Make sure the object has this key as a direct property.
+    if (headers.hasOwnProperty(key)) {
+      this.request.setRequestHeader(key, headers[key]);
+    }
   }
 
 };

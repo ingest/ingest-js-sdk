@@ -4,6 +4,7 @@ var access_token = 'Bearer ' + window.token;
 
 var validVideoId;
 var createdVideo;
+var nextRange;
 
 describe('Ingest API', function () {
 
@@ -88,6 +89,10 @@ describe('Ingest API', function () {
 
         validVideoId = response.data[0].id;
 
+        nextRange = response.headers('Next-Range');
+
+        expect(nextRange).toBeDefined();
+
         expect(validVideoId).toBeDefined();
 
         done();
@@ -96,6 +101,36 @@ describe('Ingest API', function () {
         expect(error).toBeUndefined();
 
         done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+      expect(request.catch).toBeDefined();
+
+    });
+
+    it('Should retrieve the next page of videos.', function (done) {
+
+      var request = api.getVideos({
+        Range: nextRange
+      }).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        expect(response.data[0].id).not.toEqual(validVideoId);
+
+        done();
+
+      }).catch(function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
       });
 
       // Ensure a promise was returned.
