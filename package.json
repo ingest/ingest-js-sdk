@@ -11,6 +11,7 @@
   "devDependencies": {
     "eslint": "^1.5.1",
     "eslint-loader": "^1.0.0",
+    "extend": "^3.0.0",
     "gulp": "^3.9.0",
     "gulp-clean": "^0.3.1",
     "gulp-coverage": "^0.3.36",
@@ -26,12 +27,10 @@
     "karma-sourcemap-loader": "^0.3.5",
     "karma-spec-reporter": "0.0.20",
     "lodash": "^3.10.1",
+    "pinkyswear": "^2.2.2",
+    "request": "^2.65.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.1.4",
     "webpack": "^1.12.2"
-  },
-  "dependencies": {
-    "bluebird": "^2.10.2",
-    "extend": "^3.0.0"
   }
 }
