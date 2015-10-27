@@ -1,4 +1,4 @@
-var Promise = require('bluebird');
+var Promise = require('pinkyswear');
 var extend = require('extend');
 
 var VALID_RESPONSE_CODES = [200, 201, 202, 204];
@@ -17,7 +17,7 @@ var Request = function (options) {
     method: 'GET'
   };
 
-  this.resolver = Promise.pending();
+  this.promise = Promise();
 
   // Create the XHR object for this request.
   this.request = new XMLHttpRequest();
@@ -30,14 +30,14 @@ var Request = function (options) {
 
   // Make sure a url is passed before attempting to make the request.
   if (!this.options.url) {
-    return this.resolver.reject('Request Error : a url is required to make the request.');
+    return this.promise(false, ['Request Error : a url is required to make the request.']);
   }
 
   // Make the actual request.
   this.makeRequest();
 
   // Return a promise
-  return this.resolver.promise;
+  return this.promise;
 
 };
 
@@ -95,21 +95,12 @@ Request.prototype.applyRequestHeaders = function (headers) {
  * @param  {String} Response test of the request.
  */
 Request.prototype.requestComplete = function (response) {
-  var result = 'reject';
 
   // Process the result.
   this.response = this.processResponse(response);
 
-  // Resolve the promise.
-  // This is a second check to validate the content, There could be a 200 response
-  // with an error message in the supplied response.
-  if (this.response.error) {
-    result = 'reject';
-  } else {
-    result = 'resolve';
-  }
-
-  this.resolver[result](this.response);
+  // Either resolve or reject the promise.
+  this.promise(!this.response.error, [this.response]);
 
 };
 
@@ -146,7 +137,7 @@ Request.prototype.processResponse = function (response) {
  * @param  {String} error   Error message.
  */
 Request.prototype.requestError = function (error) {
-  this.resolver.reject(error);
+  this.promise(false, [error]);
 };
 
 /**

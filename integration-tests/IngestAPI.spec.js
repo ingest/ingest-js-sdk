@@ -38,7 +38,7 @@ describe('Ingest API', function () {
       expect(response.headers('Content-type')).toBe('application/json; charset=utf-8');
 
       done();
-    }).catch(function (error) {
+    }, function (error) {
 
       expect(error).toBeUndefined();
 
@@ -47,7 +47,7 @@ describe('Ingest API', function () {
 
     // Ensure a promise was returned.
     expect(request.then).toBeDefined();
-    expect(request.catch).toBeDefined();
+
   });
 
   it('Should return http status code.', function (done) {
@@ -63,7 +63,7 @@ describe('Ingest API', function () {
       expect(response.statusCode).toBe(200);
 
       done();
-    }).catch(function (error) {
+    }, function (error) {
 
       expect(error).toBeUndefined();
 
@@ -72,7 +72,7 @@ describe('Ingest API', function () {
 
     // Ensure a promise was returned.
     expect(request.then).toBeDefined();
-    expect(request.catch).toBeDefined();
+
   });
 
   describe('Ingest API : getVideos', function () {
@@ -96,7 +96,7 @@ describe('Ingest API', function () {
         expect(validVideoId).toBeDefined();
 
         done();
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeUndefined();
 
@@ -105,7 +105,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -125,7 +124,7 @@ describe('Ingest API', function () {
 
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeUndefined();
 
@@ -135,7 +134,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -151,7 +149,7 @@ describe('Ingest API', function () {
         expect(response.statusCode).toBeDefined();
 
         done();
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeDefined();
 
@@ -164,7 +162,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -190,7 +187,7 @@ describe('Ingest API', function () {
 
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeUndefined();
         done();
@@ -199,7 +196,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -209,14 +205,16 @@ describe('Ingest API', function () {
         expect(response).toBeUndefined();
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeDefined();
         done();
 
       });
 
-      expect(request.catch).toBeDefined();
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
     it('Should fail if an invalid ID is provided.', function (done) {
@@ -225,14 +223,16 @@ describe('Ingest API', function () {
         expect(response).toBeUndefined();
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeDefined();
         done();
 
       });
 
-      expect(request.catch).toBeDefined();
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
   });
@@ -260,7 +260,7 @@ describe('Ingest API', function () {
 
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeUndefined();
         done();
@@ -269,7 +269,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -283,7 +282,7 @@ describe('Ingest API', function () {
 
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeDefined();
 
@@ -293,7 +292,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 
@@ -313,7 +311,7 @@ describe('Ingest API', function () {
 
         done();
 
-      }).catch(function (error) {
+      }, function (error) {
 
         expect(error).toBeUndefined();
 
@@ -323,7 +321,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-      expect(request.catch).toBeDefined();
 
     });
 

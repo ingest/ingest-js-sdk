@@ -1,5 +1,5 @@
 var Request = require('./Request.js');
-var Promise = require('bluebird');
+var Promise = require('pinkyswear');
 
 var RESTCONFIG = {
   'host': 'http://weasley.teamspace.ad:8080',
@@ -67,7 +67,7 @@ IngestAPI.prototype.getVideoById = function (videoId) {
 
   if (!videoId || typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
-    return Promise.reject('IngestAPI getVideoById requires a valid videoId as a string.');
+    return this.promisify(false, 'IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
   return new Request({
@@ -86,14 +86,14 @@ IngestAPI.prototype.addVideo = function (videoObject) {
   // Validate the object being passed in.
   if (!videoObject || typeof videoObject !== 'object') {
     // Wrap the error in a promise.
-    return Promise.reject('IngestAPI addVideo requires a video object.');
+    return this.promisify(false, 'IngestAPI addVideo requires a video object.');
   }
 
   // Parse the JSON
   try {
     videoObject = JSON.stringify(videoObject);
   } catch (error) {
-    return Promise.reject('IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
+    return this.promisify(false, 'IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
   }
 
   // Return the promise from the request.
@@ -112,7 +112,7 @@ IngestAPI.prototype.addVideo = function (videoObject) {
  */
 IngestAPI.prototype.deleteVideo = function (videoId) {
   if (!videoId || typeof videoId !== 'string') {
-    return Promise.reject('IngestAPI deleteVideo requires a video ID passed as a string.');
+    return this.promisify(false, 'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
 
   return new Request({
@@ -133,6 +133,22 @@ IngestAPI.prototype.parseId = function (template, id) {
   var result = template.replace('<%=id%>', id);
 
   return result;
+};
+
+/**
+ * Wrapper function to wrap a value in either a reject or resolve.
+ * @param  {boolean} state Rejection or Approval.
+ * @param  {*} value Value to pass back to the promise.
+ * @return {Promise}       Promise/A+ spec promise.
+ */
+IngestAPI.prototype.promisify = function (state, value) {
+
+  var promise = Promise();
+
+  promise(state, [value]);
+
+  return promise;
+
 };
 
 module.exports = IngestAPI;
