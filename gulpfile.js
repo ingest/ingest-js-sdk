@@ -11,7 +11,6 @@ gulp.task('development', function (done) {
   runSequence(
     'clean',
     'build:development',
-    'test:unit:once',
     'test:integration:once',
     'watch',
     done
@@ -24,7 +23,6 @@ gulp.task('release', function (done) {
   runSequence(
     'clean',
     'build:release',
-    'test:unit:once',
     'test:integration:release',
     done
   );

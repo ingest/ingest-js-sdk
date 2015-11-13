@@ -11,50 +11,12 @@ gulp.task('build:copy:vendor', function () {
 });
 
 // Base config for webpack.
-var webpackConfig = {
-  devtool: 'source-map',
-  entry: {
-    ingest: './index.js'
-  },
-  output: {
-    path: config.path.dist,
-    filename: '[name].js',
-    library: 'IngestAPI',
-    libraryTarget: 'umd'
-  },
-  module: {
-    preLoaders: [
-      {
-        test: /\.js$/,
-        loader: 'eslint-loader',
-        exclude: [
-          '/node_modules/',
-          '/src/vendor_components/'
-        ]
-      }
-    ]
-  },
-  resolve: {
-    alias: {
-      pinkyswear: path.resolve(__dirname, '../../node_modules/pinkyswear/pinkyswear.js'),
-      extend: path.resolve(__dirname, '../../node_modules/extend/index.js')
-    }
-  },
-  eslint: {
-    failOnWarning: false
-  },
-  target: 'web',
-  watch: false
-};
+var webpackConfig = require('../../webpack.config.js');
 
 // Build the development stack.
 gulp.task('build:development', function (done) {
 
-  var config = _.clone(webpackConfig, true);
-
-  config.eslint.failOnWarning = false;
-
-  webpack(config, function (error, stats) {
+  webpack(webpackConfig, function (error, stats) {
 
     if (error) {
       throw new Error('Error with webpack : ', error);
@@ -77,6 +39,7 @@ gulp.task('build:release', function (done) {
   )];
 
   config.eslint.failOnWarning = true;
+  config.eslint.failOnError = true;
 
   return webpack(config, function (error, stats) {
 
