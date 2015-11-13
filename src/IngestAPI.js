@@ -129,7 +129,6 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
 };
 
 /**
-<<<<<<< HEAD
  * Get the total count of videos.
  * @return {number} The number of videos in the current network.
  */
@@ -140,7 +139,10 @@ IngestAPI.prototype.getVideosCount = function () {
     token: this.getToken(),
     method: 'HEAD'
   }).then(this.getVideosCountResponse.bind(this));
-=======
+
+};
+
+/**
  * Get a count of the current videos in the trash.
  * @return {Promise} Promise/A+ spec which resolves with the trashed video count.
  */
@@ -151,23 +153,23 @@ IngestAPI.prototype.getTrashedVideosCount = function () {
     token: this.getToken(),
     method: 'HEAD'
   }).then(this.getTrashedVideosCountResponse.bind(this));
->>>>>>> INGEST-680 : added method for getting the trashed videos count.
 
 };
 
 /**
-<<<<<<< HEAD
  * Handle the response from the getVideosCount XHR request.
  * @param  {object} response Request response object.
  * @return {number}          The count of videos currently in the network.
  */
 IngestAPI.prototype.getVideosCountResponse = function (response) {
-=======
+  return parseInt(response.headers('Resource-Count'), 10);
+};
+
+/**
  * Handle the response from the get trashed videos count request.
  * @return {number} The number of videos currently in the trash
  */
 IngestAPI.prototype.getTrashedVideosCountResponse = function (response) {
->>>>>>> INGEST-680 : added method for getting the trashed videos count.
   return parseInt(response.headers('Resource-Count'), 10);
 };
 
