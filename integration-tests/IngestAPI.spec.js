@@ -326,4 +326,29 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : getVideosCount', function () {
+
+    it('Should retrieve a count of all the videos', function (done) {
+
+      var request = api.getVideosCount().then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response).toBe('number');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
 });

@@ -67,7 +67,8 @@ IngestAPI.prototype.getVideoById = function (videoId) {
 
   if (!videoId || typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
-    return this.promisify(false, 'IngestAPI getVideoById requires a valid videoId as a string.');
+    return this.promisify(false,
+      'IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
   return new Request({
@@ -93,7 +94,8 @@ IngestAPI.prototype.addVideo = function (videoObject) {
   try {
     videoObject = JSON.stringify(videoObject);
   } catch (error) {
-    return this.promisify(false, 'IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
+    return this.promisify(false,
+      'IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
   }
 
   // Return the promise from the request.
@@ -112,7 +114,8 @@ IngestAPI.prototype.addVideo = function (videoObject) {
  */
 IngestAPI.prototype.deleteVideo = function (videoId) {
   if (!videoId || typeof videoId !== 'string') {
-    return this.promisify(false, 'IngestAPI deleteVideo requires a video ID passed as a string.');
+    return this.promisify(false,
+      'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
 
   return new Request({
@@ -121,6 +124,29 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
     method: 'DELETE'
   });
 
+};
+
+/**
+ * Get the total count of videos.
+ * @return {number} The number of videos in the current network.
+ */
+IngestAPI.prototype.getVideosCount = function () {
+
+  return new Request({
+    url: RESTCONFIG.host + RESTCONFIG.videos,
+    token: this.getToken(),
+    method: 'HEAD'
+  }).then(this.getVideosCountResponse.bind(this));
+
+};
+
+/**
+ * Handle the response from the getVideosCount XHR request.
+ * @param  {object} response Request response object.
+ * @return {number}          The count of videos currently in the network.
+ */
+IngestAPI.prototype.getVideosCountResponse = function (response) {
+  return parseInt(response.headers('Resource-Count'), 10);
 };
 
 /**

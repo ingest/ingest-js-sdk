@@ -3,7 +3,7 @@ var request = require('request');
 var fs = require('fs');
 var gulp = require('gulp');
 
-var authServer = 'http://weasley.teamspace.ad:3500/authorize?response_type=token&client_id=IngestDev&state=xyz&scope=all&redirect_uri=http://localhost:7070';
+var authServer = 'http://weasley.teamspace.ad:3500/authorize?response_type=token&client_id=IngestLocal&state=xyz&scope=all&redirect_uri=http://local.weasley.teamspace.ad:7070';
 
 // TODO, move sensitive data to ENV vars.
 var formData = {

@@ -12,6 +12,7 @@ describe('IngestAPI Wrapper', function () {
       'getVideoById',
       'addVideo',
       'deleteVideo',
+      'getVideosCount',
       'parseId'
     ];
 
