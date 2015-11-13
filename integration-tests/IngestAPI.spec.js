@@ -10,11 +10,23 @@ describe('Ingest API', function () {
 
   // Note : Jasmine uses beforeAll for this case.
   beforeAll(function () {
-    api = new IngestAPI({token: access_token});
+    api = new IngestAPI({
+      host: 'http://weasley.teamspace.ad:8080',
+      token: access_token
+    });
   });
 
   it('Should exist on the window object.', function () {
     expect(IngestAPI).toBeDefined();
+  });
+
+  it('Should expose the config object.', function () {
+    expect(api.config).toBeDefined();
+    expect(api.config.host).toBeDefined();
+  });
+
+  it('Should override the default config object values.', function () {
+    expect(api.config.host).not.toEqual(api.defaults.host);
   });
 
   it('Should return the currently configured token.', function () {
