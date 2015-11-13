@@ -351,4 +351,30 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : getTrashedVideosCount', function () {
+
+    it('Should return the count of trashed videos.', function (done) {
+
+      var request = api.getTrashedVideosCount().then(function (response) {
+
+
+        expect(response).toBeDefined();
+        expect(typeof response).toBe('number');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
 });
