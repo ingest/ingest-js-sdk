@@ -16,8 +16,37 @@ describe('Ingest API', function () {
     });
   });
 
+  // Reset the auth token.
+  beforeEach(function () {
+    api.setToken(access_token);
+  });
+
   it('Should exist on the window object.', function () {
     expect(IngestAPI).toBeDefined();
+  });
+
+  it('Should expose the required functions.', function () {
+
+    var required = [
+      'setToken',
+      'getToken',
+      'getVideos',
+      'getVideoById',
+      'addVideo',
+      'deleteVideo',
+      'getVideosCount',
+      'getTrashedVideosCount',
+      'parseId'
+    ];
+
+    var requiredLength = required.length;
+    var i, func;
+
+    for (i = 0; i < requiredLength; i++) {
+      func = required[i];
+      expect(IngestAPI.prototype[func]).toBeDefined();
+    }
+
   });
 
   it('Should expose the config object.', function () {
@@ -25,8 +54,25 @@ describe('Ingest API', function () {
     expect(api.config.host).toBeDefined();
   });
 
+  it('Should parse the id out of a template string', function () {
+    var result = IngestAPI.prototype.parseId.call(this, '<%=id%>', 'testid');
+    expect(result).toEqual('testid');
+  });
+
   it('Should override the default config object values.', function () {
     expect(api.config.host).not.toEqual(api.defaults.host);
+  });
+
+  it('Should set the auth token.', function () {
+    api.setToken('test-token');
+    expect(api.token).toBeDefined();
+    expect(api.token).toEqual('test-token');
+  });
+
+  it('Should return the token.', function () {
+    var token = api.getToken(api);
+    expect(token).toBeDefined();
+    expect(token).toEqual(access_token);
   });
 
   it('Should return the currently configured token.', function () {
