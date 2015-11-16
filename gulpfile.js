@@ -23,6 +23,7 @@ gulp.task('development', function (done) {
 gulp.task('release', function (done) {
   runSequence(
     'clean',
+    'lint',
     'webpack:release',
     'karma:release',
     done
