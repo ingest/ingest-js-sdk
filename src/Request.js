@@ -80,8 +80,11 @@ Request.prototype.makeRequest = function () {
  */
 Request.prototype.applyRequestHeaders = function (headers) {
 
+  var key;
+
   // Loop through and add the keys to the requestHeaders.
   for (key in headers) {
+
     // Make sure the object has this key as a direct property.
     if (headers.hasOwnProperty(key)) {
       this.request.setRequestHeader(key, headers[key]);

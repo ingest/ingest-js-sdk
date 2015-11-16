@@ -4,7 +4,7 @@ var path = require('path');
 var KarmaServer = require('karma').Server;
 
 // Task for JS Integration tests.
-gulp.task('test:integration:once', function (done) {
+gulp.task('karma:once', function (done) {
   new KarmaServer({
     configFile: config.path.karma,
     singleRun: true
@@ -12,7 +12,7 @@ gulp.task('test:integration:once', function (done) {
 });
 
 // Task for JS Integration tests.
-gulp.task('test:integration:release', function (done) {
+gulp.task('karma:release', function (done) {
   new KarmaServer({
     configFile: config.path.karma,
     singleRun: true,

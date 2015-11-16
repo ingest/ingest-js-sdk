@@ -1,18 +1,35 @@
 var Request = require('./Request.js');
 var Promise = require('pinkyswear');
+var extend = require('extend');
 
-var RESTCONFIG = {
-  'host': 'http://weasley.teamspace.ad:8080',
+var defaults = {
+  'host': 'https://api.ingest.io',
   'videos': '/videos',
   'videoById': '/videos/<%=id%>',
   'trash': '/videos?filter=trashed'
 };
 
+/**
+ * IngestAPI Object
+ * @param {object} options Options to override the default.
+ * @param {string} options.host Override the default live host.
+ * @param {string} options.token Auth token to use for requests.
+ */
 function IngestAPI (options) {
 
-  if (options && options.token) {
+  this.defaults = {
+    'host': 'https://api.ingest.io',
+    'videos': '/videos',
+    'videoById': '/videos/<%=id%>',
+    'trash': '/videos?filter=trashed'
+  };
+
+  // Create a config object by extending the defaults with the pass options.
+  this.config = extend(true, defaults, options);
+
+  if (this.config.token) {
     // Store the token for future use.
-    this.setToken(options.token);
+    this.setToken(this.config.token);
   }
 
 }
@@ -29,6 +46,7 @@ IngestAPI.prototype.setToken = function (token) {
   }
 
   this.token = token;
+
 };
 
 /**
@@ -42,6 +60,7 @@ IngestAPI.prototype.getToken = function () {
   }
 
   return this.token;
+
 };
 
 /**
@@ -52,7 +71,7 @@ IngestAPI.prototype.getToken = function () {
 IngestAPI.prototype.getVideos = function (headers) {
 
   return new Request({
-    url: RESTCONFIG.host + RESTCONFIG.videos,
+    url: this.config.host + this.config.videos,
     token: this.getToken(),
     headers: headers
   });
@@ -73,7 +92,7 @@ IngestAPI.prototype.getVideoById = function (videoId) {
   }
 
   return new Request({
-    url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
+    url: this.parseId(this.config.host + this.config.videoById, videoId),
     token: this.getToken()
   });
 
@@ -102,7 +121,7 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 
   // Return the promise from the request.
   return new Request({
-    url: RESTCONFIG.host + RESTCONFIG.videos,
+    url: this.config.host + this.config.videos,
     token: this.getToken(),
     method: 'POST',
     data: videoObject
@@ -115,13 +134,14 @@ IngestAPI.prototype.addVideo = function (videoObject) {
  * @param  {string}   videoId   ID for the video to delete.
  */
 IngestAPI.prototype.deleteVideo = function (videoId) {
+
   if (!videoId || typeof videoId !== 'string') {
     return this.promisify(false,
       'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
 
   return new Request({
-    url: this.parseId(RESTCONFIG.host + RESTCONFIG.videoById, videoId),
+    url: this.parseId(this.config.host + this.config.videoById, videoId),
     token: this.getToken(),
     method: 'DELETE'
   });
@@ -135,10 +155,10 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
 IngestAPI.prototype.getVideosCount = function () {
 
   return new Request({
-    url: RESTCONFIG.host + RESTCONFIG.videos,
+    url: this.config.host + this.config.videos,
     token: this.getToken(),
     method: 'HEAD'
-  }).then(this.getVideosCountResponse.bind(this));
+  }).then(this.getCountResponse.bind(this));
 
 };
 
@@ -149,28 +169,22 @@ IngestAPI.prototype.getVideosCount = function () {
 IngestAPI.prototype.getTrashedVideosCount = function () {
 
   return new Request({
-    url: RESTCONFIG.host + RESTCONFIG.trash,
+    url: this.config.host + this.config.trash,
     token: this.getToken(),
     method: 'HEAD'
-  }).then(this.getTrashedVideosCountResponse.bind(this));
+  }).then(this.getCountResponse.bind(this));
 
 };
 
 /**
- * Handle the response from the getVideosCount XHR request.
+ * Handle the response from the retrieving video counts.
  * @param  {object} response Request response object.
- * @return {number}          The count of videos currently in the network.
+ * @return {number}          The resource count from the response.
  */
-IngestAPI.prototype.getVideosCountResponse = function (response) {
-  return parseInt(response.headers('Resource-Count'), 10);
-};
+IngestAPI.prototype.getCountResponse = function (response) {
 
-/**
- * Handle the response from the get trashed videos count request.
- * @return {number} The number of videos currently in the trash
- */
-IngestAPI.prototype.getTrashedVideosCountResponse = function (response) {
   return parseInt(response.headers('Resource-Count'), 10);
+
 };
 
 /**
@@ -180,9 +194,11 @@ IngestAPI.prototype.getTrashedVideosCountResponse = function (response) {
  * @return {string}          Parsed string.
  */
 IngestAPI.prototype.parseId = function (template, id) {
+
   var result = template.replace('<%=id%>', id);
 
   return result;
+
 };
 
 /**

@@ -10,9 +10,9 @@ requireDir('./gulp/tasks', {recurse: true});
 gulp.task('development', function (done) {
   runSequence(
     'clean',
-    'build:development',
-    'test:unit:once',
-    'test:integration:once',
+    'lint',
+    'webpack:development',
+    'karma:once',
     'watch',
     done
   );
@@ -23,9 +23,9 @@ gulp.task('development', function (done) {
 gulp.task('release', function (done) {
   runSequence(
     'clean',
-    'build:release',
-    'test:unit:once',
-    'test:integration:release',
+    'lint',
+    'webpack:release',
+    'karma:release',
     done
   );
 });
