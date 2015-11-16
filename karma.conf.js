@@ -1,3 +1,5 @@
+var webpackConfig = require('./webpack.config.js');
+
 module.exports = function (config) {
   config.set({
 
@@ -17,13 +19,6 @@ module.exports = function (config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['spec', 'coverage'],
 
-    preprocessors: {
-      // source files, that you wanna generate coverage for
-      // do not include tests or libraries
-      // (these files will be instrumented by Istanbul)
-      './dist/ingest.js': ['sourcemap', 'coverage'],
-    },
-
     coverageReporter: {
       dir: './dist/integration-coverage',
       reporters: [
@@ -31,15 +26,16 @@ module.exports = function (config) {
           type: 'html',
           subdir: '.'
         }
-      ]
+      ],
+      includeAllSources: true
     },
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: false,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['Chrome']
 
   });
 };

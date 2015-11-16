@@ -8,8 +8,8 @@ gulp.task('watch', function (done) {
   // On integration test change just execute those tests again.
   gulp.watch(config.path.integrationSpec, function () {
     runSequence(
-      'build:development',
-      'test:integration:once'
+      'webpack:development',
+      'karma:once'
     );
   });
 
@@ -19,8 +19,8 @@ gulp.task('watch', function (done) {
     '!' + config.path.spec
   ], function () {
     runSequence(
-      'build:development',
-      'test:integration:once'
+      'webpack:development',
+      'karma:once'
     );
   });
 

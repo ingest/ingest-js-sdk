@@ -14,7 +14,7 @@ gulp.task('build:copy:vendor', function () {
 var webpackConfig = require('../../webpack.config.js');
 
 // Build the development stack.
-gulp.task('build:development', function (done) {
+gulp.task('webpack:development', function (done) {
 
   webpack(webpackConfig, function (error, stats) {
 
@@ -28,18 +28,16 @@ gulp.task('build:development', function (done) {
 });
 
 // Release the package, minifiy the code.
-gulp.task('build:release', function (done) {
+gulp.task('webpack:release', function (done) {
 
   var config = _.clone(webpackConfig, true);
 
+  // Uglify the code.
   config.plugins = [(
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true
     })
   )];
-
-  config.eslint.failOnWarning = true;
-  config.eslint.failOnError = true;
 
   return webpack(config, function (error, stats) {
 
