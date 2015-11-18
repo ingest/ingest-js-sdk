@@ -382,7 +382,7 @@ describe('Ingest API', function () {
       // The follow code sets up an object with a cyclical reference. This will
       // cause the JSON stringify to fail.
       var video = {};
-      var cover = [];
+      var cover = {};
 
       video.cover = cover;
       cover.video = video;
