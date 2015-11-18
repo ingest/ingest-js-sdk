@@ -379,8 +379,10 @@ describe('Ingest API', function () {
 
     it('Should fail if the video object cannot be stringifyed.', function (done) {
 
-      var video = new Object();
-      var cover = new Object();
+      // The follow code sets up an object with a cyclical reference. This will
+      // cause the JSON stringify to fail.
+      var video = {};
+      var cover = [];
 
       video.cover = cover;
       cover.video = video;
@@ -579,6 +581,9 @@ describe('Ingest API', function () {
 
       });
 
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
     it('Should fail if id is not supplied.', function (done) {
@@ -603,6 +608,9 @@ describe('Ingest API', function () {
         done();
 
       });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
 
     });
 
@@ -629,6 +637,9 @@ describe('Ingest API', function () {
 
       });
 
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
     it('Should fail if uploadId is not supplied.', function (done) {
@@ -654,6 +665,9 @@ describe('Ingest API', function () {
 
       });
 
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
     it('Should fail if partNumber is not supplied.', function (done) {
@@ -678,6 +692,9 @@ describe('Ingest API', function () {
         done();
 
       });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
 
     });
 
