@@ -30,7 +30,8 @@ var Request = function (options) {
 
   // Make sure a url is passed before attempting to make the request.
   if (!this.options.url) {
-    return this.promise(false, ['Request Error : a url is required to make the request.']);
+    this.promise(false, ['Request Error : a url is required to make the request.']);
+    return this.promise;
   }
 
   // Make the actual request.
@@ -45,7 +46,7 @@ var Request = function (options) {
  * Add event listeners to the XMLHttpRequest object.
  */
 Request.prototype.setupListeners = function () {
-  this.request.addEventListener('readystatechange', this.readyStateChange.bind(this));
+  this.request.onreadystatechange = this.readyStateChange.bind(this);
 };
 
 /**
@@ -80,15 +81,14 @@ Request.prototype.makeRequest = function () {
  */
 Request.prototype.applyRequestHeaders = function (headers) {
 
-  var key;
+  var key, i;
+  var keys = Object.keys(headers);
+  var keysLength = keys.length;
 
   // Loop through and add the keys to the requestHeaders.
-  for (key in headers) {
-
-    // Make sure the object has this key as a direct property.
-    if (headers.hasOwnProperty(key)) {
-      this.request.setRequestHeader(key, headers[key]);
-    }
+  for (i = 0; i < keysLength; i++) {
+    key = keys[i];
+    this.request.setRequestHeader(key, headers[key]);
   }
 
 };
@@ -103,7 +103,7 @@ Request.prototype.requestComplete = function (response) {
   this.response = this.processResponse(response);
 
   // Either resolve or reject the promise.
-  this.promise(!this.response.error, [this.response]);
+  this.promise(!this.response.data.error, [this.response]);
 
 };
 
@@ -113,11 +113,11 @@ Request.prototype.requestComplete = function (response) {
  * @return {*}            Processed response data.
  */
 Request.prototype.processResponse = function (response) {
-  var responseType = this.request.getResponseHeader('Content-type');
+  var responseType = this.request.getResponseHeader('Content-Type');
   var result = response;
 
   // Parse JSON if the result is JSON.
-  if (responseType === 'application/json; charset=utf-8') {
+  if (responseType && responseType.indexOf('application/json') !== -1) {
     try {
       result = JSON.parse(response);
     } catch (error) {

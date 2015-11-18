@@ -2,13 +2,6 @@ var Request = require('./Request.js');
 var Promise = require('pinkyswear');
 var extend = require('extend');
 
-var defaults = {
-  'host': 'https://api.ingest.io',
-  'videos': '/videos',
-  'videoById': '/videos/<%=id%>',
-  'trash': '/videos?filter=trashed'
-};
-
 /**
  * IngestAPI Object
  * @param {object} options Options to override the default.
@@ -21,11 +14,12 @@ function IngestAPI (options) {
     'host': 'https://api.ingest.io',
     'videos': '/videos',
     'videoById': '/videos/<%=id%>',
+    'uploadSign': '/videos/<%=id%>/upload/sign',
     'trash': '/videos?filter=trashed'
   };
 
   // Create a config object by extending the defaults with the pass options.
-  this.config = extend(true, defaults, options);
+  this.config = extend(true, {}, this.defaults, options);
 
   if (this.config.token) {
     // Store the token for future use.
@@ -178,8 +172,8 @@ IngestAPI.prototype.getTrashedVideosCount = function () {
 
 /**
  * Handle the response from the retrieving video counts.
- * @param  {object} response Request response object.
- * @return {number}          The resource count from the response.
+ * @param  {object} response  Request response object.
+ * @return {number}           The resource count from the response.
  */
 IngestAPI.prototype.getCountResponse = function (response) {
 
@@ -188,10 +182,72 @@ IngestAPI.prototype.getCountResponse = function (response) {
 };
 
 /**
+ * Make a request and sign the blob to be uploaded.
+ * @param  {object}   data            File data used to sign the upload.
+ * @param  {string}   data.id         The file id. // TODO Better description?
+ * @param  {string}   data.key        The key associated with the file on AWS. // TODO Better Description?
+ * @param  {string}   data.uploadId   Upload id // TODO better description.
+ * @return {Promise}                  Promise/A+ spec which resolves with the signed token object.
+ */
+IngestAPI.prototype.signUploadBlob = function (data) {
+
+  var checkObject = this.validateUploadObject(data);
+
+  // Make sure all the proper properties have been passed in.
+  if (!checkObject.valid) {
+    return this.promisify(false, checkObject.message);
+  }
+
+  return new Request({
+    url: this.parseId(this.config.host + this.config.uploadSign, data.id),
+    token: this.getToken(),
+    method: 'POST'
+  });
+
+};
+
+/**
+ * Validate the object supplying the upload data.
+ * @param  {object}   data            File data used to sign the upload.
+ * @param  {string}   data.key        The key associated with the file on AWS. // TODO Better Description?
+ * @param  {string}   data.uploadId   Upload id // TODO better description.
+ * @return {boolean}  Boolean representing weather or not the object is valid.
+ **/
+IngestAPI.prototype.validateUploadObject = function (data) {
+
+  var result = {
+    valid: true,
+    message: ''
+  };
+
+  if (!data || typeof data !== 'object') {
+    result.valid = false;
+    result.message = 'The passed value was not an object.';
+  }
+
+  if (!data.key || typeof data.key !== 'string') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : key.';
+  }
+
+  if (!data.uploadId || typeof data.uploadId !== 'string') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : uploadId';
+  }
+
+  if (!data.partNumber || typeof data.partNumber !== 'number') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : partNumber';
+  }
+
+  return result;
+};
+
+/**
  * Replace the ID in the template string with the supplied id.
- * @param  {string} template Template for the url.
- * @param  {string} id       Video ID to inject into the template.
- * @return {string}          Parsed string.
+ * @param  {string}     template    Template for the url.
+ * @param  {string}     id          Video ID to inject into the template.
+ * @return {string}                 Parsed string.
  */
 IngestAPI.prototype.parseId = function (template, id) {
 
@@ -204,7 +260,7 @@ IngestAPI.prototype.parseId = function (template, id) {
 /**
  * Wrapper function to wrap a value in either a reject or resolve.
  * @param  {boolean} state Rejection or Approval.
- * @param  {*} value Value to pass back to the promise.
+ * @param  {*}       value Value to pass back to the promise.
  * @return {Promise}       Promise/A+ spec promise.
  */
 IngestAPI.prototype.promisify = function (state, value) {
