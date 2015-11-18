@@ -6,19 +6,16 @@ var validVideoId;
 var createdVideo;
 var nextRange;
 
+var mock = require('xhr-mock');
+
 describe('Ingest API', function () {
 
-  // Note : Jasmine uses beforeAll for this case.
-  beforeAll(function () {
+  // Reset the auth token.
+  beforeEach(function () {
     api = new IngestAPI({
       host: 'http://weasley.teamspace.ad:8080',
       token: access_token
     });
-  });
-
-  // Reset the auth token.
-  beforeEach(function () {
-    api.setToken(access_token);
   });
 
   it('Should exist on the window object.', function () {
@@ -36,7 +33,8 @@ describe('Ingest API', function () {
       'deleteVideo',
       'getVideosCount',
       'getTrashedVideosCount',
-      'parseId'
+      'parseId',
+      'signUploadBlob'
     ];
 
     var requiredLength = required.length;
@@ -52,6 +50,20 @@ describe('Ingest API', function () {
   it('Should expose the config object.', function () {
     expect(api.config).toBeDefined();
     expect(api.config.host).toBeDefined();
+  });
+
+  it('Should be able to create it without a token.', function () {
+
+    var testAPI;
+
+    try {
+      testAPI = new IngestAPI();
+    } catch (error) {
+      expect(error).toBeUndefined();
+    }
+
+    expect(testAPI instanceof IngestAPI).toBe(true);
+
   });
 
   it('Should parse the id out of a template string', function () {
@@ -83,6 +95,18 @@ describe('Ingest API', function () {
 
   });
 
+  it('Should throw an error if no token is set.', function () {
+
+    api.token = null;
+
+    try {
+      api.getToken();
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+
+  });
+
   it('Should return access to the responeHeaders.', function (done) {
     var request = api.getVideos().then(function (response) {
 
@@ -92,7 +116,7 @@ describe('Ingest API', function () {
       expect(typeof response.headers).toBe('function');
       expect(response.statusCode).toBeDefined();
 
-      // Validate that we can retrive the response headers.
+      // Validate that we can retrieve the response headers.
       expect(response.headers('Content-type')).toBe('application/json; charset=utf-8');
 
       done();
@@ -353,6 +377,30 @@ describe('Ingest API', function () {
 
     });
 
+    it('Should fail if the video object cannot be stringifyed.', function (done) {
+
+      var video = new Object();
+      var cover = new Object();
+
+      video.cover = cover;
+      cover.video = video;
+
+      var request = api.addVideo(video).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+    });
+
   });
 
   describe('Ingest API : deleteVideo', function () {
@@ -372,6 +420,27 @@ describe('Ingest API', function () {
       }, function (error) {
 
         expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the videoId is not a string', function (done) {
+
+      var request = api.deleteVideo({test: true}).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
 
         done();
 
@@ -415,7 +484,6 @@ describe('Ingest API', function () {
 
       var request = api.getTrashedVideosCount().then(function (response) {
 
-
         expect(response).toBeDefined();
         expect(typeof response).toBe('number');
 
@@ -430,6 +498,186 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : signUploadBlob', function () {
+
+    it('Should return signing information from the api.', function (done) {
+
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + '/videos/test-upload-video-id/upload/sign',
+        function (request, response) {
+
+          var data = {
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        id: 'test-upload-video-id',
+        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
+        partNumber: 2,
+        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn' //eslint-disable-line
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if supplied data is not an object.', function (done) {
+
+      var data = 'test';
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUnDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+    });
+
+    it('Should fail if id is not supplied.', function (done) {
+
+      var data = {
+        key: 'testkey',
+        uploadId: 'testid',
+        partNumber: 1
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUnDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+    });
+
+    it('Should fail if key is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        uploadId: 'testid',
+        partNumber: 1
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUnDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+    });
+
+    it('Should fail if uploadId is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testkey',
+        partNumber: 1
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUnDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+    });
+
+    it('Should fail if partNumber is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testkey',
+        uploadId: 'testid'
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUnDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
 
     });
 

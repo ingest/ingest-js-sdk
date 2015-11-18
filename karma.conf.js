@@ -1,4 +1,5 @@
 var webpackConfig = require('./webpack.config.js');
+var path = require('path');
 
 module.exports = function (config) {
   config.set({
@@ -18,6 +19,22 @@ module.exports = function (config) {
 
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['spec', 'coverage'],
+
+    preprocessors: {
+      './integration-tests/**/*.js': ['webpack']
+    },
+
+    webpack: {
+      resolve: {
+        alias: {
+          'xhr-mock': path.resolve(__dirname, 'node_modules/xhr-mock/index.js')
+        }
+      },
+    },
+
+    webpackMiddleware: {
+      noInfo: true
+    },
 
     coverageReporter: {
       dir: './dist/integration-coverage',
