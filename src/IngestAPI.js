@@ -178,9 +178,10 @@ IngestAPI.prototype.getCountResponse = function (response) {
 /**
  * Make a request and sign the blob to be uploaded.
  * @param  {object}   data            File data used to sign the upload.
- * @param  {string}   data.id         The file id. // TODO Better description?
- * @param  {string}   data.key        The key associated with the file on AWS. // TODO Better Description?
- * @param  {string}   data.uploadId   Upload id // TODO better description.
+ * @param  {string}   data.id         The uuid in the ingest service that represents a video record,
+ * @param  {string}   data.key        The key associated with the file on AWS.
+ * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
+ * @param  {string}   data.partNumber The part of the file being signed.
  * @return {Promise}                  Promise/A+ spec which resolves with the signed token object.
  */
 IngestAPI.prototype.signUploadBlob = function (data) {
@@ -195,7 +196,8 @@ IngestAPI.prototype.signUploadBlob = function (data) {
   return new Request({
     url: this.parseId(this.config.host + this.config.uploadSign, data.id),
     token: this.getToken(),
-    method: 'POST'
+    method: 'POST',
+    data: data
   });
 
 };
@@ -203,8 +205,10 @@ IngestAPI.prototype.signUploadBlob = function (data) {
 /**
  * Validate the object supplying the upload data.
  * @param  {object}   data            File data used to sign the upload.
- * @param  {string}   data.key        The key associated with the file on AWS. // TODO Better Description?
- * @param  {string}   data.uploadId   Upload id // TODO better description.
+ * @param  {string}   data.id         The uuid in the ingest service that represents a video record,
+ * @param  {string}   data.key        The key associated with the file on AWS.
+ * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
+ * @param  {string}   data.partNumber The part of the file being signed.
  * @return {boolean}  Boolean representing weather or not the object is valid.
  **/
 IngestAPI.prototype.validateUploadObject = function (data) {
@@ -217,6 +221,11 @@ IngestAPI.prototype.validateUploadObject = function (data) {
   if (!data || typeof data !== 'object') {
     result.valid = false;
     result.message = 'The passed value was not an object.';
+  }
+
+  if (!data.id || typeof data.id !== 'string') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : id.';
   }
 
   if (!data.key || typeof data.key !== 'string') {
