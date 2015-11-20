@@ -39,6 +39,8 @@ gulp.task('webpack:release', function (done) {
     })
   )];
 
+  config.module = {};
+
   return webpack(config, function (error, stats) {
 
     if (error) {
