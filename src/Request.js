@@ -30,14 +30,14 @@ var Request = function (options) {
 
   // Make sure a url is passed before attempting to make the request.
   if (!this.options.url) {
-    this.promise(false, ['Request Error : a url is required to make the request.']);
+    this.requestError('Request Error : a url is required to make the request.');
     return this.promise;
   }
 
   // Make the actual request.
   this.makeRequest();
 
-  // Return a promise
+  // Return the promise.
   return this.promise;
 
 };
@@ -54,6 +54,13 @@ Request.prototype.setupListeners = function () {
  */
 Request.prototype.makeRequest = function () {
 
+  var postData = this.preparePostData(this.options.data);
+
+  if (!postData.success) {
+    this.requestError('Request Error : error preparing post data.');
+    return;
+  }
+
   this.request.open(this.options.method, this.options.url, this.options.async);
 
   if (this.options.headers) {
@@ -66,12 +73,40 @@ Request.prototype.makeRequest = function () {
   }
 
   // If there is data then we need to pass that along with the request.
-  if (this.options.data) {
+  if (postData.data) {
     this.request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    this.request.send(this.options.data);
+    this.request.send(postData.data);
   } else {
     this.request.send();
   }
+
+};
+
+/**
+ * Stringify the post data if it is present.
+ * @param  {object} data Object to be parsed.
+ * @return {object}      Result object with the parsed string, and a success boolean flag.
+ */
+Request.prototype.preparePostData = function (data) {
+
+  var result = {
+    success: true,
+    data: data
+  };
+
+  // If the data is populated, and its not already a string parse it.
+  if (data) {
+
+    try {
+      result.data = JSON.stringify(data);
+    } catch (error) {
+      result.success = false;
+      result.data = null;
+    }
+
+  }
+
+  return result;
 
 };
 
@@ -137,10 +172,11 @@ Request.prototype.processResponse = function (response) {
 
 /**
  * Resolve the promise.
- * @param  {String} error   Error message.
+ * @param  {String} message   Error message.
  */
-Request.prototype.requestError = function (error) {
-  this.promise(false, [error]);
+Request.prototype.requestError = function (message) {
+  // Reject the promise.
+  this.promise(false, [message]);
 };
 
 /**

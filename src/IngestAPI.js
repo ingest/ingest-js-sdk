@@ -26,6 +26,8 @@ function IngestAPI (options) {
     this.setToken(this.config.token);
   }
 
+  this.request = Request;
+
 }
 
 /**
@@ -103,14 +105,6 @@ IngestAPI.prototype.addVideo = function (videoObject) {
     // Wrap the error in a promise.
     return this.promisify(false,
       'IngestAPI addVideo requires a video object.');
-  }
-
-  // Parse the JSON
-  try {
-    videoObject = JSON.stringify(videoObject);
-  } catch (error) {
-    return this.promisify(false,
-      'IngestAPI addVideo failed to parse videoObject to JSON. ' + error.stack);
   }
 
   // Return the promise from the request.

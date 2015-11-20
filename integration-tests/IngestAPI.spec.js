@@ -324,7 +324,7 @@ describe('Ingest API', function () {
     it('Should add a video.', function (done) {
 
       var video = {
-        "title": "blow-300.rise.of.an.empire.720p.bluray.x264-sample.mkve.mkv",
+        "title": "an-example.mkve.mkv",
         "size": 0,
         "description": "Test video."
       };
@@ -374,32 +374,6 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if the video object cannot be stringifyed.', function (done) {
-
-      // The follow code sets up an object with a cyclical reference. This will
-      // cause the JSON stringify to fail.
-      var video = {};
-      var cover = {};
-
-      video.cover = cover;
-      cover.video = video;
-
-      var request = api.addVideo(video).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
 
     });
 
