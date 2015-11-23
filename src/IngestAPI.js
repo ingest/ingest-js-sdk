@@ -243,7 +243,7 @@ IngestAPI.prototype.validateUploadObject = function (data) {
     result.message = 'Missing or invalid property : partNumber';
   }
 
-  if (!data.method || typeof data.method !== 'boolean') {
+  if (!data.hasOwnProperty('method') || typeof data.method !== 'boolean') {
     result.valid = false;
     result.message = 'Missing or invalid property : method';
   }
