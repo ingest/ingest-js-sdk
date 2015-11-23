@@ -510,7 +510,8 @@ describe('Ingest API', function () {
         id: 'test-upload-video-id',
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
-        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn' //eslint-disable-line
+        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
+        method: true
       };
 
       // Make the request to sign the blob.
@@ -543,7 +544,7 @@ describe('Ingest API', function () {
       // Make the request to sign the blob.
       var request = api.signUploadBlob(data).then(function (response) {
 
-        expect(response).toBeUnDefined();
+        expect(response).toBeUndefined();
 
         done();
 
@@ -565,13 +566,14 @@ describe('Ingest API', function () {
       var data = {
         key: 'testkey',
         uploadId: 'testid',
-        partNumber: 1
+        partNumber: 1,
+        method: 'testmethod'
       };
 
       // Make the request to sign the blob.
       var request = api.signUploadBlob(data).then(function (response) {
 
-        expect(response).toBeUnDefined();
+        expect(response).toBeUndefined();
 
         done();
 
@@ -593,13 +595,14 @@ describe('Ingest API', function () {
       var data = {
         id: 'test',
         uploadId: 'testid',
-        partNumber: 1
+        partNumber: 1,
+        method: 'testmethod'
       };
 
       // Make the request to sign the blob.
       var request = api.signUploadBlob(data).then(function (response) {
 
-        expect(response).toBeUnDefined();
+        expect(response).toBeUndefined();
 
         done();
 
@@ -621,13 +624,14 @@ describe('Ingest API', function () {
       var data = {
         id: 'test',
         key: 'testkey',
-        partNumber: 1
+        partNumber: 1,
+        method: 'testmethod'
       };
 
       // Make the request to sign the blob.
       var request = api.signUploadBlob(data).then(function (response) {
 
-        expect(response).toBeUnDefined();
+        expect(response).toBeUndefined();
 
         done();
 
@@ -649,13 +653,42 @@ describe('Ingest API', function () {
       var data = {
         id: 'test',
         key: 'testkey',
-        uploadId: 'testid'
+        uploadId: 'testid',
+        method: 'testmethod'
       };
 
       // Make the request to sign the blob.
       var request = api.signUploadBlob(data).then(function (response) {
 
-        expect(response).toBeUnDefined();
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if method is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testKey',
+        uploadId: 'test',
+        partNumber: 1
+      };
+
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
 
         done();
 
