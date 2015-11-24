@@ -511,7 +511,7 @@ describe('Ingest API', function () {
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
         uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
-        method: false
+        method: true  // It *is* a multi part upload.
       };
 
       // Make the request to sign the blob.
@@ -566,7 +566,7 @@ describe('Ingest API', function () {
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
         uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
-        method: true
+        method: false  // It *is not* a multi part upload.
       };
 
       // Make the request to sign the blob.
@@ -749,6 +749,34 @@ describe('Ingest API', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should pass if the method is single part and the uploadId is not defined', function () {
+
+      var data = {
+        id: 'test',
+        key: 'testKey',
+        partNumber: 1,
+        method: false
+      };
+
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
 
         done();
 
