@@ -4,9 +4,9 @@ var extend = require('extend');
 
 /**
  * IngestAPI Object
- * @param {object} options Options to override the default.
- * @param {string} options.host Override the default live host.
- * @param {string} options.token Auth token to use for requests.
+ * @param {object}  options        Options to override the default.
+ * @param {string}  options.host   Override the default live host.
+ * @param {string}  options.token  Auth token to use for requests.
  */
 function IngestAPI (options) {
 
@@ -14,8 +14,13 @@ function IngestAPI (options) {
     'host': 'https://api.ingest.io',
     'videos': '/videos',
     'videoById': '/videos/<%=id%>',
-    'uploadSign': '/videos/<%=id%>/upload/sign',
-    'trash': '/videos?filter=trashed'
+    'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
+    'trash': '/videos?filter=trashed',
+    'uploadMethods': {
+      'param': '?type=',
+      'singlePart': 'amazon',
+      'multiPart': 'amazonMP'
+    }
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -81,14 +86,23 @@ IngestAPI.prototype.getVideos = function (headers) {
  */
 IngestAPI.prototype.getVideoById = function (videoId) {
 
+  var url;
+  var tokens;
+
   if (!videoId || typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
     return this.promisify(false,
       'IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
+  tokens = {
+    id: videoId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+
   return new Request({
-    url: this.parseId(this.config.host + this.config.videoById, videoId),
+    url: url,
     token: this.getToken()
   });
 
@@ -123,13 +137,22 @@ IngestAPI.prototype.addVideo = function (videoObject) {
  */
 IngestAPI.prototype.deleteVideo = function (videoId) {
 
+  var url;
+  var tokens;
+
   if (!videoId || typeof videoId !== 'string') {
     return this.promisify(false,
       'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
 
+  tokens = {
+    id: videoId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+
   return new Request({
-    url: this.parseId(this.config.host + this.config.videoById, videoId),
+    url: url,
     token: this.getToken(),
     method: 'DELETE'
   });
@@ -182,19 +205,37 @@ IngestAPI.prototype.getCountResponse = function (response) {
  * @param  {string}   data.key        The key associated with the file on AWS.
  * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
  * @param  {string}   data.partNumber The part of the file being signed.
+ * @param  {boolean}  data.method     Whether or not the file requires singlepart or multipart uploading.
+ *
  * @return {Promise}                  Promise/A+ spec which resolves with the signed token object.
  */
 IngestAPI.prototype.signUploadBlob = function (data) {
 
   var checkObject = this.validateUploadObject(data);
+  var url;
+  var tokens;
+  var signing = '';
 
   // Make sure all the proper properties have been passed in.
   if (!checkObject.valid) {
     return this.promisify(false, checkObject.message);
   }
 
+  if (data.method === true) {
+    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
+  }
+
+  // Replacing <%=id%> with data.id
+  // Replacing <%=method%> with '?type=amazon' or ''
+  tokens = {
+    id: data.id,
+    method: signing
+  };
+
+  url = this.parseTokens(this.config.host + this.config.uploadSign, tokens);
+
   return new Request({
-    url: this.parseId(this.config.host + this.config.uploadSign, data.id),
+    url: url,
     token: this.getToken(),
     method: 'POST',
     data: data
@@ -209,7 +250,9 @@ IngestAPI.prototype.signUploadBlob = function (data) {
  * @param  {string}   data.key        The key associated with the file on AWS.
  * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
  * @param  {string}   data.partNumber The part of the file being signed.
- * @return {boolean}  Boolean representing weather or not the object is valid.
+ * @param  {boolean}  data.method     Whether or not the file requires singlepart or multipart uploading.
+ *
+ * @return {boolean}  Boolean         Representing weather or not the object is valid.
  **/
 IngestAPI.prototype.validateUploadObject = function (data) {
 
@@ -252,16 +295,32 @@ IngestAPI.prototype.validateUploadObject = function (data) {
 };
 
 /**
- * Replace the ID in the template string with the supplied id.
+ * Replace all tokens within a given template based on the given key/value pair.
  * @param  {string}     template    Template for the url.
- * @param  {string}     id          Video ID to inject into the template.
+ * @param  {object}     hash        Key/Value pair for replacing tokens in the template.
+ *
+ * @example
+ * var tokens = {
+ *  keyInTemplate: 'replacedWith'
+ * };
+ *
+ * var template = '<%=keyInTemplate%>';
+ *
+ * var result = parseTokens(template, tokens);  // 'replacedWith'
+ *
  * @return {string}                 Parsed string.
  */
-IngestAPI.prototype.parseId = function (template, id) {
+IngestAPI.prototype.parseTokens = function (template, hash) {
 
-  var result = template.replace('<%=id%>', id);
+  var keys = Object.keys(hash);
+  var i;
+  var length = keys.length;
 
-  return result;
+  for (i = 0; i < length; i++) {
+    template = template.replace('<%=' + keys[i] + '%>', hash[keys[i]]);
+  }
+
+  return template;
 
 };
 

@@ -33,7 +33,7 @@ describe('Ingest API', function () {
       'deleteVideo',
       'getVideosCount',
       'getTrashedVideosCount',
-      'parseId',
+      'parseTokens',
       'signUploadBlob'
     ];
 
@@ -67,7 +67,7 @@ describe('Ingest API', function () {
   });
 
   it('Should parse the id out of a template string', function () {
-    var result = IngestAPI.prototype.parseId.call(this, '<%=id%>', 'testid');
+    var result = IngestAPI.prototype.parseTokens.call(this, '<%=id%>', {id: 'testid'});
     expect(result).toEqual('testid');
   });
 
@@ -511,7 +511,7 @@ describe('Ingest API', function () {
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
         uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
-        method: true
+        method: false
       };
 
       // Make the request to sign the blob.
@@ -535,6 +535,60 @@ describe('Ingest API', function () {
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
 
+    });
+
+    it('Should sign the upload with the singlepart method.', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + '/videos/test-upload-video-id/upload/sign?type=amazon',
+        function (request, response) {
+
+          var data = {
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        id: 'test-upload-video-id',
+        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
+        partNumber: 2,
+        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
+        method: true
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
     });
 
     it('Should fail if supplied data is not an object.', function (done) {
