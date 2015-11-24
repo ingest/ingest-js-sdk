@@ -221,7 +221,7 @@ IngestAPI.prototype.signUploadBlob = function (data) {
     return this.promisify(false, checkObject.message);
   }
 
-  if (data.method === true) {
+  if (data.method === false) {
     signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
   }
 
@@ -289,6 +289,12 @@ IngestAPI.prototype.validateUploadObject = function (data) {
   if (!data.hasOwnProperty('method') || typeof data.method !== 'boolean') {
     result.valid = false;
     result.message = 'Missing or invalid property : method';
+  }
+
+  // For the case of single part uploads, the uploadId is not required.
+  if (data.hasOwnProperty('method') && data.method === false && !data.uploadId) {
+    result.valid = true;
+    result.message = '';
   }
 
   return result;
