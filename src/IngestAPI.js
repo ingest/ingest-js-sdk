@@ -158,7 +158,7 @@ IngestAPI.prototype.deleteVideo = function (videoId, permanent) {
 
   url = this.parseTokens(this.config.host + this.config.videoById, tokens);
 
-  if (permanent && permanent === true) {
+  if (permanent === true) {
     url = url + '?permanent=1';
   }
 
