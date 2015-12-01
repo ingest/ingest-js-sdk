@@ -67,7 +67,8 @@ IngestAPI.prototype.getToken = function () {
 /**
  * Return a list of videos for the current user and network.
  * @param {object} headers Javascript object representing headers to apply to the call.
- * @return  {JSON}          A JSON object representing the videos.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.getVideos = function (headers) {
 
@@ -82,7 +83,8 @@ IngestAPI.prototype.getVideos = function (headers) {
 /**
  * Return a video match the supplied id.
  * @param   {String}       videoId ID for the requested video.
- * @return  {JSON}         JSON object representing the requested video.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.getVideoById = function (videoId) {
 
@@ -111,6 +113,8 @@ IngestAPI.prototype.getVideoById = function (videoId) {
 /**
  * Add a new video.
  * @param   {object}  videoObject An object representing the video to add.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.addVideo = function (videoObject) {
 
@@ -134,8 +138,11 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 /**
  * Delete a video.
  * @param  {string}   videoId   ID for the video to delete.
+ * @param  {boolean}  permanent A flag to permanently delete the video.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
  */
-IngestAPI.prototype.deleteVideo = function (videoId) {
+IngestAPI.prototype.deleteVideo = function (videoId, permanent) {
 
   var url;
   var tokens;
@@ -150,6 +157,10 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
   };
 
   url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+
+  if (permanent && permanent === true) {
+    url = url + '?permanent=1';
+  }
 
   return new Request({
     url: url,
@@ -207,7 +218,7 @@ IngestAPI.prototype.getCountResponse = function (response) {
  * @param  {string}   data.partNumber The part of the file being signed.
  * @param  {boolean}  data.method     Whether or not the file requires singlepart or multipart uploading.
  *
- * @return {Promise}                  Promise/A+ spec which resolves with the signed token object.
+ * @return {Promise}                  A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.signUploadBlob = function (data) {
 

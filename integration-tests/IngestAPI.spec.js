@@ -427,6 +427,43 @@ describe('Ingest API', function () {
 
     });
 
+    it ('Should pass a permanent param if permanent is passed as true', function (done) {
+
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos/1234?permanent=1',
+        function (request, response) {
+
+          var data = {
+            ok: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.deleteVideo('1234', true).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.ok).toEqual(true);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+    });
+
   });
 
   describe('Ingest API : getVideosCount', function () {
