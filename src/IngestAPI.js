@@ -137,13 +137,13 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 
 /**
  * Delete a video.
+ * @private
  * @param  {string}   videoId   ID for the video to delete.
  * @param  {boolean}  permanent A flag to permanently delete the video.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-IngestAPI.prototype.deleteVideo = function (videoId, permanent) {
-
+IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
   var url;
   var tokens;
 
@@ -167,7 +167,26 @@ IngestAPI.prototype.deleteVideo = function (videoId, permanent) {
     token: this.getToken(),
     method: 'DELETE'
   });
+};
 
+/**
+ * Delete a video.
+ * @param  {string}   videoId   ID for the video to delete.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteVideo = function (videoId) {
+  return this._deleteVideo(videoId);
+};
+
+/**
+ * Permanently delete a video.
+ *
+ * @param  {string}   videoId   ID for the video to delete.
+ * @return {Promise}            A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.permanentlyDeleteVideo = function (videoId) {
+  return this._deleteVideo(videoId, true);
 };
 
 /**
