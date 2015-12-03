@@ -383,13 +383,30 @@ describe('Ingest API', function () {
 
     it('Should delete a video.', function (done) {
 
-      var request = api.deleteVideo(createdVideo).then(function (response) {
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos/1234',
+        function (request, response) {
+
+          var data = {
+            ok: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.deleteVideo('1234').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
-        expect(response.headers).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBeDefined();
 
         done();
 
@@ -426,6 +443,44 @@ describe('Ingest API', function () {
       expect(request.then).toBeDefined();
 
     });
+
+    it ('Should permanently delete a video', function (done) {
+
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos/1234?permanent=1',
+        function (request, response) {
+
+          var data = {
+            ok: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.permanentlyDeleteVideo('1234').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.ok).toEqual(true);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+    });
+
 
   });
 
