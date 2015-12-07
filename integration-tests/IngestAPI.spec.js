@@ -34,7 +34,9 @@ describe('Ingest API', function () {
       'getVideosCount',
       'getTrashedVideosCount',
       'parseTokens',
-      'signUploadBlob'
+      'signUploadBlob',
+      'updateVideo',
+      'searchVideos'
     ];
 
     var requiredLength = required.length;
@@ -405,6 +407,7 @@ describe('Ingest API', function () {
       var request = api.updateVideo(video).then(function (response) {
 
         expect(response).toBeDefined();
+        expect(response.data.id).toEqual('test-video');
         done();
 
       }, function (error) {
@@ -543,6 +546,85 @@ describe('Ingest API', function () {
 
     });
 
+  });
+
+  describe('Ingest API : searchVideos', function () {
+
+    it('Should retrive search results for the given input', function (done) {
+
+      // Mock the XHR Object.
+      mock.setup();
+
+      mock.mock('GET', api.config.host + '/videos?search=test',
+        function (request, response) {
+
+          var data = {
+            called: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+        });
+
+      var request = api.searchVideos('videos', 'test').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.called).toEqual(true);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if a resource is not supplied', function (done) {
+
+      var request = api.searchVideos(null, 'test').then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if search input is not supplied', function (done) {
+
+      var request = api.searchVideos('videos').then(function () {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
 
   });
 
