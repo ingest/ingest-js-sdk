@@ -22,7 +22,8 @@ function IngestAPI (options) {
       'param': '?type=',
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
-    }
+    },
+    'search': '/<%=resource%>?search=<%=input%>'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -217,6 +218,40 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
  */
 IngestAPI.prototype.permanentlyDeleteVideo = function (videoId) {
   return this._deleteVideo(videoId, true);
+};
+
+/**
+ * Return a subset of videos that match the search terms.
+ * @param  {string} resource The type of resources to search for, playlist or videos.
+ * @param  {string} input    The search terms to match against.
+ * @param  {object} headers  The headers to be passed to the request.
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.searchVideos = function (resource, input, headers) {
+
+  var url;
+
+  if (!resource || typeof resource !== 'string') {
+    return this.promisify(false,
+      'IngestAPI searchVideos requires a resource type to be passed as a string.');
+  }
+
+  if (!input || typeof input !== 'string') {
+    return this.promisify(false,
+      'IngestAPI searchVideos requires search input to be passed as a string.');
+  }
+
+  url = this.parseTokens(this.config.host + this.config.search, {
+    resource: resource,
+    input: input
+  });
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    headers: headers
+  });
+
 };
 
 /**
