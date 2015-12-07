@@ -233,7 +233,7 @@ IngestAPI.prototype.searchVideos = function (resource, input, headers) {
 
   if (!resource || typeof resource !== 'string') {
     return this.promisify(false,
-      'IngestAPI searchVidoes requires a resource type to be passed as a string.');
+      'IngestAPI searchVideos requires a resource type to be passed as a string.');
   }
 
   if (!input || typeof input !== 'string') {
@@ -249,7 +249,6 @@ IngestAPI.prototype.searchVideos = function (resource, input, headers) {
   return new Request({
     url: url,
     token: this.getToken(),
-    method: 'GET',
     headers: headers
   });
 
