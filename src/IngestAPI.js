@@ -415,7 +415,18 @@ IngestAPI.prototype.getNetworkKey = function () {
   return new Request({
     url: this.config.host + this.config.networksKey,
     token: this.getToken()
-  });
+  }).then(this.getNetworkKeyResponse.bind(this));
+
+};
+
+/**
+ * Handle the response from retrieving the primary key of the current network.
+ * @param  {object}  response  Request response object.
+ * @return {string}            The primary key of the current network;
+ */
+IngestAPI.prototype.getNetworkKeyResponse = function (response) {
+
+  return response.data.key;
 
 };
 

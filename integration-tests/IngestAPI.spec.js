@@ -934,8 +934,7 @@ describe('Ingest API', function () {
       // Make the request to get the network key.
       var request = api.getNetworkKey().then(function (response) {
 
-        expect(response).toBeDefined();
-        expect(response.data.key).toBe('RSA-PUBLIC-KEY');
+        expect(response).toBe('RSA-PUBLIC-KEY');
 
         done();
 
@@ -979,7 +978,7 @@ describe('Ingest API', function () {
       var request = api.setNetworkKey(data.key).then(function (response) {
 
         expect(response).toBeDefined();
-        expect(response.data.hasOwnProperty('key')).toBeFalsy();
+        expect(response.data).toBeFalsy();
 
         done();
 
@@ -1019,7 +1018,7 @@ describe('Ingest API', function () {
       var request = api.setNetworkKey(data.key, true).then(function (response) {
 
         expect(response).toBeDefined();
-        expect(response.data.hasOwnProperty('key')).toBeFalsy();
+        expect(response.data).toBeFalsy();
 
         done();
 
