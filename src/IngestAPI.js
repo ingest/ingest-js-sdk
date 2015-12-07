@@ -422,7 +422,7 @@ IngestAPI.prototype.getNetworkKey = function () {
 /**
  * Handle the response from retrieving the primary key of the current network.
  * @param  {object}  response  Request response object.
- * @return {string}            The primary key of the current network;
+ * @return {string}            The primary key of the current network.
  */
 IngestAPI.prototype.getNetworkKeyResponse = function (response) {
 
@@ -441,7 +441,8 @@ IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
   var method, data;
 
   if (!key || typeof key !== 'string') {
-    return this.promisify(false, 'IngestAPI setNetworkKey requires a key to send.');
+    return this.promisify(false,
+      'IngestAPI setNetworkKey requires a key to be passed as a string.');
   }
 
   method = 'POST';
