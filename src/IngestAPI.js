@@ -16,6 +16,8 @@ function IngestAPI (options) {
     'videoById': '/videos/<%=id%>',
     'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
     'trash': '/videos?filter=trashed',
+    'networks': '/networks',
+    'networksKey' : '/networks/key',
     'uploadMethods': {
       'param': '?type=',
       'singlePart': 'amazon',
@@ -373,6 +375,48 @@ IngestAPI.prototype.promisify = function (state, value) {
   promise(state, [value]);
 
   return promise;
+
+};
+
+/**
+ * Get the current network primary key in RSA format.
+ * @return {Promise} Promise/A+ spec which resolves with the primary network key.
+ */
+IngestAPI.prototype.getNetworkKey = function () {
+
+  return new Request({
+    url: this.config.host + this.config.networksKey,
+    token: this.getToken()
+  });
+
+};
+
+/**
+ * Updates or adds a key on the current network.
+ * @param  {string}   key       The key to update or add.
+ * @param  {boolean}  isUpdate  If the key is being added or overwriting an existing one.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
+  var method;
+
+  if (!key || typeof key !== 'string') {
+    return this.promisify(false, 'IngestAPI setNetworkKey requires a key to send.');
+  }
+
+  method = 'POST';
+
+  if (isUpdate) {
+    method = 'PATCH';
+  }
+
+  return new Request({
+    url: this.config.host + this.config.networksKey,
+    token: this.getToken(),
+    method: method,
+    data: key
+  });
 
 };
 
