@@ -381,6 +381,68 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : updateVideo', function () {
+
+    it('Should update a video record.', function (done) {
+
+      var video = {
+        id: 'test-video'
+      };
+
+      // Mock the XHR object
+      mock.setup();
+
+      mock.mock('PATCH', api.config.host + '/videos/test-video',
+        function (request, response) {
+
+          // Restore the XHR Object
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(video));
+
+        });
+
+      var request = api.updateVideo(video).then(function (response) {
+
+        expect(response).toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail to update a video if something other than an object is passed',
+      function (done) {
+
+        var request = api.updateVideo('video').then(function (response) {
+
+          expect(response).toBeUndefined();
+          done();
+
+        }, function (error) {
+
+          expect(error).toBeDefined();
+          done();
+
+        });
+
+        // Ensure a promise was returned.
+        expect(request.then).toBeDefined();
+
+      });
+
+  });
+
   describe('Ingest API : deleteVideo', function () {
 
     it('Should delete a video.', function (done) {

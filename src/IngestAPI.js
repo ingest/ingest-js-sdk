@@ -138,6 +138,34 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 };
 
 /**
+ * Update an existing video with new content.
+ * @param  {object} video   An object representing the video.
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.updateVideo = function (video) {
+
+  var url;
+  var tokens;
+
+  if (!video || typeof video !== 'object') {
+    return this.promisify(false,
+      'IngestAPI update requires a video to be passed as an object.');
+  }
+
+  tokens = {
+    id: video.id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'PATCH'
+  });
+};
+
+/**
  * Delete a video.
  * @private
  * @param  {string}   videoId   ID for the video to delete.
