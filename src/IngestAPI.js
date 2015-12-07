@@ -427,7 +427,7 @@ IngestAPI.prototype.getNetworkKey = function () {
  * @return {Promise}            A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
-  var method;
+  var method, data;
 
   if (!key || typeof key !== 'string') {
     return this.promisify(false, 'IngestAPI setNetworkKey requires a key to send.');
@@ -439,11 +439,15 @@ IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
     method = 'PATCH';
   }
 
+  data = {
+    key: key
+  };
+
   return new Request({
     url: this.config.host + this.config.networksKey,
     token: this.getToken(),
     method: method,
-    data: key
+    data: data
   });
 
 };
