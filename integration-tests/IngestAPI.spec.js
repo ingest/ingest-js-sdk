@@ -611,7 +611,7 @@ describe('Ingest API', function () {
 
     it('Should fail if search input is not supplied', function (done) {
 
-      var request = api.searchVideos('videos').then(function () {
+      var request = api.searchVideos('videos').then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -960,7 +960,7 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should pass if the method is single part and the uploadId is not defined', function () {
+    it('Should pass if the method is single part and the uploadId is not defined', function (done) {
 
       var data = {
         id: 'test',
@@ -1116,25 +1116,25 @@ describe('Ingest API', function () {
       expect(request.then).toBeDefined();
     });
 
-  });
+    it('Should return an error if no key is provided', function (done) {
+      var request = api.setNetworkKey().then(function (response) {
 
-  it('Should return an error if no key is provided', function () {
-    var request = api.setNetworkKey().then(function (response) {
+        expect(response).toBeUndefined();
 
-      expect(response).toBeUndefined();
+        done();
 
-      done();
+      }, function (error) {
 
-    }, function (error) {
+        expect(error).toBeDefined();
 
-      expect(error).toBeDefined();
+        done();
 
-      done();
+      });
 
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
     });
 
-    // Ensure a promise was returned.
-    expect(request.then).toBeDefined();
   });
 
 });
