@@ -77,9 +77,23 @@ describe('Ingest API : Request', function () {
 
   });
 
-  it('Should make a request even if a token is missing.', function () {
+  it('Should make a request even if a token is missing.', function (done) {
 
     api.token = null;
+
+    // Mock the XHR object
+    mock.setup();
+
+    // Mock the response from the REST api.
+    mock.get(api.config.host + api.config.videos,
+      function (request, response) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200);
+
+      });
 
     // Mock the call to getToken.
     spyOn(api, 'getToken').and.returnValue(null);
@@ -112,13 +126,6 @@ describe('Ingest API : Request', function () {
 
     video.cover = cover;
     cover.video = video;
-
-    var request = new api.request({
-      url: api.config.host + api.config.videos,
-      token: api.getToken(),
-      method: 'POST',
-      data: {test: true}
-    });
 
     spyOn(Request.prototype, 'makeRequest').and.returnValue(null);
 
