@@ -406,7 +406,7 @@ describe('Ingest API', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(video));
+            .body(video);
 
         });
 
