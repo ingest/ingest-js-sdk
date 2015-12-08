@@ -397,12 +397,16 @@ describe('Ingest API', function () {
       mock.mock('PATCH', api.config.host + '/videos/test-video',
         function (request, response) {
 
+          var _video = JSON.stringify(video);
+
           // Restore the XHR Object
           mock.teardown();
 
+          expect(_video).toEqual(request._body);
+
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(video));
+            .body(video);
 
         });
 
@@ -1051,7 +1055,6 @@ describe('Ingest API', function () {
 
         });
 
-      // Mock blob to sign.
       var data = {
         key: 'NEW-RSA-PUBLIC-KEY'
       };

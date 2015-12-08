@@ -162,7 +162,8 @@ IngestAPI.prototype.updateVideo = function (video) {
   return new Request({
     url: url,
     token: this.getToken(),
-    method: 'PATCH'
+    method: 'PATCH',
+    data: video
   });
 };
 
