@@ -461,7 +461,7 @@ IngestAPI.prototype.getNetworkKey = function () {
  */
 IngestAPI.prototype.getNetworkKeyResponse = function (response) {
 
-  return response.data.key;
+  return response.data;
 
 };
 
