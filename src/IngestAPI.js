@@ -16,11 +16,14 @@ function IngestAPI (options) {
     'videoById': '/videos/<%=id%>',
     'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
     'trash': '/videos?filter=trashed',
+    'networks': '/networks',
+    'networksKey' : '/networks/key',
     'uploadMethods': {
       'param': '?type=',
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
-    }
+    },
+    'search': '/<%=resource%>?search=<%=input%>'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -136,6 +139,35 @@ IngestAPI.prototype.addVideo = function (videoObject) {
 };
 
 /**
+ * Update an existing video with new content.
+ * @param  {object} video   An object representing the video.
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.updateVideo = function (video) {
+
+  var url;
+  var tokens;
+
+  if (!video || typeof video !== 'object') {
+    return this.promisify(false,
+      'IngestAPI update requires a video to be passed as an object.');
+  }
+
+  tokens = {
+    id: video.id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'PATCH',
+    data: video
+  });
+};
+
+/**
  * Delete a video.
  * @private
  * @param  {string}   videoId   ID for the video to delete.
@@ -187,6 +219,40 @@ IngestAPI.prototype.deleteVideo = function (videoId) {
  */
 IngestAPI.prototype.permanentlyDeleteVideo = function (videoId) {
   return this._deleteVideo(videoId, true);
+};
+
+/**
+ * Return a subset of videos that match the search terms.
+ * @param  {string} resource The type of resources to search for, playlist or videos.
+ * @param  {string} input    The search terms to match against.
+ * @param  {object} headers  The headers to be passed to the request.
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.searchVideos = function (resource, input, headers) {
+
+  var url;
+
+  if (!resource || typeof resource !== 'string') {
+    return this.promisify(false,
+      'IngestAPI searchVideos requires a resource type to be passed as a string.');
+  }
+
+  if (!input || typeof input !== 'string') {
+    return this.promisify(false,
+      'IngestAPI searchVideos requires search input to be passed as a string.');
+  }
+
+  url = this.parseTokens(this.config.host + this.config.search, {
+    resource: resource,
+    input: input
+  });
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    headers: headers
+  });
+
 };
 
 /**
@@ -373,6 +439,64 @@ IngestAPI.prototype.promisify = function (state, value) {
   promise(state, [value]);
 
   return promise;
+
+};
+
+/**
+ * Get the current network primary key in RSA format.
+ * @return {Promise} Promise/A+ spec which resolves with the primary network key.
+ */
+IngestAPI.prototype.getNetworkKey = function () {
+
+  return new Request({
+    url: this.config.host + this.config.networksKey,
+    token: this.getToken()
+  }).then(this.getNetworkKeyResponse.bind(this));
+
+};
+
+/**
+ * Handle the response from retrieving the primary key of the current network.
+ * @param  {object}  response  Request response object.
+ * @return {string}            The primary key of the current network.
+ */
+IngestAPI.prototype.getNetworkKeyResponse = function (response) {
+
+  return response.data.key;
+
+};
+
+/**
+ * Updates or adds a key on the current network.
+ * @param  {string}   key       The key to update or add.
+ * @param  {boolean}  isUpdate  If the key is being added or overwriting an existing one.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
+  var method, data;
+
+  if (!key || typeof key !== 'string') {
+    return this.promisify(false,
+      'IngestAPI setNetworkKey requires a key to be passed as a string.');
+  }
+
+  method = 'POST';
+
+  if (isUpdate) {
+    method = 'PATCH';
+  }
+
+  data = {
+    key: key
+  };
+
+  return new Request({
+    url: this.config.host + this.config.networksKey,
+    token: this.getToken(),
+    method: method,
+    data: data
+  });
 
 };
 

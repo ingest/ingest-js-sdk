@@ -34,7 +34,11 @@ describe('Ingest API', function () {
       'getVideosCount',
       'getTrashedVideosCount',
       'parseTokens',
-      'signUploadBlob'
+      'signUploadBlob',
+      'updateVideo',
+      'searchVideos',
+      'getNetworkKey',
+      'setNetworkKey'
     ];
 
     var requiredLength = required.length;
@@ -379,6 +383,73 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : updateVideo', function () {
+
+    it('Should update a video record.', function (done) {
+
+      var video = {
+        id: 'test-video'
+      };
+
+      // Mock the XHR object
+      mock.setup();
+
+      mock.mock('PATCH', api.config.host + '/videos/test-video',
+        function (request, response) {
+
+          var _video = JSON.stringify(video);
+
+          // Restore the XHR Object
+          mock.teardown();
+
+          expect(_video).toEqual(request._body);
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(video);
+
+        });
+
+      var request = api.updateVideo(video).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toEqual('test-video');
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail to update a video if something other than an object is passed',
+      function (done) {
+
+        var request = api.updateVideo('video').then(function (response) {
+
+          expect(response).toBeUndefined();
+          done();
+
+        }, function (error) {
+
+          expect(error).toBeDefined();
+          done();
+
+        });
+
+        // Ensure a promise was returned.
+        expect(request.then).toBeDefined();
+
+      });
+
+  });
+
   describe('Ingest API : deleteVideo', function () {
 
     it('Should delete a video.', function (done) {
@@ -481,6 +552,85 @@ describe('Ingest API', function () {
 
     });
 
+  });
+
+  describe('Ingest API : searchVideos', function () {
+
+    it('Should retrive search results for the given input', function (done) {
+
+      // Mock the XHR Object.
+      mock.setup();
+
+      mock.mock('GET', api.config.host + '/videos?search=test',
+        function (request, response) {
+
+          var data = {
+            called: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+        });
+
+      var request = api.searchVideos('videos', 'test').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.called).toEqual(true);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if a resource is not supplied', function (done) {
+
+      var request = api.searchVideos(null, 'test').then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if search input is not supplied', function (done) {
+
+      var request = api.searchVideos('videos').then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
 
   });
 
@@ -814,7 +964,7 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should pass if the method is single part and the uploadId is not defined', function () {
+    it('Should pass if the method is single part and the uploadId is not defined', function (done) {
 
       var data = {
         id: 'test',
@@ -840,6 +990,152 @@ describe('Ingest API', function () {
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
 
+    });
+
+  });
+
+  describe('Ingest API : getNetworkKey', function () {
+
+    it('Should return the current primary key from the network', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.get(api.config.host + api.config.networksKey,
+        function (request, response) {
+
+          var data = {
+            key: 'RSA-PUBLIC-KEY'
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Make the request to get the network key.
+      var request = api.getNetworkKey().then(function (response) {
+
+        expect(response).toBe('RSA-PUBLIC-KEY');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+  });
+
+  describe('Ingest API : setNetworkKey', function () {
+
+    it('Should add a new key to the current network', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + api.config.networksKey,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200);
+
+        });
+
+      var data = {
+        key: 'NEW-RSA-PUBLIC-KEY'
+      };
+
+      // Make the request to add a new key to the network
+      var request = api.setNetworkKey(data.key).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should update the existing primary key on the current network', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('PATCH', api.config.host + api.config.networksKey,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200);
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        key: 'UPDATED-RSA-PUBLIC-KEY'
+      };
+
+      // Make the request to update the existing primary key on the current network.
+      var request = api.setNetworkKey(data.key, true).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should return an error if no key is provided', function (done) {
+      var request = api.setNetworkKey().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
     });
 
   });
