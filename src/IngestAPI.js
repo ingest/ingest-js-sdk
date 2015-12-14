@@ -17,7 +17,8 @@ function IngestAPI (options) {
     'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
     'trash': '/videos?filter=trashed',
     'networks': '/networks',
-    'networksKey' : '/networks/key',
+    'networksKeys': '/networks/keys',
+    'networksKeysById': '/networks/keys/<%=id%>',
     'uploadMethods': {
       'param': '?type=',
       'singlePart': 'amazon',
@@ -446,58 +447,136 @@ IngestAPI.prototype.promisify = function (state, value) {
  * Get the current network primary key in RSA format.
  * @return {Promise} Promise/A+ spec which resolves with the primary network key.
  */
-IngestAPI.prototype.getNetworkKey = function () {
+IngestAPI.prototype.getNetworkSecureKeys = function () {
 
   return new Request({
-    url: this.config.host + this.config.networksKey,
+    url: this.config.host + this.config.networksKeys,
     token: this.getToken()
-  }).then(this.getNetworkKeyResponse.bind(this));
-
-};
-
-/**
- * Handle the response from retrieving the primary key of the current network.
- * @param  {object}  response  Request response object.
- * @return {string}            The primary key of the current network.
- */
-IngestAPI.prototype.getNetworkKeyResponse = function (response) {
-
-  return response.data.key;
-
-};
-
-/**
- * Updates or adds a key on the current network.
- * @param  {string}   key       The key to update or add.
- * @param  {boolean}  isUpdate  If the key is being added or overwriting an existing one.
- *
- * @return {Promise}            A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.setNetworkKey = function (key, isUpdate) {
-  var method, data;
-
-  if (!key || typeof key !== 'string') {
-    return this.promisify(false,
-      'IngestAPI setNetworkKey requires a key to be passed as a string.');
-  }
-
-  method = 'POST';
-
-  if (isUpdate) {
-    method = 'PATCH';
-  }
-
-  data = {
-    key: key
-  };
-
-  return new Request({
-    url: this.config.host + this.config.networksKey,
-    token: this.getToken(),
-    method: method,
-    data: data
   });
 
+};
+
+/**
+ * Adds a new secure key to the current network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  Optional. The title of the secure key. Will default to "Default Key Title"
+ * @param {string}  data.key    The public key in RSA format.
+ *
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.addNetworkSecureKey = function (data) {
+  if (typeof data !== 'object') {
+    return this.promisify(false,
+      'IngestAPI addNetworkSecureKey requires data to be passed as an object.');
+  }
+
+  // The title must be a string.
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  if (typeof data.key !== 'string') {
+    return this.promisify(false,
+      'IngestAPI addNetworkSecureKey requires that the key be a string in RSA public key format.');
+  }
+
+  return new Request({
+    url: this.config.host + this.config.networksKeys,
+    token: this.getToken(),
+    method: 'POST',
+    data: data
+  });
+};
+
+/**
+ * Retrieves a single network secure key entry based on the UUID given.
+ * @param {string}  id  The UUID of the secure key entry.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return this.promisify(false,
+      'IngestAPI getNetworkSecureKeyById requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken()
+  });
+};
+
+/**
+ * Updates an individual secure key entry in the current network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  The title for the current network.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.updateNetworkSecureKey = function (data) {
+  var tokens, url;
+
+  if (typeof data !== 'object') {
+    return this.promisify(false,
+      'IngestAPI updateNetworkSecureKeyById requires data to be passed as an object.');
+  }
+
+  if (typeof data.id !== 'string') {
+    return this.promisify(false,
+      'IngestAPI updateNetworkSecureKeyById requires a param "id" to be a string.');
+  }
+
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  tokens = {
+    id: data.id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'PATCH',
+    data: data
+  });
+};
+
+/**
+ * Deletes a single network secure key entry based on the UUID given.
+ * @param {string}  id  The UUID of the secure key entry.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return this.promisify(false,
+      'IngestAPI deleteNetworkSecureKeyById requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'DELETE'
+  });
 };
 
 module.exports = IngestAPI;
