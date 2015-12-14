@@ -1085,7 +1085,7 @@ describe('Ingest API', function () {
 
     it('Should fail if no data is passed in', function (done) {
 
-      var request = api.addNetworkSecureKey(null).then(function (response) {
+      var request = api.addNetworkSecureKey().then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -1327,7 +1327,7 @@ describe('Ingest API', function () {
 
     it('Should fail if no data is supplied.', function (done) {
 
-      var request = api.updateNetworkSecureKey(null).then(function (response) {
+      var request = api.updateNetworkSecureKey().then(function (response) {
 
         expect(response).toBeUndefined();
 

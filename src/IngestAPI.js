@@ -465,7 +465,7 @@ IngestAPI.prototype.getNetworkSecureKeys = function () {
  * @return {Promise}          A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.addNetworkSecureKey = function (data) {
-  if (!data || typeof data !== 'object') {
+  if (typeof data !== 'object') {
     return this.promisify(false,
       'IngestAPI addNetworkSecureKey requires data to be passed as an object.');
   }
@@ -497,7 +497,7 @@ IngestAPI.prototype.addNetworkSecureKey = function (data) {
 IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
   var tokens, url;
 
-  if (!id || typeof id !== 'string') {
+  if (typeof id !== 'string') {
     return this.promisify(false,
       'IngestAPI getNetworkSecureKeyById requires an id to be passed as a string.');
   }
@@ -524,7 +524,7 @@ IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
 IngestAPI.prototype.updateNetworkSecureKey = function (data) {
   var tokens, url;
 
-  if (!data || typeof data !== 'object') {
+  if (typeof data !== 'object') {
     return this.promisify(false,
       'IngestAPI updateNetworkSecureKeyById requires data to be passed as an object.');
   }
@@ -561,7 +561,7 @@ IngestAPI.prototype.updateNetworkSecureKey = function (data) {
 IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
   var tokens, url;
 
-  if (!id || typeof id !== 'string') {
+  if (typeof id !== 'string') {
     return this.promisify(false,
       'IngestAPI deleteNetworkSecureKeyById requires an id to be passed as a string.');
   }
