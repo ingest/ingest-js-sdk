@@ -37,8 +37,11 @@ describe('Ingest API', function () {
       'signUploadBlob',
       'updateVideo',
       'searchVideos',
-      'getNetworkKey',
-      'setNetworkKey'
+      'getNetworkSecureKeys',
+      'addNetworkSecureKey',
+      'getNetworkSecureKeyById',
+      'updateNetworkSecureKey',
+      'deleteNetworkSecureKeyById'
     ];
 
     var requiredLength = required.length;
@@ -406,7 +409,7 @@ describe('Ingest API', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(video);
+            .body(_video);
 
         });
 
@@ -965,47 +968,17 @@ describe('Ingest API', function () {
     });
 
     it('Should pass if the method is single part and the uploadId is not defined', function (done) {
-
-      var data = {
-        id: 'test',
-        key: 'testKey',
-        partNumber: 1,
-        method: false
-      };
-
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeDefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-  });
-
-  describe('Ingest API : getNetworkKey', function () {
-
-    it('Should return the current primary key from the network', function (done) {
       // Mock the XHR object
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.get(api.config.host + api.config.networksKey,
+      mock.post(api.config.host + '/videos/test/upload/sign?type=amazon',
         function (request, response) {
 
           var data = {
-            key: 'RSA-PUBLIC-KEY'
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
           };
 
           // Restore the XHR object.
@@ -1017,10 +990,20 @@ describe('Ingest API', function () {
 
         });
 
-      // Make the request to get the network key.
-      var request = api.getNetworkKey().then(function (response) {
+      // Mock blob to sign.
+      var data = {
+        id: 'test',
+        key: 'testKey',
+        partNumber: 1,
+        method: false
+      };
 
-        expect(response).toBe('RSA-PUBLIC-KEY');
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
 
         done();
 
@@ -1034,36 +1017,52 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+
     });
 
   });
 
-  describe('Ingest API : setNetworkKey', function () {
+  describe('Ingest API : getNetworkSecureKeys', function () {
 
-    it('Should add a new key to the current network', function (done) {
-      // Mock the XHR object
+    it('Should retrieve all network secure keys from the current network.', function (done) {
+      // Mock the XHR object.
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.post(api.config.host + api.config.networksKey,
+      mock.get(api.config.host + api.config.networksKeys,
         function (request, response) {
+
+          var data = [
+            {
+              "id": "801d46e7-8cc8-4b2c-b064-770a0a046bd8",
+              "title": "Network Secure Key",
+              "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
+              "created_at": "2014-10-10 11:20:38.022191",
+              "updated_at": "2014-10-10 11:20:38.022191",
+              "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+              "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+            }
+          ];
 
           // Restore the XHR object.
           mock.teardown();
 
-          return response.status(200);
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
 
         });
 
-      var data = {
-        key: 'NEW-RSA-PUBLIC-KEY'
-      };
-
-      // Make the request to add a new key to the network
-      var request = api.setNetworkKey(data.key).then(function (response) {
+      var request = api.getNetworkSecureKeys().then(function (response) {
 
         expect(response).toBeDefined();
-        expect(response.data).toBeFalsy();
+        expect(response.data[0].id).toBeDefined();
+        expect(response.data[0].title).toBeDefined();
+        expect(response.data[0].key).toBeDefined();
+        expect(response.data[0].created_at).toBeDefined();
+        expect(response.data[0].updated_at).toBeDefined();
+        expect(response.data[0].author_id).toBeDefined();
+        expect(response.data[0].updater_id).toBeDefined();
 
         done();
 
@@ -1077,50 +1076,16 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+
     });
 
-    it('Should update the existing primary key on the current network', function (done) {
-      // Mock the XHR object
-      mock.setup();
+  });
 
-      // Mock the response from the REST api.
-      mock.mock('PATCH', api.config.host + api.config.networksKey,
-        function (request, response) {
+  describe('Ingest API : addNetworkSecureKey', function () {
 
-          // Restore the XHR object.
-          mock.teardown();
+    it('Should fail if no data is passed in', function (done) {
 
-          return response.status(200);
-
-        });
-
-      // Mock blob to sign.
-      var data = {
-        key: 'UPDATED-RSA-PUBLIC-KEY'
-      };
-
-      // Make the request to update the existing primary key on the current network.
-      var request = api.setNetworkKey(data.key, true).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data).toBeFalsy();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-
-    it('Should return an error if no key is provided', function (done) {
-      var request = api.setNetworkKey().then(function (response) {
+      var request = api.addNetworkSecureKey().then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -1136,6 +1101,522 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if data was passed in but not as an object', function () {
+
+      var request = api.addNetworkSecureKey('data!').then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function () {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should remove the title if it is the wrong type.', function (done) {
+      var data, request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + api.config.networksKeys,
+        function (request, response) {
+
+          var data = {
+            "id": "801d46e7-8cc8-4b2c-b064-770a0a046bd8",
+            "title": "Default Key Title",
+            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
+            "created_at": "2014-10-10 11:20:38.022191",
+            "updated_at": "2014-10-10 11:20:38.022191",
+            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(201)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock the request data
+      data = {
+        title: [{"name": "Taylor Swift"}],
+        key: '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....'
+      };
+
+      request = api.addNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toBeDefined();
+        expect(response.data.title).toBe('Default Key Title');
+        expect(response.data.key).toBeDefined();
+        expect(response.data.created_at).toBeDefined();
+        expect(response.data.updated_at).toBeDefined();
+        expect(response.data.author_id).toBeDefined();
+        expect(response.data.updater_id).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the supplied key is not a string.', function (done) {
+
+      var data, request;
+
+      data = {
+        title: 'This is a secure key.',
+        key: []
+      };
+
+      request = api.addNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : getNetworkSecureKeyById', function () {
+
+    it('Should fail if no id is supplied.', function (done) {
+
+      var request = api.getNetworkSecureKeyById(null).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the id supplied is not a string.', function (done) {
+
+      var id, request;
+
+      id = ['Totally not a string.'];
+
+      request = api.getNetworkSecureKeyById(id).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve a valid network secure key entry when given a valid ID', function (done) {
+      var request, id;
+
+      id = '801d46e7-8cc8-4b2c-b064-770a0a046bd8';
+
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.get(api.config.host + api.config.networksKeys + '/' + id,
+        function (request, response) {
+
+          var data = {
+            "id": id,
+            "title": "Secure Key Entry #1",
+            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
+            "created_at": "2014-10-10 11:20:38.022191",
+            "updated_at": "2014-10-10 11:20:38.022191",
+            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      request = api.getNetworkSecureKeyById(id).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toBe(id);
+        expect(response.data.title).toBeDefined();
+        expect(response.data.key).toBeDefined();
+        expect(response.data.created_at).toBeDefined();
+        expect(response.data.updated_at).toBeDefined();
+        expect(response.data.author_id).toBeDefined();
+        expect(response.data.updater_id).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : updateNetworkSecureKey', function () {
+
+    it('Should fail if no data is supplied.', function (done) {
+
+      var request = api.updateNetworkSecureKey().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the data supplied is not an object.', function (done) {
+
+      var data, request;
+
+      data = 'Totally not an object.';
+
+      request = api.updateNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the given ID is not a string.', function (done) {
+
+      var data, request;
+
+      data = {
+        id: ['Totally not a string']
+      };
+
+      request = api.updateNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should remove the given title if it is not a string.', function (done) {
+
+      var data, id, request;
+
+      id = '801d46e7-8cc8-4b2c-b064-770a0a046bd8';
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('PATCH', api.config.host + api.config.networksKeys + '/' + id,
+        function (request, response) {
+
+          var data = {
+            "id": id,
+            "title": "Default Key Title",
+            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
+            "created_at": "2014-10-10 11:20:38.022191",
+            "updated_at": "2014-10-10 11:20:38.022191",
+            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock request data.
+      data = {
+        id: id,
+        title: ['Totally not a string.']
+      };
+
+      request = api.updateNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toBeDefined();
+        expect(response.data.title).toBe('Default Key Title');
+        expect(response.data.key).toBeDefined();
+        expect(response.data.created_at).toBeDefined();
+        expect(response.data.updated_at).toBeDefined();
+        expect(response.data.author_id).toBeDefined();
+        expect(response.data.updater_id).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should update the secure key entry under normal conditions.', function (done) {
+
+      var data, id, request;
+
+      id = '801d46e7-8cc8-4b2c-b064-770a0a046bd8';
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('PATCH', api.config.host + api.config.networksKeys + '/' + id,
+        function (request, response) {
+
+          var data = {
+            "id": id,
+            "title": "This is a new key.",
+            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
+            "created_at": "2014-10-10 11:20:38.022191",
+            "updated_at": "2014-10-10 11:20:38.022191",
+            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock request data.
+      data = {
+        id: id,
+        title: 'This is a new key.'
+      };
+
+      request = api.updateNetworkSecureKey(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toBeDefined();
+        expect(response.data.title).toBe('This is a new key.');
+        expect(response.data.key).toBeDefined();
+        expect(response.data.created_at).toBeDefined();
+        expect(response.data.updated_at).toBeDefined();
+        expect(response.data.author_id).toBeDefined();
+        expect(response.data.updater_id).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : deleteNetworkSecureKeyById', function () {
+
+    it('Should fail if no id is given.', function (done) {
+
+      var request = api.deleteNetworkSecureKeyById(null).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if the id given is not a string.', function (done) {
+
+      var request, id;
+
+      id = ['Totally not a string.'];
+
+      request = api.deleteNetworkSecureKeyById(id).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned;
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should delete the secure key entry when given a proper ID.', function (done) {
+
+      var request, id;
+
+      id = '801d46e7-8cc8-4b2c-b064-770a0a046bd8';
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + api.config.networksKeys + '/' + id,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(204);
+
+        });
+
+      // Make the request.
+      request = api.deleteNetworkSecureKeyById(id).then(function (response) {
+
+        expect(response).toBeDefined();
+
+        // Should be no response body on a 204 Accepted.
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
   });
