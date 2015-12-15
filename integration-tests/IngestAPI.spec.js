@@ -32,6 +32,7 @@ describe('Ingest API', function () {
       'addVideo',
       'deleteVideo',
       'getVideosCount',
+      'getTrashedVideos',
       'getTrashedVideosCount',
       'parseTokens',
       'signUploadBlob',
@@ -651,6 +652,92 @@ describe('Ingest API', function () {
       }, function (error) {
 
         expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : getTrashedVideos', function () {
+
+    it('Should retrieve trashed videos.', function (done) {
+
+      var data = ['video1', 'video2', 'video3'];
+
+      mock.setup();
+
+      mock.mock('GET', api.config.host + api.config.trash,
+        function (request, response) {
+
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data))
+
+        });
+
+      var request = api.getTrashedVideos().then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve the next page of trashed videos.', function (done) {
+
+      var data = ['video4', 'video5', 'video6'];
+
+      mock.setup();
+
+      mock.mock('GET', api.config.host + api.config.trash,
+        function (request, response) {
+
+          mock.teardown();
+
+          expect(request._headers.range).toEqual('12345');
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.getTrashedVideos({
+        Range: '12345'
+      }).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
         done();
 
       });

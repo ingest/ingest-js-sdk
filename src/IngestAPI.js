@@ -271,6 +271,22 @@ IngestAPI.prototype.getVideosCount = function () {
 };
 
 /**
+ * Return the videos currently in the trash.
+ * @param {object} Headers to be passed along with the request for pagination.
+ *
+ * @return {Promise} Promise/A+ spec which resovles with the trashed videos.
+ */
+IngestAPI.prototype.getTrashedVideos = function (headers) {
+
+  return new Request({
+    url: this.config.host + this.config.trash,
+    token: this.getToken(),
+    headers: headers
+  });
+
+};
+
+/**
  * Get a count of the current videos in the trash.
  * @return {Promise} Promise/A+ spec which resolves with the trashed video count.
  */
