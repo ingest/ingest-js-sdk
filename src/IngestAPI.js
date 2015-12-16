@@ -13,6 +13,7 @@ function IngestAPI (options) {
   this.defaults = {
     'host': 'https://api.ingest.io',
     'videos': '/videos',
+    'thumbnails': '/videos/<%=id%>/thumbnails',
     'videoById': '/videos/<%=id%>',
     'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
     'trash': '/videos?filter=trashed',
@@ -667,6 +668,31 @@ IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
     token: this.getToken(),
     method: 'DELETE'
   });
+};
+
+/**
+ * Retrieve all thumbnails for a provided video id.
+ * @param {string} id of the video to retrieve thumbnails for.
+ */
+IngestAPI.prototype.getVideoThumbnails = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return this.promisify(false,
+      'IngestAPI getVideoThumbnails requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = this.parseTokens(this.config.host + this.config.thumbnails, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken()
+  });
+
 };
 
 module.exports = IngestAPI;
