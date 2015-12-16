@@ -1902,6 +1902,10 @@ describe('Ingest API', function () {
 
     });
 
+  });
+
+  describe('Ingest API : permanentlyDeleteVideos', function () {
+
     it('Should permanently delete all videos inside the passed in array.', function (done) {
 
       var data, request;
@@ -1927,7 +1931,7 @@ describe('Ingest API', function () {
         }
       ];
 
-      request = api.deleteVideos(data, true).then(function (response) {
+      request = api.permanentlyDeleteVideos(data, true).then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response.headers).toBe('function');

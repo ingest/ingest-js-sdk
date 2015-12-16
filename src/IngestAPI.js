@@ -177,7 +177,7 @@ IngestAPI.prototype.updateVideo = function (video) {
  * @return {Promise}      A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.updateVideos = function (videos) {
-  if (typeof videos !== 'object') {
+  if (!Array.isArray(videos)) {
     return this.promisify(false,
       'IngestAPI updateVideos requires an array of videos');
   }
@@ -192,13 +192,16 @@ IngestAPI.prototype.updateVideos = function (videos) {
 
 /**
  * Deletes a batch of videos in one HTTP request.
- * @param {array} videos  An array of video objects.
- * @return {Promise}      A promise which resolves when the request is complete.
+ * @private
+ * @param {array}    videos     An array of video objects.
+ * @param {boolean}  permanent  A flag to permanently delete each video.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
  */
-IngestAPI.prototype.deleteVideos = function (videos, permanent) {
+IngestAPI.prototype._deleteVideos = function (videos, permanent) {
   var url;
 
-  if (typeof videos !== 'object') {
+  if (!Array.isArray(videos)) {
     return this.promisify(false,
       'IngestAPI deleteVideos requires an array of videos');
   }
@@ -215,6 +218,28 @@ IngestAPI.prototype.deleteVideos = function (videos, permanent) {
     method: 'DELETE',
     data: videos
   });
+};
+
+/**
+ * Delete a batch of videos.
+ *
+ * @param  {array}  videos  An array of video objects.
+ *
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteVideos = function (videos) {
+  return this._deleteVideos(videos);
+};
+
+/**
+ * Permanently delete a batch of videos.
+ *
+ * @param  {array}  videos  An array of video objects.
+ *
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.permanentlyDeleteVideos = function (videos) {
+  return this._deleteVideos(videos, true);
 };
 
 /**
