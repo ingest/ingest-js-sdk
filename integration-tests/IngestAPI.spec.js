@@ -32,6 +32,7 @@ describe('Ingest API', function () {
       'addVideo',
       'deleteVideo',
       'getVideosCount',
+      'getTrashedVideos',
       'getTrashedVideosCount',
       'parseTokens',
       'signUploadBlob',
@@ -651,6 +652,92 @@ describe('Ingest API', function () {
       }, function (error) {
 
         expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : getTrashedVideos', function () {
+
+    it('Should retrieve trashed videos.', function (done) {
+
+      var data = ['video1', 'video2', 'video3'];
+
+      mock.setup();
+
+      mock.mock('GET', api.config.host + api.config.trash,
+        function (request, response) {
+
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data))
+
+        });
+
+      var request = api.getTrashedVideos().then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve the next page of trashed videos.', function (done) {
+
+      var data = ['video4', 'video5', 'video6'];
+
+      mock.setup();
+
+      mock.mock('GET', api.config.host + api.config.trash,
+        function (request, response) {
+
+          mock.teardown();
+
+          expect(request._headers.range).toEqual('12345');
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.getTrashedVideos({
+        Range: '12345'
+      }).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
         done();
 
       });
@@ -1602,6 +1689,253 @@ describe('Ingest API', function () {
         expect(response).toBeDefined();
 
         // Should be no response body on a 204 Accepted.
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : updateVideos', function () {
+
+    it('Should fail if no videos are passed in.', function (done) {
+
+      var request = api.updateVideos().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should send a request with an array of video objects.', function (done) {
+
+      var data, request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('PATCH', api.config.host + api.config.videos,
+        function (request, response) {
+
+          var data = {
+            "Body": [
+              {
+                "id": "3fc358b0-630e-43f2-85f9-69195b346312",
+                "url": "http://weasley.teamspace.ad:8080/videos/3fc358b0-630e-43f2-85f9-69195b346312",
+                "title": "an-exampleMODIFIED.mkve.mkv",
+                "description": "Test video.2",
+                "playback_url": null,
+                "status": 0,
+                "size": 0,
+                "created_at": "2015-12-08T17:54:48.437471Z",
+                "updated_at": "2015-12-16T17:29:48.108036Z",
+                "deleted_at": null,
+                "published_at": null,
+                "schedule_start": null,
+                "schedule_end": null,
+                "private": false,
+                "tags": null,
+                "poster": null,
+                "author": {
+                  "id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+                  "url": "http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+                  "email": "jamie.stackhouse@redspace.com",
+                  "profile": {
+                    "display_name": "Jamie Stackhouse",
+                    "title": "Super Geek"
+                  },
+                  "timezone": "America/Halifax",
+                  "deleted_at": null,
+                  "first_time_user": true
+                },
+                "updater": {
+                  "id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+                  "url": "http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
+                  "email": "jamie.stackhouse@redspace.com",
+                  "profile": {
+                    "display_name": "Jamie Stackhouse",
+                    "title": "Super Geek"
+                  },
+                  "timezone": "America/Halifax",
+                  "deleted_at": null,
+                  "first_time_user": true
+                }
+              }
+            ],
+            "Errors": null
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          "id": "3fc358b0-630e-43f2-85f9-69195b346312",
+          "title": "an-exampleMODIFIED.mkve.mkv"
+        }
+      ];
+
+      request = api.updateVideos(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.Body).toBeDefined();
+        expect(response.data.Errors).toBeNull();
+        expect(response.data.Body[0].id).toBeDefined();
+        expect(response.data.Body[0].title).toBe('an-exampleMODIFIED.mkve.mkv');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : deleteVideos', function () {
+
+    it('Should fail if no videos are passed in.', function (done) {
+
+      var request = api.deleteVideos().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should soft-delete all videos inside the passed in array.', function (done) {
+
+      var data, request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + api.config.videos,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(202);
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          "id": "3fc358b0-630e-43f2-85f9-69195b346312"
+        }
+      ];
+
+      request = api.deleteVideos(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(202);
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('Ingest API : permanentlyDeleteVideos', function () {
+
+    it('Should permanently delete all videos inside the passed in array.', function (done) {
+
+      var data, request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + api.config.videos + api.config.deleteMethods.permanent,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(202);
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          "id": "3fc358b0-630e-43f2-85f9-69195b346312"
+        }
+      ];
+
+      request = api.permanentlyDeleteVideos(data, true).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(202);
         expect(response.data).toBeFalsy();
 
         done();

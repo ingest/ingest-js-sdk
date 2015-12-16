@@ -24,6 +24,9 @@ function IngestAPI (options) {
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
     },
+    'deleteMethods': {
+      'permanent': '?permanent=1'
+    },
     'search': '/<%=resource%>?search=<%=input%>'
   };
 
@@ -169,6 +172,77 @@ IngestAPI.prototype.updateVideo = function (video) {
 };
 
 /**
+ * Updates a batch of videos in one HTTP request.
+ * @param {array} videos  An array of video objects.
+ * @return {Promise}      A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.updateVideos = function (videos) {
+  if (!Array.isArray(videos)) {
+    return this.promisify(false,
+      'IngestAPI updateVideos requires an array of videos');
+  }
+
+  return new Request({
+    url: this.config.host + this.config.videos,
+    token: this.getToken(),
+    method: 'PATCH',
+    data: videos
+  });
+};
+
+/**
+ * Deletes a batch of videos in one HTTP request.
+ * @private
+ * @param {array}    videos     An array of video objects.
+ * @param {boolean}  permanent  A flag to permanently delete each video.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype._deleteVideos = function (videos, permanent) {
+  var url;
+
+  if (!Array.isArray(videos)) {
+    return this.promisify(false,
+      'IngestAPI deleteVideos requires an array of videos');
+  }
+
+  url = this.config.host + this.config.videos;
+
+  if (permanent === true) {
+    url += this.config.deleteMethods.permanent;
+  }
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'DELETE',
+    data: videos
+  });
+};
+
+/**
+ * Delete a batch of videos.
+ *
+ * @param  {array}  videos  An array of video objects.
+ *
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteVideos = function (videos) {
+  return this._deleteVideos(videos);
+};
+
+/**
+ * Permanently delete a batch of videos.
+ *
+ * @param  {array}  videos  An array of video objects.
+ *
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.permanentlyDeleteVideos = function (videos) {
+  return this._deleteVideos(videos, true);
+};
+
+/**
  * Delete a video.
  * @private
  * @param  {string}   videoId   ID for the video to delete.
@@ -192,7 +266,7 @@ IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
   url = this.parseTokens(this.config.host + this.config.videoById, tokens);
 
   if (permanent === true) {
-    url = url + '?permanent=1';
+    url += this.config.deleteMethods.permanent;
   }
 
   return new Request({
@@ -267,6 +341,22 @@ IngestAPI.prototype.getVideosCount = function () {
     token: this.getToken(),
     method: 'HEAD'
   }).then(this.getCountResponse.bind(this));
+
+};
+
+/**
+ * Return the videos currently in the trash.
+ * @param {object} Headers to be passed along with the request for pagination.
+ *
+ * @return {Promise} Promise/A+ spec which resovles with the trashed videos.
+ */
+IngestAPI.prototype.getTrashedVideos = function (headers) {
+
+  return new Request({
+    url: this.config.host + this.config.trash,
+    token: this.getToken(),
+    headers: headers
+  });
 
 };
 
