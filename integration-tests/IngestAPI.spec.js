@@ -42,7 +42,8 @@ describe('Ingest API', function () {
       'addNetworkSecureKey',
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
-      'deleteNetworkSecureKeyById'
+      'deleteNetworkSecureKeyById',
+      'getVideoThumbnails'
     ];
 
     var requiredLength = required.length;
@@ -1951,6 +1952,90 @@ describe('Ingest API', function () {
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
 
+    });
+
+  });
+
+  describe('Ingest API : getVideoThumbnails', function () {
+
+    it('Should fail if an id is not provided.', function (done) {
+
+      var request = api.getVideoThumbnails().then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should return a list of thumbnails.', function (done) {
+
+      // Mock the XHR object.
+      mock.setup();
+
+      var data = [
+        {
+          "thumbnail_id":"a7d6da39-5d2e-4ff7-a5a1-b6b5da0ba124",
+          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster01.jpg",
+          "thumbnail_type":"system"
+        },
+        {
+          "thumbnail_id":"969620c5-ea68-4b54-bdec-3300242b5eeb",
+          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster02.jpg",
+          "thumbnail_type":"system"
+        },
+        {
+          "thumbnail_id":"6f5dbf2f-f9e5-406c-8856-aaf6daa9947e",
+          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster03.jpg",
+          "thumbnail_type":"system"
+        },
+        {
+          "thumbnail_id":"5bf0fddc-39dd-4630-913c-2e3582c781ad",
+          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster04.jpg",
+          "thumbnail_type":"system"
+        }
+      ];
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.thumbnails, {id: 'a-video-id'});
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + url,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      var request = api.getVideoThumbnails('a-video-id').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.length).toEqual(4);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
     });
 
   });
