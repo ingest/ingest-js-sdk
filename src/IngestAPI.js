@@ -13,13 +13,21 @@ function IngestAPI (options) {
   this.defaults = {
     'host': 'https://api.ingest.io',
     'videos': '/videos',
-    'thumbnails': '/videos/<%=id%>/thumbnails',
     'videoById': '/videos/<%=id%>',
-    'uploadSign': '/videos/<%=id%>/upload/sign<%=method%>',
+    'thumbnails': '/videos/<%=id%>/thumbnails',
     'trash': '/videos?filter=trashed',
     'networks': '/networks',
     'networksKeys': '/networks/keys',
     'networksKeysById': '/networks/keys/<%=id%>',
+
+    'inputs': '/encoding/inputs',
+    'inputsById' : '/encoding/inputs/<%=id%>',
+    'inputsUpload' : '/encoding/inputs/<%=id%>/upload',
+    'inputsUploadInitialize': '/encoding/inputs/<%=id%>/upload<%=method%>',
+    'inputsUploadSign': '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
+    'inputsUploadComplete': '/encoding/inputs/<%=id%>/upload/complete',
+    'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort',
+
     'uploadMethods': {
       'param': '?type=',
       'singlePart': 'amazon',
@@ -420,7 +428,7 @@ IngestAPI.prototype.signUploadBlob = function (data) {
     method: signing
   };
 
-  url = this.parseTokens(this.config.host + this.config.uploadSign, tokens);
+  url = this.parseTokens(this.config.host + this.config.inputsUploadSign, tokens);
 
   return new Request({
     url: url,
@@ -429,6 +437,41 @@ IngestAPI.prototype.signUploadBlob = function (data) {
     data: data
   });
 
+};
+
+/**
+ * Validate the object supplying the upload key and uploadId.
+ * @private
+ *
+ * @param  {object}   data            File data used to sign the upload.
+ * @param  {string}   data.key        The key associated with the file on AWS.
+ * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
+ *
+ * @return {boolean}  Boolean         Representing weather or not the object is valid.
+ **/
+IngestAPI.prototype._validateUploadIds = function (data) {
+
+  var result = {
+    valid: true,
+    message: ''
+  };
+
+  if (!data || typeof data !== 'object') {
+    result.valid = false;
+    result.message = 'The passed value was not an object.';
+  }
+
+  if (!data.key || typeof data.key !== 'string') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : key.';
+  }
+
+  if (!data.uploadId || typeof data.uploadId !== 'string') {
+    result.valid = false;
+    result.message = 'Missing or invalid property : uploadId';
+  }
+
+  return result;
 };
 
 /**
@@ -444,6 +487,7 @@ IngestAPI.prototype.signUploadBlob = function (data) {
  **/
 IngestAPI.prototype.validateUploadObject = function (data) {
 
+  var validIds = this._validateUploadIds(data);
   var result = {
     valid: true,
     message: ''
@@ -454,19 +498,14 @@ IngestAPI.prototype.validateUploadObject = function (data) {
     result.message = 'The passed value was not an object.';
   }
 
+  // Make sure all the proper properties have been passed in.
+  if (!validIds.valid) {
+    result = validIds;
+  }
+
   if (!data.id || typeof data.id !== 'string') {
     result.valid = false;
     result.message = 'Missing or invalid property : id.';
-  }
-
-  if (!data.key || typeof data.key !== 'string') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : key.';
-  }
-
-  if (!data.uploadId || typeof data.uploadId !== 'string') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : uploadId';
   }
 
   if (!data.partNumber || typeof data.partNumber !== 'number') {
@@ -693,6 +732,259 @@ IngestAPI.prototype.getVideoThumbnails = function (id) {
     token: this.getToken()
   });
 
+};
+
+/**
+ * Return a list of inputs for the current user and network.
+ * @param  {object}  headers Javascript object representing headers to apply to the call.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.getInputs = function (headers) {
+
+  return new Request({
+    url: this.config.host + this.config.inputs,
+    token: this.getToken(),
+    headers: headers
+  });
+
+};
+
+/**
+ * Return an input that matches the supplied id.
+ * @param  {string}  inputId ID for the requested video.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.getInputsById = function (inputId) {
+
+  var url;
+  var tokens;
+
+  if (!inputId || typeof inputId !== 'string') {
+    // Wrap the error in a promise so the user is still catching the errors.
+    return this.promisify(false,
+      'IngestAPI getInputsById requires a valid inputId as a string.');
+  }
+
+  tokens = {
+    id: inputId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.inputsById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken()
+  });
+
+};
+
+/**
+ * Add a new input.
+ * @param  {array}  inputObject An object representing the input to add.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.addInputs = function (inputs) {
+
+  // Validate the object being passed in.
+  if (!Array.isArray(inputs)) {
+    // Wrap the error in a promise.
+    return this.promisify(false,
+      'IngestAPI addInput requires an array of input objects.');
+  }
+
+  // Return the promise from the request.
+  return new Request({
+    url: this.config.host + this.config.inputs,
+    token: this.getToken(),
+    method: 'POST',
+    data: inputs
+  });
+};
+
+/**
+ * Delete a single input
+ * @param  {string}  inputId An id for the input you wish to delete
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteInput = function (inputId) {
+
+  var url;
+  var tokens;
+
+  if (!inputId || typeof inputId !== 'string') {
+    return this.promisify(false,
+      'IngestAPI deleteInput requires a video ID passed as a string.');
+  }
+
+  tokens = {
+    id: inputId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.inputsById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'DELETE'
+  });
+
+};
+
+/**
+ * Delete many inputs
+ * @param  {array}   inputs An array of inputs to be deleted
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteInputs = function (inputs) {
+
+  var url;
+
+  if (!Array.isArray(inputs)) {
+    return this.promisify(false,
+      'IngestAPI deleteInputs requires an array of input Ids');
+  }
+
+  url = this.config.host + this.config.inputs;
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'DELETE',
+    data: inputs
+  });
+};
+
+/**
+ * Initializes an Input for upload
+ * @param  {string}  inputId     An id for the input you wish to delete
+ * @param  {object}  data        The object containing data for the upload initialization.
+ * @param  {string}  data.type   The content type of the item you wish to upload
+ * @param  {number}  data.size   The size of the item you wish to upload
+ * @param  {boolean} data.method A boolean representing whether or not it is a multipart upload
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
+
+  var url;
+  var tokens;
+  var signing = '';
+
+  if (!inputId || typeof inputId !== 'string') {
+    return this.promisify(false,
+      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
+  }
+
+  if (!data.type || typeof data.type !== 'string') {
+    return this.promisify(false,
+      'Missing or invalid property : type.');
+  }
+
+  if (!data.size || typeof data.size !== 'number') {
+    return this.promisify(false,
+      'Missing or invalid property : size');
+  }
+
+  if (!data.method) {
+    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
+  }
+
+  tokens = {
+    id: inputId,
+    method: signing
+  };
+
+  url = this.parseTokens(this.config.host + this.config.inputsUploadInitialize, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'POST',
+    data: data
+  });
+};
+
+/**
+ * Completes an input upload
+ * @param  {string}  inputId        An id for the input you wish to delete
+ * @param  {object}  data           The object containing data for the upload completion.
+ * @param  {string}  data.uploadId  The uploadId you wish to complete the upload for
+ * @param  {number}  data.key       The key of the upload you wish to complete
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.completeInputUpload = function (inputId, data) {
+
+  var url;
+  var tokens;
+  var checkObject = this._validateUploadIds(data);
+
+  if (!inputId || typeof inputId !== 'string') {
+    return this.promisify(false,
+      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
+  }
+
+  // Make sure all the proper properties have been passed in.
+  if (!checkObject.valid) {
+    return this.promisify(false, checkObject.message);
+  }
+
+  tokens = {
+    id: inputId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.inputsUploadComplete, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'POST',
+    data: data
+  });
+};
+
+/**
+ * Completes an input upload
+ * @param  {string}  inputId        An id for the input you wish to delete
+ * @param  {object}  data           The object containing data for the upload completion.
+ * @param  {string}  data.uploadId  The uploadId you wish to complete the upload for
+ * @param  {number}  data.key       The key of the upload you wish to complete
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.abortInputUpload = function (inputId, data) {
+
+  var url;
+  var tokens;
+  var checkObject = this._validateUploadIds(data);
+
+  if (!inputId || typeof inputId !== 'string') {
+    return this.promisify(false,
+      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
+  }
+
+  // Make sure all the proper properties have been passed in.
+  if (!checkObject.valid) {
+    return this.promisify(false, checkObject.message);
+  }
+
+  tokens = {
+    id: inputId
+  };
+
+  url = this.parseTokens(this.config.host + this.config.inputsUploadAbort, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'POST',
+    data: data
+  });
 };
 
 module.exports = IngestAPI;

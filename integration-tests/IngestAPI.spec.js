@@ -43,7 +43,15 @@ describe('Ingest API', function () {
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      'getVideoThumbnails'
+      'getVideoThumbnails',
+      'getInputs',
+      'getInputsById',
+      'addInputs',
+      'deleteInput',
+      'deleteInputs',
+      'initializeInputUpload',
+      'completeInputUpload',
+      'abortInputUpload'
     ];
 
     var requiredLength = required.length;
@@ -337,6 +345,57 @@ describe('Ingest API', function () {
         "size": 0,
         "description": "Test video."
       };
+
+        // Mock the XHR object.
+      mock.setup();
+
+      var resp = {
+        author: {
+          deleted_at: null,
+          email: "shawn.gillam-wright@redspace.com",
+          first_time_user: true,
+          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+          profile: {},
+          timezone: "UTC",
+          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+        },
+        created_at: "2015-12-18T15:54:53.085423Z",
+        deleted_at: null,
+        description: "sdf",
+        id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+        playback_url: null,
+        poster: null,
+        private: null,
+        published_at: null,
+        schedule_end: null,
+        schedule_start: null,
+        size: 0,
+        status: 0,
+        tags: ["sdf"],
+        title: "ad",
+        updated_at: "2015-12-18T15:54:53.085423Z",
+        updater: {
+          deleted_at: null,
+          email: "shawn.gillam-wright@redspace.com",
+          first_time_user: true,
+          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+          profile: {},
+          timezone: "UTC",
+          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+        },
+        url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+      }
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + api.config.videos , function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(resp));
+
+      });
 
       var request = api.addVideo(video).then(function (response) {
 
@@ -783,7 +842,7 @@ describe('Ingest API', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/videos/test-upload-video-id/upload/sign',
+      mock.post(api.config.host + '/encoding/inputs/test-upload-input-id/upload/sign',
         function (request, response) {
 
           var data = {
@@ -803,7 +862,7 @@ describe('Ingest API', function () {
 
       // Mock blob to sign.
       var data = {
-        id: 'test-upload-video-id',
+        id: 'test-upload-input-id',
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
         uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
@@ -838,7 +897,7 @@ describe('Ingest API', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/videos/test-upload-video-id/upload/sign?type=amazon',
+      mock.post(api.config.host + '/encoding/inputs/test-upload-input-id/upload/sign?type=amazon',
         function (request, response) {
 
           var data = {
@@ -858,7 +917,7 @@ describe('Ingest API', function () {
 
       // Mock blob to sign.
       var data = {
-        id: 'test-upload-video-id',
+        id: 'test-upload-input-id',
         key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
         partNumber: 2,
         uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
@@ -1060,7 +1119,7 @@ describe('Ingest API', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/videos/test/upload/sign?type=amazon',
+      mock.post(api.config.host + '/encoding/inputs/test/upload/sign?type=amazon',
         function (request, response) {
 
           var data = {
@@ -2040,4 +2099,711 @@ describe('Ingest API', function () {
 
   });
 
+  describe('Ingest API : getInputs', function () {
+
+    it('Should return a list of inputs.', function (done) {
+
+      // Mock the XHR object.
+      mock.setup();
+
+      var data = [
+        {
+          'id': '1359545e-1108-4149-bf8a-8504576ab713',
+          'filename': 'test-vid.avi',
+          'type': 'video/avi',
+          'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+          'size': 67301934,
+          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+          'job_id': null
+        }, {
+          'id': '54f2f4e7-3468-4e11-ae8a-194cc516b42a',
+          'filename': 'test_vid.mp4',
+          'type': 'video/mp4',
+          'path': 'redspace/54f2f4e7-3468-4e11-ae8a-194cc516b42a/43b02457-ed64-4d79-a102-c5f443b93',
+          'size': 37992174,
+          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+          'job_id': null
+        },
+      ];
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + api.config.inputs , function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(data));
+
+      });
+
+      var request = api.getInputs().then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.length).toEqual(2);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+  });
+
+  describe('Ingest API : getInputsById', function () {
+    it('Should fail if an id is not provided.', function (done) {
+
+      var request = api.getInputsById().then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should return a single input.', function (done) {
+
+      // Mock the XHR object.
+      mock.setup();
+
+      var data = {
+        'Body': [
+          {
+            'id': '1359545e-1108-4149-bf8a-8504576ab713',
+            'filename': 'test-vid.avi',
+            'type': 'video/avi',
+            'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+            'size': 67301934,
+            'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+            'job_id': null
+          }
+        ]
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsById, {id: '1359545e-1108-4149-bf8a-8504576ab713'});
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + url,
+        function (request, response) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(data));
+      });
+
+      var request = api.getInputsById('1359545e-1108-4149-bf8a-8504576ab713').then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data.Body).toBeDefined();
+        expect(response.data.Body[0].id).toBeDefined();
+        expect(response.data.Body[0].filename).toBe('test-vid.avi');
+
+        done();
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : addInput', function () {
+    it('Should fail if an array is not provided.', function (done) {
+
+      var inputs = {
+        'id': '1359545e-1108-4149-bf8a-8504576ab713',
+        'filename': 'test-vid.avi',
+        'type': 'video/avi',
+        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+        'size': 67301934,
+        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+        'job_id': null
+      };
+
+      var request = api.addInputs(inputs).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('should return the added input', function (done) {
+      // Mock the XHR object.
+      mock.setup();
+
+      var addedInput = {
+        'Body': [{
+          'id': '1359545e-1108-4149-bf8a-8504576ab713',
+          'filename': 'filename.mp4',
+          'type': 'video/mp4',
+          'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+          'size': 67301934,
+          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+          'job_id': null
+        }]
+      }
+
+      var toAdd = [{
+        'type': 'video/mp4',
+        'filename': 'filename.mp4',
+        'size': 5242880 // 5MB
+      }];
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + api.config.inputs, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(addedInput));
+      });
+
+      var request = api.addInputs(toAdd).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data.Body).toBeDefined();
+        expect(response.data.Body[0].id).toBeDefined();
+        expect(response.data.Body[0].filename).toBe('filename.mp4');
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : deleteInput', function () {
+    it('should fail if the passed in id is not a string', function (done) {
+      var id = 1234;
+
+      var request = api.deleteInput(id).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should return a status code of 202', function (done) {
+      // Mock the XHR object.
+      mock.setup();
+
+      var input = {
+        'id': '1359545e-1108-4149-bf8a-8504576ab713',
+        'filename': 'filename.mp4',
+        'type': 'video/mp4',
+        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+        'size': 67301934,
+        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+        'job_id': null
+      };
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsById, {id: input.id});
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(202);
+      });
+
+      var request = api.deleteInput(input.id).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.statusCode).toBe(202);
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : deleteInputs', function () {
+    it('should fail if the passed in inputs is not an array', function (done) {
+      var inputs = {
+        'id': '12345'
+      };
+
+      var request = api.deleteInputs(inputs).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should return a status code of 202', function (done) {
+      // Mock the XHR object.
+      mock.setup();
+
+      var inputs = [{
+        'id': '1359545e-1108-4149-bf8a-8504576ab713',
+        'filename': 'filename.mp4',
+        'type': 'video/mp4',
+        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
+        'size': 67301934,
+        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+        'job_id': null
+      }];
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + api.config.inputs, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(202);
+      });
+
+      var request = api.deleteInputs(inputs).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.statusCode).toBe(202);
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : initializeInputUpload', function () {
+    it('should fail if the passed in inputId is not a string', function (done) {
+      var inputId = 1234;
+      var data = {
+        'type': 'video/mp4',
+        'size': 67301934,
+        'method': ''
+      };
+
+      var request = api.initializeInputUpload(inputId, data).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+   it('should fail if data.type is not a string', function (done) {
+      var inputId = '1234';
+      var data = {
+        'type': 1234,
+        'size': 67301934,
+        'method': ''
+      };
+
+      var request = api.initializeInputUpload(inputId, data).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should fail if data.size is not a number', function (done) {
+      var inputId = '1234';
+      var data = {
+        'type': 'video/mp4',
+        'size': '67301934',
+        'method': ''
+      };
+
+      var request = api.initializeInputUpload(inputId, data).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should initialize a multipart upload for upload', function (done) {
+      mock.setup();
+      var inputId = '1234';
+      var signing = '';
+
+      var data = {
+        'type': 'video/mp4',
+        'size': 67301934,
+        'method': true
+      };
+
+      var resp = {
+        'key': 'redspace/1234',
+        'pieceCount': 8,
+        'pieceSize': 5242880,
+        'uploadId': 'gfisdygfisuhiuh4253u4h5i3'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadInitialize, {id: inputId, method: signing});
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(resp));
+      });
+
+      var request = api.initializeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data.key).toBeDefined();
+        expect(response.data.pieceCount).toBeDefined();
+        expect(response.data.pieceSize).toBeDefined();
+        expect(response.data.uploadId).toBeDefined();
+
+        // If its not there it means it will be a multipart
+        expect(url.indexOf('amazonMP')).toBe(-1);
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should initialize a multipart upload for upload', function (done) {
+      mock.setup();
+      var inputId = '1234';
+      var signing = '?type=amazon';
+
+      var data = {
+        'type': 'video/mp4',
+        'size': 67301934,
+        'method': false
+      };
+
+      var resp = {
+        'key': 'redspace/1234',
+        'pieceCount': 8,
+        'pieceSize': 5242880,
+        'uploadId': 'gfisdygfisuhiuh4253u4h5i3'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadInitialize, {id: inputId, method: signing});
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(resp));
+      });
+
+      var request = api.initializeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data.key).toBeDefined();
+        expect(response.data.pieceCount).toBeDefined();
+        expect(response.data.pieceSize).toBeDefined();
+        expect(response.data.uploadId).toBeDefined();
+
+        // If its not there it means it will be a multipart
+        expect(url.indexOf('amazon')).not.toBe(-1);
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : completeInputUpload', function () {
+    it('should fail if the inputId is not a string', function (done) {
+      var inputId = 1234;
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadComplete, {id: inputId});
+
+      var request = api.completeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should fail if the key is not a string', function (done) {
+      var inputId = '1234';
+      var data = {
+        key: 1234,
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadComplete, {id: inputId});
+
+      var request = api.completeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should fail if the uploadId is not a string', function (done) {
+      var inputId = '1234';
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 1234
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadComplete, {id: inputId});
+
+      var request = api.completeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should have a response statusCode of 200', function (done) {
+      mock.setup();
+
+      var inputId = '1234';
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadComplete, {id: inputId});
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200);
+      });
+
+      var request = api.completeInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.statusCode).toBe(200);
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
+  describe('Ingest API : abortInputUpload', function () {
+    it('should fail if the inputId is not a string', function (done) {
+      var inputId = 1234;
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadAbort, {id: inputId});
+
+      var request = api.abortInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should fail if the key is not a string', function (done) {
+      var inputId = '1234';
+      var data = {
+        key: 1234,
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadAbort, {id: inputId});
+
+      var request = api.abortInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should fail if the uploadId is not a string', function (done) {
+      var inputId = '1234';
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 1234
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadAbort, {id: inputId});
+
+      var request = api.abortInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeUndefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('should have a response statusCode of 200', function (done) {
+      mock.setup();
+
+      var inputId = '1234';
+      var data = {
+        key: 'redspace/5df59845-3bfd-4ff7-b40c-cc4147b2edf1/3991421d-4270-4b45-8a1f-3d60890e5d93',
+        uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
+      }
+
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadAbort, {id: inputId});
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200);
+      });
+
+      var request = api.abortInputUpload(inputId, data).then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.statusCode).toBe(200);
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+  });
 });
