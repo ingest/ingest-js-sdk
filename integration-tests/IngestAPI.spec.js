@@ -346,7 +346,7 @@ describe('Ingest API', function () {
         "description": "Test video."
       };
 
-        // Mock the XHR object.
+      // Mock the XHR object.
       mock.setup();
 
       var resp = {
@@ -841,8 +841,11 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadSign, {id: 'test-upload-input-id', method: ''});
+
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/encoding/inputs/test-upload-input-id/upload/sign',
+      mock.post(api.config.host + url,
         function (request, response) {
 
           var data = {
@@ -896,8 +899,14 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
+      var url = IngestAPI.prototype.parseTokens
+        .call(
+          this, api.config.inputsUploadSign,
+          {id: 'test-upload-input-id', method: '?type=amazon'}
+        );
+
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/encoding/inputs/test-upload-input-id/upload/sign?type=amazon',
+      mock.post(api.config.host + url,
         function (request, response) {
 
           var data = {
@@ -1118,8 +1127,11 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
+      var url = IngestAPI.prototype.parseTokens
+        .call(this, api.config.inputsUploadSign, {id: 'test', method: '?type=amazon'});
+
       // Mock the response from the REST api.
-      mock.post(api.config.host + '/encoding/inputs/test/upload/sign?type=amazon',
+      mock.post(api.config.host + url,
         function (request, response) {
 
           var data = {

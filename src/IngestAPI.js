@@ -56,7 +56,7 @@ function IngestAPI (options) {
 IngestAPI.prototype.setToken = function (token) {
 
   // Make sure a valid value is passed.
-  if (!token || typeof token !== 'string') {
+  if (typeof token !== 'string') {
     throw new Error('IngestAPI requires an authentication token passed as a string.');
   }
 
@@ -105,7 +105,7 @@ IngestAPI.prototype.getVideoById = function (videoId) {
   var url;
   var tokens;
 
-  if (!videoId || typeof videoId !== 'string') {
+  if (typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
     return this.promisify(false,
       'IngestAPI getVideoById requires a valid videoId as a string.');
@@ -133,7 +133,7 @@ IngestAPI.prototype.getVideoById = function (videoId) {
 IngestAPI.prototype.addVideo = function (videoObject) {
 
   // Validate the object being passed in.
-  if (!videoObject || typeof videoObject !== 'object') {
+  if (typeof videoObject !== 'object') {
     // Wrap the error in a promise.
     return this.promisify(false,
       'IngestAPI addVideo requires a video object.');
@@ -159,7 +159,7 @@ IngestAPI.prototype.updateVideo = function (video) {
   var url;
   var tokens;
 
-  if (!video || typeof video !== 'object') {
+  if (typeof video !== 'object') {
     return this.promisify(false,
       'IngestAPI update requires a video to be passed as an object.');
   }
@@ -261,7 +261,7 @@ IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
   var url;
   var tokens;
 
-  if (!videoId || typeof videoId !== 'string') {
+  if (typeof videoId !== 'string') {
     return this.promisify(false,
       'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
@@ -314,12 +314,12 @@ IngestAPI.prototype.searchVideos = function (resource, input, headers) {
 
   var url;
 
-  if (!resource || typeof resource !== 'string') {
+  if (typeof resource !== 'string') {
     return this.promisify(false,
       'IngestAPI searchVideos requires a resource type to be passed as a string.');
   }
 
-  if (!input || typeof input !== 'string') {
+  if (typeof input !== 'string') {
     return this.promisify(false,
       'IngestAPI searchVideos requires search input to be passed as a string.');
   }
@@ -454,17 +454,17 @@ IngestAPI.prototype._validateUploadIds = function (data) {
     message: ''
   };
 
-  if (!data || typeof data !== 'object') {
+  if (typeof data !== 'object') {
     result.valid = false;
     result.message = 'The passed value was not an object.';
   }
 
-  if (!data.key || typeof data.key !== 'string') {
+  if (typeof data.key !== 'string') {
     result.valid = false;
     result.message = 'Missing or invalid property : key.';
   }
 
-  if (!data.uploadId || typeof data.uploadId !== 'string') {
+  if (typeof data.uploadId !== 'string') {
     result.valid = false;
     result.message = 'Missing or invalid property : uploadId';
   }
@@ -491,7 +491,7 @@ IngestAPI.prototype.validateUploadObject = function (data) {
     message: ''
   };
 
-  if (!data || typeof data !== 'object') {
+  if (typeof data !== 'object') {
     result.valid = false;
     result.message = 'The passed value was not an object.';
   }
@@ -501,12 +501,12 @@ IngestAPI.prototype.validateUploadObject = function (data) {
     result = validIds;
   }
 
-  if (!data.id || typeof data.id !== 'string') {
+  if (typeof data.id !== 'string') {
     result.valid = false;
     result.message = 'Missing or invalid property : id.';
   }
 
-  if (!data.partNumber || typeof data.partNumber !== 'number') {
+  if (typeof data.partNumber !== 'number') {
     result.valid = false;
     result.message = 'Missing or invalid property : partNumber';
   }
@@ -759,7 +759,7 @@ IngestAPI.prototype.getInputsById = function (inputId) {
   var url;
   var tokens;
 
-  if (!inputId || typeof inputId !== 'string') {
+  if (typeof inputId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
     return this.promisify(false,
       'IngestAPI getInputsById requires a valid inputId as a string.');
@@ -813,7 +813,7 @@ IngestAPI.prototype.deleteInput = function (inputId) {
   var url;
   var tokens;
 
-  if (!inputId || typeof inputId !== 'string') {
+  if (typeof inputId !== 'string') {
     return this.promisify(false,
       'IngestAPI deleteInput requires a video ID passed as a string.');
   }
@@ -873,17 +873,17 @@ IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
   var tokens;
   var signing = '';
 
-  if (!inputId || typeof inputId !== 'string') {
+  if (typeof inputId !== 'string') {
     return this.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
 
-  if (!data.type || typeof data.type !== 'string') {
+  if (typeof data.type !== 'string') {
     return this.promisify(false,
       'Missing or invalid property : type.');
   }
 
-  if (!data.size || typeof data.size !== 'number') {
+  if (typeof data.size !== 'number') {
     return this.promisify(false,
       'Missing or invalid property : size');
   }
@@ -922,7 +922,7 @@ IngestAPI.prototype.completeInputUpload = function (inputId, data) {
   var tokens;
   var checkObject = this._validateUploadIds(data);
 
-  if (!inputId || typeof inputId !== 'string') {
+  if (typeof inputId !== 'string') {
     return this.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
@@ -961,7 +961,7 @@ IngestAPI.prototype.abortInputUpload = function (inputId, data) {
   var tokens;
   var checkObject = this._validateUploadIds(data);
 
-  if (!inputId || typeof inputId !== 'string') {
+  if (typeof inputId !== 'string') {
     return this.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
