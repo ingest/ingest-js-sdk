@@ -1,11 +1,22 @@
 // Token will need to be re-generated every 24 hours.
 var valid_token = 'Bearer ' + window.token;
 
-var invalid_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNDUwMzY2NzkxIiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.MGdv4o_sNc84OsRlsitw6D933A3zBqEEacEdp30IQeg';  //eslint-disable-line
+var invalid_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNDUwMzY2NzkxIiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.MGdv4o_sNc84OsRlsitw6D933A3zBqEEacEdp30IQeg';  //eslint-disable-line
+var malformed_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.xuEv8qrfXu424LZk8bVgr9MQJUIrp1rHcPyZw_KSsds' //eslint-disable-line
 
-var JWTUtils = require('../src/JWTUtils');
+var JWTUtils;
 
 describe('JWTUtils', function () {
+
+  // Reset the auth token.
+  beforeEach(function () {
+    var api = new IngestAPI({
+      host: 'http://weasley.teamspace.ad:8080',
+      token: valid_token
+    });
+
+    JWTUtils = api.JWTUtils;
+  });
 
   it('Should expose utility functions.', function () {
     expect(JWTUtils).toBeDefined();
@@ -31,6 +42,10 @@ describe('JWTUtils', function () {
 
     it('Should return true if the token is expired.', function () {
       expect(JWTUtils.isExpired(invalid_token)).toEqual(true);
+    });
+
+    it('Should return true if the token does not have an exp.', function () {
+      expect(JWTUtils.isExpired(malformed_token)).toEqual(true);
     });
 
   });
