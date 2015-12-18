@@ -1,6 +1,8 @@
 var Promise = require('pinkyswear');
 var extend = require('extend');
 
+var JWTUtils = require('./JWTUtils');
+
 var VALID_RESPONSE_CODES = [200, 201, 202, 204];
 
 /**
@@ -71,6 +73,13 @@ Request.prototype.makeRequest = function () {
 
   // Make the token optional.
   if (this.options.token) {
+
+    // If there is a token present ensure that it's still valid.
+    if (JWTUtils.isExpired(this.options.token)) {
+      this.requestError('Request Error : token is expired.');
+      return;
+    }
+
     this.request.setRequestHeader('Authorization', this.options.token);
   }
 

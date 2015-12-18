@@ -19,7 +19,6 @@ function IngestAPI (options) {
     'networks': '/networks',
     'networksKeys': '/networks/keys',
     'networksKeysById': '/networks/keys/<%=id%>',
-
     'inputs': '/encoding/inputs',
     'inputsById' : '/encoding/inputs/<%=id%>',
     'inputsUpload' : '/encoding/inputs/<%=id%>/upload',
@@ -27,7 +26,6 @@ function IngestAPI (options) {
     'inputsUploadSign': '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
     'inputsUploadComplete': '/encoding/inputs/<%=id%>/upload/complete',
     'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort',
-
     'uploadMethods': {
       'param': '?type=',
       'singlePart': 'amazon',
