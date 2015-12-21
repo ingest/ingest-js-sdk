@@ -1,6 +1,7 @@
 var Request = require('./Request.js');
 var Promise = require('pinkyswear');
 var extend = require('extend');
+var JWTUtils = require('./JWTUtils');
 
 /**
  * IngestAPI Object
@@ -33,7 +34,8 @@ function IngestAPI (options) {
     'deleteMethods': {
       'permanent': '?permanent=1'
     },
-    'search': '/<%=resource%>?search=<%=input%>'
+    'search': '/<%=resource%>?search=<%=input%>',
+    'currentUserInfo': '/users/me'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -45,6 +47,7 @@ function IngestAPI (options) {
   }
 
   this.request = Request;
+  this.JWTUtils = JWTUtils;
 
 }
 
@@ -981,6 +984,19 @@ IngestAPI.prototype.abortInputUpload = function (inputId, data) {
     token: this.getToken(),
     method: 'POST',
     data: data
+  });
+};
+
+module.exports = IngestAPI;
+
+/*
+ * Retrieve information for the current user.
+ * @return {object} A data object representing the user.
+ */
+IngestAPI.prototype.getCurrentUserInfo = function () {
+  return new Request({
+    url: this.config.host + this.config.currentUserInfo,
+    token: this.getToken()
   });
 };
 
