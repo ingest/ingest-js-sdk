@@ -2532,7 +2532,7 @@ describe('Ingest API', function () {
       }
 
       var url = api.parseTokens
-        .call(this, api.config.inputsUploadInitialize, {id: inputId, method: signing});
+        .call(this, api.config.inputsUpload, {id: inputId, method: signing});
 
       // Mock the response from the REST api.
       mock.mock('POST', api.config.host + url, function (request, response) {
@@ -2583,7 +2583,7 @@ describe('Ingest API', function () {
       }
 
       var url = api.parseTokens
-        .call(this, api.config.inputsUploadInitialize, {id: inputId, method: signing});
+        .call(this, api.config.inputsUpload, {id: inputId, method: signing});
 
       // Mock the response from the REST api.
       mock.mock('POST', api.config.host + url, function (request, response) {

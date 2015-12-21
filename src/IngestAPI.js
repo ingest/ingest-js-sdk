@@ -21,8 +21,7 @@ function IngestAPI (options) {
     'networksKeysById': '/networks/keys/<%=id%>',
     'inputs': '/encoding/inputs',
     'inputsById' : '/encoding/inputs/<%=id%>',
-    'inputsUpload' : '/encoding/inputs/<%=id%>/upload',
-    'inputsUploadInitialize': '/encoding/inputs/<%=id%>/upload<%=method%>',
+    'inputsUpload': '/encoding/inputs/<%=id%>/upload<%=method%>',
     'inputsUploadSign': '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
     'inputsUploadComplete': '/encoding/inputs/<%=id%>/upload/complete',
     'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort',
@@ -897,7 +896,7 @@ IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
     method: signing
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsUploadInitialize, tokens);
+  url = this.parseTokens(this.config.host + this.config.inputsUpload, tokens);
 
   return new Request({
     url: url,
