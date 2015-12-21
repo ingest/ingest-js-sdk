@@ -43,7 +43,8 @@ describe('Ingest API', function () {
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      'getVideoThumbnails'
+      'getVideoThumbnails',
+      'getCurrentUserInfo'
     ];
 
     var requiredLength = required.length;
@@ -333,9 +334,9 @@ describe('Ingest API', function () {
     it('Should add a video.', function (done) {
 
       var video = {
-        "title": "an-example.mkve.mkv",
-        "size": 0,
-        "description": "Test video."
+        'title': 'an-example.mkve.mkv',
+        'size': 0,
+        'description': 'Test video.'
       };
 
       var request = api.addVideo(video).then(function (response) {
@@ -1122,13 +1123,13 @@ describe('Ingest API', function () {
 
           var data = [
             {
-              "id": "801d46e7-8cc8-4b2c-b064-770a0a046bd8",
-              "title": "Network Secure Key",
-              "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
-              "created_at": "2014-10-10 11:20:38.022191",
-              "updated_at": "2014-10-10 11:20:38.022191",
-              "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-              "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+              'id': '801d46e7-8cc8-4b2c-b064-770a0a046bd8',
+              'title': 'Network Secure Key',
+              'key': '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....',
+              'created_at': '2014-10-10 11:20:38.022191',
+              'updated_at': '2014-10-10 11:20:38.022191',
+              'author_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+              'updater_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c'
             }
           ];
 
@@ -1224,13 +1225,13 @@ describe('Ingest API', function () {
         function (request, response) {
 
           var data = {
-            "id": "801d46e7-8cc8-4b2c-b064-770a0a046bd8",
-            "title": "Default Key Title",
-            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
-            "created_at": "2014-10-10 11:20:38.022191",
-            "updated_at": "2014-10-10 11:20:38.022191",
-            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+            'id': '801d46e7-8cc8-4b2c-b064-770a0a046bd8',
+            'title': 'Default Key Title',
+            'key': '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....',
+            'created_at': '2014-10-10 11:20:38.022191',
+            'updated_at': '2014-10-10 11:20:38.022191',
+            'author_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+            'updater_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c'
           };
 
           // Restore the XHR object.
@@ -1244,7 +1245,7 @@ describe('Ingest API', function () {
 
       // Mock the request data
       data = {
-        title: [{"name": "Taylor Swift"}],
+        title: [{'name': 'Taylor Swift'}],
         key: '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....'
       };
 
@@ -1365,13 +1366,13 @@ describe('Ingest API', function () {
         function (request, response) {
 
           var data = {
-            "id": id,
-            "title": "Secure Key Entry #1",
-            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
-            "created_at": "2014-10-10 11:20:38.022191",
-            "updated_at": "2014-10-10 11:20:38.022191",
-            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+            'id': id,
+            'title': 'Secure Key Entry #1',
+            'key': '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....',
+            'created_at': '2014-10-10 11:20:38.022191',
+            'updated_at': '2014-10-10 11:20:38.022191',
+            'author_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+            'updater_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c'
           };
 
           // Restore the XHR object.
@@ -1500,13 +1501,13 @@ describe('Ingest API', function () {
         function (request, response) {
 
           var data = {
-            "id": id,
-            "title": "Default Key Title",
-            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
-            "created_at": "2014-10-10 11:20:38.022191",
-            "updated_at": "2014-10-10 11:20:38.022191",
-            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+            'id': id,
+            'title': 'Default Key Title',
+            'key': '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....',
+            'created_at': '2014-10-10 11:20:38.022191',
+            'updated_at': '2014-10-10 11:20:38.022191',
+            'author_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+            'updater_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c'
           };
 
           // Restore the XHR object.
@@ -1564,13 +1565,13 @@ describe('Ingest API', function () {
         function (request, response) {
 
           var data = {
-            "id": id,
-            "title": "This is a new key.",
-            "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....",
-            "created_at": "2014-10-10 11:20:38.022191",
-            "updated_at": "2014-10-10 11:20:38.022191",
-            "author_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-            "updater_id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c"
+            'id': id,
+            'title': 'This is a new key.',
+            'key': '-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0....',
+            'created_at': '2014-10-10 11:20:38.022191',
+            'updated_at': '2014-10-10 11:20:38.022191',
+            'author_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+            'updater_id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c'
           };
 
           // Restore the XHR object.
@@ -1744,51 +1745,51 @@ describe('Ingest API', function () {
         function (request, response) {
 
           var data = {
-            "Body": [
+            'Body': [
               {
-                "id": "3fc358b0-630e-43f2-85f9-69195b346312",
-                "url": "http://weasley.teamspace.ad:8080/videos/3fc358b0-630e-43f2-85f9-69195b346312",
-                "title": "an-exampleMODIFIED.mkve.mkv",
-                "description": "Test video.2",
-                "playback_url": null,
-                "status": 0,
-                "size": 0,
-                "created_at": "2015-12-08T17:54:48.437471Z",
-                "updated_at": "2015-12-16T17:29:48.108036Z",
-                "deleted_at": null,
-                "published_at": null,
-                "schedule_start": null,
-                "schedule_end": null,
-                "private": false,
-                "tags": null,
-                "poster": null,
-                "author": {
-                  "id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-                  "url": "http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-                  "email": "jamie.stackhouse@redspace.com",
-                  "profile": {
-                    "display_name": "Jamie Stackhouse",
-                    "title": "Super Geek"
+                'id': '3fc358b0-630e-43f2-85f9-69195b346312',
+                'url': 'http://weasley.teamspace.ad:8080/videos/3fc358b0-630e-43f2-85f9-69195b346312',
+                'title': 'an-exampleMODIFIED.mkve.mkv',
+                'description': 'Test video.2',
+                'playback_url': null,
+                'status': 0,
+                'size': 0,
+                'created_at': '2015-12-08T17:54:48.437471Z',
+                'updated_at': '2015-12-16T17:29:48.108036Z',
+                'deleted_at': null,
+                'published_at': null,
+                'schedule_start': null,
+                'schedule_end': null,
+                'private': false,
+                'tags': null,
+                'poster': null,
+                'author': {
+                  'id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+                  'url': 'http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+                  'email': 'jamie.stackhouse@redspace.com',
+                  'profile': {
+                    'display_name': 'Jamie Stackhouse',
+                    'title': 'Super Geek'
                   },
-                  "timezone": "America/Halifax",
-                  "deleted_at": null,
-                  "first_time_user": true
+                  'timezone': 'America/Halifax',
+                  'deleted_at': null,
+                  'first_time_user': true
                 },
-                "updater": {
-                  "id": "7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-                  "url": "http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c",
-                  "email": "jamie.stackhouse@redspace.com",
-                  "profile": {
-                    "display_name": "Jamie Stackhouse",
-                    "title": "Super Geek"
+                'updater': {
+                  'id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+                  'url': 'http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
+                  'email': 'jamie.stackhouse@redspace.com',
+                  'profile': {
+                    'display_name': 'Jamie Stackhouse',
+                    'title': 'Super Geek'
                   },
-                  "timezone": "America/Halifax",
-                  "deleted_at": null,
-                  "first_time_user": true
+                  'timezone': 'America/Halifax',
+                  'deleted_at': null,
+                  'first_time_user': true
                 }
               }
             ],
-            "Errors": null
+            'Errors': null
           };
 
           // Restore the XHR object.
@@ -1803,8 +1804,8 @@ describe('Ingest API', function () {
       // Mock request data.
       data = [
         {
-          "id": "3fc358b0-630e-43f2-85f9-69195b346312",
-          "title": "an-exampleMODIFIED.mkve.mkv"
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312',
+          'title': 'an-exampleMODIFIED.mkve.mkv'
         }
       ];
 
@@ -1877,7 +1878,7 @@ describe('Ingest API', function () {
       // Mock request data.
       data = [
         {
-          "id": "3fc358b0-630e-43f2-85f9-69195b346312"
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
         }
       ];
 
@@ -1928,7 +1929,7 @@ describe('Ingest API', function () {
       // Mock request data.
       data = [
         {
-          "id": "3fc358b0-630e-43f2-85f9-69195b346312"
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
         }
       ];
 
@@ -1984,24 +1985,24 @@ describe('Ingest API', function () {
 
       var data = [
         {
-          "thumbnail_id":"a7d6da39-5d2e-4ff7-a5a1-b6b5da0ba124",
-          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster01.jpg",
-          "thumbnail_type":"system"
+          'thumbnail_id':'a7d6da39-5d2e-4ff7-a5a1-b6b5da0ba124',
+          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster01.jpg',
+          'thumbnail_type':'system'
         },
         {
-          "thumbnail_id":"969620c5-ea68-4b54-bdec-3300242b5eeb",
-          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster02.jpg",
-          "thumbnail_type":"system"
+          'thumbnail_id':'969620c5-ea68-4b54-bdec-3300242b5eeb',
+          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster02.jpg',
+          'thumbnail_type':'system'
         },
         {
-          "thumbnail_id":"6f5dbf2f-f9e5-406c-8856-aaf6daa9947e",
-          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster03.jpg",
-          "thumbnail_type":"system"
+          'thumbnail_id':'6f5dbf2f-f9e5-406c-8856-aaf6daa9947e',
+          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster03.jpg',
+          'thumbnail_type':'system'
         },
         {
-          "thumbnail_id":"5bf0fddc-39dd-4630-913c-2e3582c781ad",
-          "thumbnail_url":"https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster04.jpg",
-          "thumbnail_type":"system"
+          'thumbnail_id':'5bf0fddc-39dd-4630-913c-2e3582c781ad',
+          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster04.jpg',
+          'thumbnail_type':'system'
         }
       ];
 
@@ -2036,6 +2037,53 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+    });
+
+  });
+
+  describe('Ingest API : getUserInfo', function () {
+
+    it('Should retrieve user information.', function (done) {
+
+      // Mock the XHR object.
+      mock.setup();
+
+      var user = {
+        'id': 'f118ebd6-87ac-49f5-bb30-b1672e812be3',
+        'url': 'http://weasley.teamspace.ad:8080/users/07f6de51-4e2b-4d8e-9eac-79cbd5f6825f',
+        'email': 'test.tester@ingest.io',
+        'timezone': 'America/Halifax',
+        'profile': {
+          'name': 'Mr. Testy',
+          'title': 'Tester of things'
+        }
+      };
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + api.config.currentUserInfo,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(user));
+
+        });
+
+      var request = api.getCurrentUserInfo().then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data.id).toEqual(user.id);
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined(0);
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
 
   });
