@@ -2,9 +2,11 @@ var Request = require('./Request.js');
 var Promise = require('pinkyswear');
 var extend = require('extend');
 var JWTUtils = require('./JWTUtils');
+var utils = require('./Utils');
 
 /**
  * IngestAPI Object
+ * @class
  * @param {object}  options        Options to override the default.
  * @param {string}  options.host   Override the default live host.
  * @param {string}  options.token  Auth token to use for requests.
@@ -48,9 +50,10 @@ function IngestAPI (options) {
 
   this.request = Request;
   this.JWTUtils = JWTUtils;
+  this.utils = utils;
 
 }
-
+/** Token **/
 /**
  * Set the auth token to use.
  * @param   {String}        token Auth token to use.
@@ -63,7 +66,6 @@ IngestAPI.prototype.setToken = function (token) {
   }
 
   this.token = token;
-
 };
 
 /**
@@ -77,9 +79,9 @@ IngestAPI.prototype.getToken = function () {
   }
 
   return this.token;
-
 };
 
+/** Video **/
 /**
  * Return a list of videos for the current user and network.
  * @param {object} headers Javascript object representing headers to apply to the call.
@@ -87,29 +89,26 @@ IngestAPI.prototype.getToken = function () {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.getVideos = function (headers) {
-
   return new Request({
     url: this.config.host + this.config.videos,
     token: this.getToken(),
     headers: headers
   });
-
 };
 
 /**
- * Return a video match the supplied id.
- * @param   {String}       videoId ID for the requested video.
+ * Return a video that matches the supplied id.
+ * @param   {string}       videoId ID for the requested video.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.getVideoById = function (videoId) {
-
   var url;
   var tokens;
 
   if (typeof videoId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI getVideoById requires a valid videoId as a string.');
   }
 
@@ -117,13 +116,12 @@ IngestAPI.prototype.getVideoById = function (videoId) {
     id: videoId
   };
 
-  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
 
   return new Request({
     url: url,
     token: this.getToken()
   });
-
 };
 
 /**
@@ -133,11 +131,10 @@ IngestAPI.prototype.getVideoById = function (videoId) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.addVideo = function (videoObject) {
-
   // Validate the object being passed in.
   if (typeof videoObject !== 'object') {
     // Wrap the error in a promise.
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI addVideo requires a video object.');
   }
 
@@ -148,7 +145,6 @@ IngestAPI.prototype.addVideo = function (videoObject) {
     method: 'POST',
     data: videoObject
   });
-
 };
 
 /**
@@ -162,15 +158,15 @@ IngestAPI.prototype.updateVideo = function (video) {
   var tokens;
 
   if (typeof video !== 'object') {
-    return this.promisify(false,
-      'IngestAPI update requires a video to be passed as an object.');
+    return utils.promisify(false,
+      'IngestAPI updateVideo requires a video to be passed as an object.');
   }
 
   tokens = {
     id: video.id
   };
 
-  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
 
   return new Request({
     url: url,
@@ -187,7 +183,7 @@ IngestAPI.prototype.updateVideo = function (video) {
  */
 IngestAPI.prototype.updateVideos = function (videos) {
   if (!Array.isArray(videos)) {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI updateVideos requires an array of videos');
   }
 
@@ -211,8 +207,8 @@ IngestAPI.prototype._deleteVideos = function (videos, permanent) {
   var url;
 
   if (!Array.isArray(videos)) {
-    return this.promisify(false,
-      'IngestAPI deleteVideos requires an array of videos');
+    return utils.promisify(false,
+      'IngestAPI deleteVideos requires an array of videos.');
   }
 
   url = this.config.host + this.config.videos;
@@ -264,7 +260,7 @@ IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
   var tokens;
 
   if (typeof videoId !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI deleteVideo requires a video ID passed as a string.');
   }
 
@@ -272,7 +268,7 @@ IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
     id: videoId
   };
 
-  url = this.parseTokens(this.config.host + this.config.videoById, tokens);
+  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
 
   if (permanent === true) {
     url += this.config.deleteMethods.permanent;
@@ -306,27 +302,27 @@ IngestAPI.prototype.permanentlyDeleteVideo = function (videoId) {
 };
 
 /**
- * Return a subset of videos that match the search terms.
+ * Return a subset of items that match the search terms.
  * @param  {string} resource The type of resources to search for, playlist or videos.
  * @param  {string} input    The search terms to match against.
  * @param  {object} headers  The headers to be passed to the request.
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-IngestAPI.prototype.searchVideos = function (resource, input, headers) {
+IngestAPI.prototype.searchItems = function (resource, input, headers) {
 
   var url;
 
   if (typeof resource !== 'string') {
-    return this.promisify(false,
-      'IngestAPI searchVideos requires a resource type to be passed as a string.');
+    return utils.promisify(false,
+      'IngestAPI search requires a resource type to be passed as a string.');
   }
 
   if (typeof input !== 'string') {
-    return this.promisify(false,
-      'IngestAPI searchVideos requires search input to be passed as a string.');
+    return utils.promisify(false,
+      'IngestAPI search requires search input to be passed as a string.');
   }
 
-  url = this.parseTokens(this.config.host + this.config.search, {
+  url = utils.parseTokens(this.config.host + this.config.search, {
     resource: resource,
     input: input
   });
@@ -336,7 +332,16 @@ IngestAPI.prototype.searchVideos = function (resource, input, headers) {
     token: this.getToken(),
     headers: headers
   });
+};
 
+/**
+ * Return a subset of videos that match the search terms.
+ * @param  {string} input   The serach terms to match against.
+ * @param  {object} headers The headers to be passed to the request.
+ * @return {Promise}        A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.searchVideos = function (input, headers) {
+  return this.searchItems('videos', input, headers);
 };
 
 /**
@@ -344,13 +349,11 @@ IngestAPI.prototype.searchVideos = function (resource, input, headers) {
  * @return {number} The number of videos in the current network.
  */
 IngestAPI.prototype.getVideosCount = function () {
-
   return new Request({
     url: this.config.host + this.config.videos,
     token: this.getToken(),
     method: 'HEAD'
   }).then(this.getCountResponse.bind(this));
-
 };
 
 /**
@@ -366,7 +369,6 @@ IngestAPI.prototype.getTrashedVideos = function (headers) {
     token: this.getToken(),
     headers: headers
   });
-
 };
 
 /**
@@ -380,7 +382,6 @@ IngestAPI.prototype.getTrashedVideosCount = function () {
     token: this.getToken(),
     method: 'HEAD'
   }).then(this.getCountResponse.bind(this));
-
 };
 
 /**
@@ -391,8 +392,34 @@ IngestAPI.prototype.getTrashedVideosCount = function () {
 IngestAPI.prototype.getCountResponse = function (response) {
 
   return parseInt(response.headers('Resource-Count'), 10);
+};
+
+/**
+ * Retrieve all thumbnails for a provided video id.
+ * @param {string} id of the video to retrieve thumbnails for.
+ */
+IngestAPI.prototype.getVideoThumbnails = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getVideoThumbnails requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = utils.parseTokens(this.config.host + this.config.thumbnails, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken()
+  });
 
 };
+
+/** Uploads **/
 
 /**
  * Make a request and sign the blob to be uploaded.
@@ -414,7 +441,7 @@ IngestAPI.prototype.signUploadBlob = function (data) {
 
   // Make sure all the proper properties have been passed in.
   if (!checkObject.valid) {
-    return this.promisify(false, checkObject.message);
+    return utils.promisify(false, checkObject.message);
   }
 
   if (!data.method) {
@@ -428,7 +455,7 @@ IngestAPI.prototype.signUploadBlob = function (data) {
     method: signing
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsUploadSign, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsUploadSign, tokens);
 
   return new Request({
     url: url,
@@ -436,7 +463,6 @@ IngestAPI.prototype.signUploadBlob = function (data) {
     method: 'POST',
     data: data
   });
-
 };
 
 /**
@@ -528,213 +554,6 @@ IngestAPI.prototype.validateUploadObject = function (data) {
 };
 
 /**
- * Replace all tokens within a given template based on the given key/value pair.
- * @param  {string}     template    Template for the url.
- * @param  {object}     hash        Key/Value pair for replacing tokens in the template.
- *
- * @example
- * var tokens = {
- *  keyInTemplate: 'replacedWith'
- * };
- *
- * var template = '<%=keyInTemplate%>';
- *
- * var result = parseTokens(template, tokens);  // 'replacedWith'
- *
- * @return {string}                 Parsed string.
- */
-IngestAPI.prototype.parseTokens = function (template, hash) {
-
-  var keys = Object.keys(hash);
-  var i;
-  var length = keys.length;
-
-  for (i = 0; i < length; i++) {
-    template = template.replace('<%=' + keys[i] + '%>', hash[keys[i]]);
-  }
-
-  return template;
-
-};
-
-/**
- * Wrapper function to wrap a value in either a reject or resolve.
- * @param  {boolean} state Rejection or Approval.
- * @param  {*}       value Value to pass back to the promise.
- * @return {Promise}       Promise/A+ spec promise.
- */
-IngestAPI.prototype.promisify = function (state, value) {
-
-  var promise = Promise();
-
-  promise(state, [value]);
-
-  return promise;
-
-};
-
-/**
- * Get the current network primary key in RSA format.
- * @return {Promise} Promise/A+ spec which resolves with the primary network key.
- */
-IngestAPI.prototype.getNetworkSecureKeys = function () {
-
-  return new Request({
-    url: this.config.host + this.config.networksKeys,
-    token: this.getToken()
-  });
-
-};
-
-/**
- * Adds a new secure key to the current network.
- * @param {object}  data        The object containing data for the secure key entry.
- * @param {string}  data.title  Optional. The title of the secure key. Will default to "Default Key Title"
- * @param {string}  data.key    The public key in RSA format.
- *
- * @return {Promise}          A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.addNetworkSecureKey = function (data) {
-  if (typeof data !== 'object') {
-    return this.promisify(false,
-      'IngestAPI addNetworkSecureKey requires data to be passed as an object.');
-  }
-
-  // The title must be a string.
-  if (typeof data.title !== 'string') {
-    data.title = '';
-  }
-
-  if (typeof data.key !== 'string') {
-    return this.promisify(false,
-      'IngestAPI addNetworkSecureKey requires that the key be a string in RSA public key format.');
-  }
-
-  return new Request({
-    url: this.config.host + this.config.networksKeys,
-    token: this.getToken(),
-    method: 'POST',
-    data: data
-  });
-};
-
-/**
- * Retrieves a single network secure key entry based on the UUID given.
- * @param {string}  id  The UUID of the secure key entry.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return this.promisify(false,
-      'IngestAPI getNetworkSecureKeyById requires an id to be passed as a string.');
-  }
-
-  tokens = {
-    id: id
-  };
-
-  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken()
-  });
-};
-
-/**
- * Updates an individual secure key entry in the current network.
- * @param {object}  data        The object containing data for the secure key entry.
- * @param {string}  data.title  The title for the current network.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.updateNetworkSecureKey = function (data) {
-  var tokens, url;
-
-  if (typeof data !== 'object') {
-    return this.promisify(false,
-      'IngestAPI updateNetworkSecureKeyById requires data to be passed as an object.');
-  }
-
-  if (typeof data.id !== 'string') {
-    return this.promisify(false,
-      'IngestAPI updateNetworkSecureKeyById requires a param "id" to be a string.');
-  }
-
-  if (typeof data.title !== 'string') {
-    data.title = '';
-  }
-
-  tokens = {
-    id: data.id
-  };
-
-  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'PATCH',
-    data: data
-  });
-};
-
-/**
- * Deletes a single network secure key entry based on the UUID given.
- * @param {string}  id  The UUID of the secure key entry.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return this.promisify(false,
-      'IngestAPI deleteNetworkSecureKeyById requires an id to be passed as a string.');
-  }
-
-  tokens = {
-    id: id
-  };
-
-  url = this.parseTokens(this.config.host + this.config.networksKeysById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'DELETE'
-  });
-};
-
-/**
- * Retrieve all thumbnails for a provided video id.
- * @param {string} id of the video to retrieve thumbnails for.
- */
-IngestAPI.prototype.getVideoThumbnails = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return this.promisify(false,
-      'IngestAPI getVideoThumbnails requires an id to be passed as a string.');
-  }
-
-  tokens = {
-    id: id
-  };
-
-  url = this.parseTokens(this.config.host + this.config.thumbnails, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken()
-  });
-
-};
-
-/**
  * Return a list of inputs for the current user and network.
  * @param  {object}  headers Javascript object representing headers to apply to the call.
  *
@@ -747,7 +566,6 @@ IngestAPI.prototype.getInputs = function (headers) {
     token: this.getToken(),
     headers: headers
   });
-
 };
 
 /**
@@ -763,7 +581,7 @@ IngestAPI.prototype.getInputsById = function (inputId) {
 
   if (typeof inputId !== 'string') {
     // Wrap the error in a promise so the user is still catching the errors.
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI getInputsById requires a valid inputId as a string.');
   }
 
@@ -771,13 +589,12 @@ IngestAPI.prototype.getInputsById = function (inputId) {
     id: inputId
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsById, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsById, tokens);
 
   return new Request({
     url: url,
     token: this.getToken()
   });
-
 };
 
 /**
@@ -791,7 +608,7 @@ IngestAPI.prototype.addInputs = function (inputs) {
   // Validate the object being passed in.
   if (!Array.isArray(inputs)) {
     // Wrap the error in a promise.
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI addInput requires an array of input objects.');
   }
 
@@ -816,7 +633,7 @@ IngestAPI.prototype.deleteInput = function (inputId) {
   var tokens;
 
   if (typeof inputId !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI deleteInput requires a video ID passed as a string.');
   }
 
@@ -824,14 +641,13 @@ IngestAPI.prototype.deleteInput = function (inputId) {
     id: inputId
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsById, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsById, tokens);
 
   return new Request({
     url: url,
     token: this.getToken(),
     method: 'DELETE'
   });
-
 };
 
 /**
@@ -845,7 +661,7 @@ IngestAPI.prototype.deleteInputs = function (inputs) {
   var url;
 
   if (!Array.isArray(inputs)) {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI deleteInputs requires an array of input Ids');
   }
 
@@ -876,17 +692,17 @@ IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
   var signing = '';
 
   if (typeof inputId !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
 
   if (typeof data.type !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'Missing or invalid property : type.');
   }
 
   if (typeof data.size !== 'number') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'Missing or invalid property : size');
   }
 
@@ -899,7 +715,7 @@ IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
     method: signing
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsUpload, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsUpload, tokens);
 
   return new Request({
     url: url,
@@ -925,20 +741,20 @@ IngestAPI.prototype.completeInputUpload = function (inputId, data) {
   var checkObject = this._validateUploadIds(data);
 
   if (typeof inputId !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
 
   // Make sure all the proper properties have been passed in.
   if (!checkObject.valid) {
-    return this.promisify(false, checkObject.message);
+    return utils.promisify(false, checkObject.message);
   }
 
   tokens = {
     id: inputId
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsUploadComplete, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsUploadComplete, tokens);
 
   return new Request({
     url: url,
@@ -964,20 +780,20 @@ IngestAPI.prototype.abortInputUpload = function (inputId, data) {
   var checkObject = this._validateUploadIds(data);
 
   if (typeof inputId !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
   }
 
   // Make sure all the proper properties have been passed in.
   if (!checkObject.valid) {
-    return this.promisify(false, checkObject.message);
+    return utils.promisify(false, checkObject.message);
   }
 
   tokens = {
     id: inputId
   };
 
-  url = this.parseTokens(this.config.host + this.config.inputsUploadAbort, tokens);
+  url = utils.parseTokens(this.config.host + this.config.inputsUploadAbort, tokens);
 
   return new Request({
     url: url,
@@ -987,7 +803,143 @@ IngestAPI.prototype.abortInputUpload = function (inputId, data) {
   });
 };
 
-module.exports = IngestAPI;
+/** Network Information **/
+
+/**
+ * Get the current network primary key in RSA format.
+ * @return {Promise} Promise/A+ spec which resolves with the primary network key.
+ */
+IngestAPI.prototype.getNetworkSecureKeys = function () {
+  return new Request({
+    url: this.config.host + this.config.networksKeys,
+    token: this.getToken()
+  });
+};
+
+/**
+ * Adds a new secure key to the current network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  Optional. The title of the secure key. Will default to "Default Key Title"
+ * @param {string}  data.key    The public key in RSA format.
+ *
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.addNetworkSecureKey = function (data) {
+  if (typeof data !== 'object') {
+    return utils.promisify(false,
+      'IngestAPI addNetworkSecureKey requires data to be passed as an object.');
+  }
+
+  // The title must be a string.
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  if (typeof data.key !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI addNetworkSecureKey requires that the key be a string in RSA public key format.');
+  }
+
+  return new Request({
+    url: this.config.host + this.config.networksKeys,
+    token: this.getToken(),
+    method: 'POST',
+    data: data
+  });
+};
+
+/**
+ * Retrieves a single network secure key entry based on the UUID given.
+ * @param {string}  id  The UUID of the secure key entry.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getNetworkSecureKeyById requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken()
+  });
+};
+
+/**
+ * Updates an individual secure key entry in the current network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  The title for the current network.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.updateNetworkSecureKey = function (data) {
+  var tokens, url;
+
+  if (typeof data !== 'object') {
+    return utils.promisify(false,
+      'IngestAPI updateNetworkSecureKeyById requires data to be passed as an object.');
+  }
+
+  if (typeof data.id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI updateNetworkSecureKeyById requires a param "id" to be a string.');
+  }
+
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  tokens = {
+    id: data.id
+  };
+
+  url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'PATCH',
+    data: data
+  });
+};
+
+/**
+ * Deletes a single network secure key entry based on the UUID given.
+ * @param {string}  id  The UUID of the secure key entry.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
+  var tokens, url;
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI deleteNetworkSecureKeyById requires an id to be passed as a string.');
+  }
+
+  tokens = {
+    id: id
+  };
+
+  url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
+
+  return new Request({
+    url: url,
+    token: this.getToken(),
+    method: 'DELETE'
+  });
+};
+
+/** User Information **/
 
 /*
  * Retrieve information for the current user.

@@ -34,7 +34,6 @@ describe('Ingest API', function () {
       'getVideosCount',
       'getTrashedVideos',
       'getTrashedVideosCount',
-      'parseTokens',
       'signUploadBlob',
       'updateVideo',
       'searchVideos',
@@ -85,7 +84,7 @@ describe('Ingest API', function () {
   });
 
   it('Should parse the id out of a template string', function () {
-    var result = api.parseTokens.call(this, '<%=id%>', {id: 'testid'});
+    var result = api.utils.parseTokens.call(this, '<%=id%>', {id: 'testid'});
     expect(result).toEqual('testid');
   });
 
@@ -656,7 +655,7 @@ describe('Ingest API', function () {
             .body(JSON.stringify(data));
         });
 
-      var request = api.searchVideos('videos', 'test').then(function (response) {
+      var request = api.searchVideos('test').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.called).toEqual(true);
@@ -674,28 +673,9 @@ describe('Ingest API', function () {
 
     });
 
-    it('Should fail if a resource is not supplied', function (done) {
-
-      var request = api.searchVideos(null, 'test').then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise is returned.
-      expect(request.then).toBeDefined();
-
-    });
-
     it('Should fail if search input is not supplied', function (done) {
 
-      var request = api.searchVideos('videos').then(function (response) {
+      var request = api.searchVideos().then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -857,7 +837,7 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadSign, {id: 'test-upload-input-id', method: ''});
 
       // Mock the response from the REST api.
@@ -915,7 +895,7 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(
           this, api.config.inputsUploadSign,
           {id: 'test-upload-input-id', method: '?type=amazon'}
@@ -1143,7 +1123,7 @@ describe('Ingest API', function () {
       // Mock the XHR object
       mock.setup();
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadSign, {id: 'test', method: '?type=amazon'});
 
       // Mock the response from the REST api.
@@ -2092,7 +2072,7 @@ describe('Ingest API', function () {
         }
       ];
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.thumbnails, {id: 'a-video-id'});
 
       // Mock the response from the REST api.
@@ -2221,7 +2201,7 @@ describe('Ingest API', function () {
         ]
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsById, {id: '1359545e-1108-4149-bf8a-8504576ab713'});
 
       // Mock the response from the REST api.
@@ -2369,7 +2349,7 @@ describe('Ingest API', function () {
         'job_id': null
       };
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsById, {id: input.id});
 
       // Mock the response from the REST api.
@@ -2545,7 +2525,7 @@ describe('Ingest API', function () {
         'uploadId': 'gfisdygfisuhiuh4253u4h5i3'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUpload, {id: inputId, method: signing});
 
       // Mock the response from the REST api.
@@ -2596,7 +2576,7 @@ describe('Ingest API', function () {
         'uploadId': 'gfisdygfisuhiuh4253u4h5i3'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUpload, {id: inputId, method: signing});
 
       // Mock the response from the REST api.
@@ -2638,7 +2618,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadComplete, {id: inputId});
 
       var request = api.completeInputUpload(inputId, data).then(function (response) {
@@ -2660,7 +2640,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadComplete, {id: inputId});
 
       var request = api.completeInputUpload(inputId, data).then(function (response) {
@@ -2682,7 +2662,7 @@ describe('Ingest API', function () {
         uploadId: 1234
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadComplete, {id: inputId});
 
       var request = api.completeInputUpload(inputId, data).then(function (response) {
@@ -2706,7 +2686,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadComplete, {id: inputId});
 
       // Mock the response from the REST api.
@@ -2739,7 +2719,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadAbort, {id: inputId});
 
       var request = api.abortInputUpload(inputId, data).then(function (response) {
@@ -2761,7 +2741,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadAbort, {id: inputId});
 
       var request = api.abortInputUpload(inputId, data).then(function (response) {
@@ -2783,7 +2763,7 @@ describe('Ingest API', function () {
         uploadId: 1234
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadAbort, {id: inputId});
 
       var request = api.abortInputUpload(inputId, data).then(function (response) {
@@ -2807,7 +2787,7 @@ describe('Ingest API', function () {
         uploadId: 'wBEm6Ik2ukEeb5wKNZS_Q0l9dV52s6spiRieDJo4JjmkHdlg4F4ok'
       }
 
-      var url = api.parseTokens
+      var url = api.utils.parseTokens
         .call(this, api.config.inputsUploadAbort, {id: inputId});
 
       // Mock the response from the REST api.
