@@ -3,6 +3,7 @@ var Promise = require('pinkyswear');
 var extend = require('extend');
 var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
+var Resource = require('./Resource');
 
 /**
  * IngestAPI Object
@@ -43,6 +44,8 @@ function IngestAPI (options) {
   // Create a config object by extending the defaults with the pass options.
   this.config = extend(true, {}, this.defaults, options);
 
+  this.token = null;
+
   if (this.config.token) {
     // Store the token for future use.
     this.setToken(this.config.token);
@@ -51,6 +54,18 @@ function IngestAPI (options) {
   this.request = Request;
   this.JWTUtils = JWTUtils;
   this.utils = utils;
+
+  this.videos = new Resource({
+    host: this.config.host,
+    resource: 'videos',
+    tokenSource: this.getToken.bind(this)
+  });
+
+  this.playlists = new Resource({
+    host: this.config.host,
+    resource: 'playlists',
+    tokenSource: this.getToken.bind(this)
+  });
 
 }
 /** Token **/
@@ -70,353 +85,10 @@ IngestAPI.prototype.setToken = function (token) {
 
 /**
  * Return the current auth token.
- * @return  {String}        Current auth token.
+ * @return  {String}        Current auth token, or null if a token has not been set.
  */
 IngestAPI.prototype.getToken = function () {
-
-  if (!this.token) {
-    throw new Error('IngestAPI requires a token to be set.');
-  }
-
   return this.token;
-};
-
-/** Video **/
-/**
- * Return a list of videos for the current user and network.
- * @param {object} headers Javascript object representing headers to apply to the call.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.getVideos = function (headers) {
-  return new Request({
-    url: this.config.host + this.config.videos,
-    token: this.getToken(),
-    headers: headers
-  });
-};
-
-/**
- * Return a video that matches the supplied id.
- * @param   {string}       videoId ID for the requested video.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.getVideoById = function (videoId) {
-  var url;
-  var tokens;
-
-  if (typeof videoId !== 'string') {
-    // Wrap the error in a promise so the user is still catching the errors.
-    return utils.promisify(false,
-      'IngestAPI getVideoById requires a valid videoId as a string.');
-  }
-
-  tokens = {
-    id: videoId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken()
-  });
-};
-
-/**
- * Add a new video.
- * @param   {object}  videoObject An object representing the video to add.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.addVideo = function (videoObject) {
-  // Validate the object being passed in.
-  if (typeof videoObject !== 'object') {
-    // Wrap the error in a promise.
-    return utils.promisify(false,
-      'IngestAPI addVideo requires a video object.');
-  }
-
-  // Return the promise from the request.
-  return new Request({
-    url: this.config.host + this.config.videos,
-    token: this.getToken(),
-    method: 'POST',
-    data: videoObject
-  });
-};
-
-/**
- * Update an existing video with new content.
- * @param  {object} video   An object representing the video.
- * @return {Promise}        A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.updateVideo = function (video) {
-
-  var url;
-  var tokens;
-
-  if (typeof video !== 'object') {
-    return utils.promisify(false,
-      'IngestAPI updateVideo requires a video to be passed as an object.');
-  }
-
-  tokens = {
-    id: video.id
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'PATCH',
-    data: video
-  });
-};
-
-/**
- * Updates a batch of videos in one HTTP request.
- * @param {array} videos  An array of video objects.
- * @return {Promise}      A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.updateVideos = function (videos) {
-  if (!Array.isArray(videos)) {
-    return utils.promisify(false,
-      'IngestAPI updateVideos requires an array of videos');
-  }
-
-  return new Request({
-    url: this.config.host + this.config.videos,
-    token: this.getToken(),
-    method: 'PATCH',
-    data: videos
-  });
-};
-
-/**
- * Deletes a batch of videos in one HTTP request.
- * @private
- * @param {array}    videos     An array of video objects.
- * @param {boolean}  permanent  A flag to permanently delete each video.
- *
- * @return {Promise}            A promise which resolves when the request is complete.
- */
-IngestAPI.prototype._deleteVideos = function (videos, permanent) {
-  var url;
-
-  if (!Array.isArray(videos)) {
-    return utils.promisify(false,
-      'IngestAPI deleteVideos requires an array of videos.');
-  }
-
-  url = this.config.host + this.config.videos;
-
-  if (permanent === true) {
-    url += this.config.deleteMethods.permanent;
-  }
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'DELETE',
-    data: videos
-  });
-};
-
-/**
- * Delete a batch of videos.
- *
- * @param  {array}  videos  An array of video objects.
- *
- * @return {Promise}        A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.deleteVideos = function (videos) {
-  return this._deleteVideos(videos);
-};
-
-/**
- * Permanently delete a batch of videos.
- *
- * @param  {array}  videos  An array of video objects.
- *
- * @return {Promise}        A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.permanentlyDeleteVideos = function (videos) {
-  return this._deleteVideos(videos, true);
-};
-
-/**
- * Delete a video.
- * @private
- * @param  {string}   videoId   ID for the video to delete.
- * @param  {boolean}  permanent A flag to permanently delete the video.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype._deleteVideo = function (videoId, permanent) {
-  var url;
-  var tokens;
-
-  if (typeof videoId !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI deleteVideo requires a video ID passed as a string.');
-  }
-
-  tokens = {
-    id: videoId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.videoById, tokens);
-
-  if (permanent === true) {
-    url += this.config.deleteMethods.permanent;
-  }
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'DELETE'
-  });
-};
-
-/**
- * Delete a video.
- * @param  {string}   videoId   ID for the video to delete.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.deleteVideo = function (videoId) {
-  return this._deleteVideo(videoId);
-};
-
-/**
- * Permanently delete a video.
- *
- * @param  {string}   videoId   ID for the video to delete.
- * @return {Promise}            A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.permanentlyDeleteVideo = function (videoId) {
-  return this._deleteVideo(videoId, true);
-};
-
-/**
- * Return a subset of items that match the search terms.
- * @param  {string} resource The type of resources to search for, playlist or videos.
- * @param  {string} input    The search terms to match against.
- * @param  {object} headers  The headers to be passed to the request.
- * @return {Promise}          A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.searchItems = function (resource, input, headers) {
-
-  var url;
-
-  if (typeof resource !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI search requires a resource type to be passed as a string.');
-  }
-
-  if (typeof input !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI search requires search input to be passed as a string.');
-  }
-
-  url = utils.parseTokens(this.config.host + this.config.search, {
-    resource: resource,
-    input: input
-  });
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    headers: headers
-  });
-};
-
-/**
- * Return a subset of videos that match the search terms.
- * @param  {string} input   The serach terms to match against.
- * @param  {object} headers The headers to be passed to the request.
- * @return {Promise}        A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.searchVideos = function (input, headers) {
-  return this.searchItems('videos', input, headers);
-};
-
-/**
- * Get the total count of videos.
- * @return {number} The number of videos in the current network.
- */
-IngestAPI.prototype.getVideosCount = function () {
-  return new Request({
-    url: this.config.host + this.config.videos,
-    token: this.getToken(),
-    method: 'HEAD'
-  }).then(this.getCountResponse.bind(this));
-};
-
-/**
- * Return the videos currently in the trash.
- * @param {object} Headers to be passed along with the request for pagination.
- *
- * @return {Promise} Promise/A+ spec which resovles with the trashed videos.
- */
-IngestAPI.prototype.getTrashedVideos = function (headers) {
-
-  return new Request({
-    url: this.config.host + this.config.trash,
-    token: this.getToken(),
-    headers: headers
-  });
-};
-
-/**
- * Get a count of the current videos in the trash.
- * @return {Promise} Promise/A+ spec which resolves with the trashed video count.
- */
-IngestAPI.prototype.getTrashedVideosCount = function () {
-
-  return new Request({
-    url: this.config.host + this.config.trash,
-    token: this.getToken(),
-    method: 'HEAD'
-  }).then(this.getCountResponse.bind(this));
-};
-
-/**
- * Handle the response from the retrieving video counts.
- * @param  {object} response  Request response object.
- * @return {number}           The resource count from the response.
- */
-IngestAPI.prototype.getCountResponse = function (response) {
-
-  return parseInt(response.headers('Resource-Count'), 10);
-};
-
-/**
- * Retrieve all thumbnails for a provided video id.
- * @param {string} id of the video to retrieve thumbnails for.
- */
-IngestAPI.prototype.getVideoThumbnails = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI getVideoThumbnails requires an id to be passed as a string.');
-  }
-
-  tokens = {
-    id: id
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.thumbnails, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken()
-  });
-
 };
 
 /** Uploads **/

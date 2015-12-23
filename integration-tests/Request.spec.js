@@ -35,7 +35,7 @@ describe('Ingest API : Request', function () {
       });
 
 
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeUnDefined();
 
@@ -56,10 +56,10 @@ describe('Ingest API : Request', function () {
 
   it('Should reject the promise if the url is not defined.', function (done) {
 
-    api.config.host = null;
-    api.config.videos = null;
+    api.videos.config.host = null;
+    api.videos.config.all = null;
 
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeUndefined();
       done();
@@ -98,7 +98,7 @@ describe('Ingest API : Request', function () {
     // Mock the call to getToken.
     spyOn(api, 'getToken').and.returnValue(null);
 
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeDefined();
       done();

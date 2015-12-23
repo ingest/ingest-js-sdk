@@ -1,7 +1,7 @@
 var Request = require('./Request.js');
 var Promise = require('pinkyswear');
 var extend = require('extend');
-var utils = require('Utils');
+var utils = require('./Utils');
 
 /**
  * Resource Object
@@ -11,14 +11,14 @@ function Resource (options) {
 
   this.defaults = {
     host: 'https://api.ingest.io',
-    all: '/<%=resource%>/',
+    all: '/<%=resource%>',
     byId: '/<%=resource%>/<%=id%>',
     thumbnails: '/<%=resource%>/<%=id%>/thumbnails',
-    trash: '<%=resource%>/?filter=trashed',
+    trash: '/<%=resource%>?filter=trashed',
     deleteMethods: {
       'permanent': '?permanent=1'
     },
-    search: '/<%=resource%>?search=<%=inputs>',
+    search: '/<%=resource%>?search=<%=input%>',
     tokenSource: null,
     resource: null
   };
@@ -72,7 +72,48 @@ Resource.prototype.getById = function (id) {
       'IngestAPI Resource getById requires a valid id passed as a string.');
   }
 
-  url = utils.parseTokens(this.config.host + this.config.getById, {
+  url = utils.parseTokens(this.config.host + this.config.byId, {
+    resource: this.config.resource,
+    id: id
+  });
+
+  return new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+};
+
+/**
+ * Return the resources currently in the trash.
+ * @param  {object} headers Headers to be passed along with the request for pagination.
+ * @return {promise}         A promise which resolves when the request is complete.
+ */
+Resource.prototype.getTrashed = function (headers) {
+  var url = utils.parseTokens(this.config.host + this.config.trash, {
+    resource: this.config.resource
+  });
+
+  return new Request({
+    url: url,
+    token: this._tokenSource(),
+    headers: headers
+  });
+};
+
+/**
+ * Retrieve all thumbnails for a provided resource id.
+ * @param {string} id ID of the resource to retrieve thumbnails for.
+ * @return {promise}  A promise which resolves when the request is complete.
+ */
+Resource.prototype.getThumbnails = function (id) {
+  var url;
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Resource getThumbnails requires an id to be passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.thumbnails, {
     resource: this.config.resource,
     id: id
   });
@@ -115,16 +156,16 @@ Resource.prototype.add = function (resource) {
  */
 Resource.prototype.update = function (resource) {
   if (typeof resource !== 'object') {
-    // If they've passed an array fire the updateArray function.
-    if (Array.isArray(resource)) {
-      return this._updateResourceArray(resource);
-    }
-
     return utils.promisify(false,
       'IngestAPI Resource update requires a resource to be passed either as an object or an array of objects.'); //eslint-disable-line
   }
 
-  return this._updateResource(resource);
+  // If they've passed an array fire the updateArray function.
+  if (Array.isArray(resource)) {
+    return this._updateResourceArray(resource);
+  } else {
+    return this._updateResource(resource);
+  }
 };
 
 /**
@@ -186,16 +227,40 @@ Resource.prototype.delete = function (resource) {
 };
 
 /**
+ * Permanently delete an existing resource.
+ * @param  {object | array} resource The id, or an array of ids for the resource(s) to be deleted.
+ * @return {promise}          A promise which resolves when the request is complete.
+ */
+Resource.prototype.permanentDelete = function (resource) {
+  if (typeof resource !== 'string') {
+    // If they've passed an array fire the updateArray function.
+    if (Array.isArray(resource)) {
+      return this._deleteResourceArray(resource, true);
+    }
+
+    return utils.promisify(false,
+      'IngestAPI Resource delete requires a resource to be passed either as a string or an array of strings.'); //eslint-disable-line
+  }
+
+  return this._deleteResource(resource, true);
+};
+
+/**
  * Delete a single resource
  * @private
  * @param  {object}   resource  The id of the resource to be deleted.
+ * @param {boolean}  permanent  A flag to permanently delete each video.
  * @return {promise}            A promise which resolves when the request is complete.
  */
-Resource.prototype._deleteResource = function (resource) {
+Resource.prototype._deleteResource = function (resource, permanent) {
   var url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource
   });
+
+  if (permanent === true) {
+    url += this.config.deleteMethods.permanent;
+  }
 
   return new Request({
     url: url,
@@ -206,19 +271,25 @@ Resource.prototype._deleteResource = function (resource) {
 
 /**
  * Delete an array of resources
+ * @private
  * @param  {array}  resources   An array of resource objects to be deleted.
+ * @param {boolean}  permanent  A flag to permanently delete each video.
  * @return {promise}            A promise which resolves when the request is complete.
  */
-Resource.prototype._deleteResourceArray = function (resources) {
+Resource.prototype._deleteResourceArray = function (resources, permanent) {
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
+
+  if (permanent === true) {
+    url += this.config.deleteMethods.permanent;
+  }
 
   return new Request({
     url: url,
     token: this._tokenSource(),
     method: 'DELETE',
-    data:videos
+    data: resources
   });
 };
 
@@ -228,22 +299,22 @@ Resource.prototype._deleteResourceArray = function (resources) {
  * @param  {object} headers  The headers to be passed to the request.
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Resource.prototype.searchItems = function (input, headers) {
+Resource.prototype.search = function (input, headers) {
   var url;
 
   if (typeof input !== 'string') {
-    return this.promisify(false,
+    return utils.promisify(false,
       'IngestAPI Resource search requires search input to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.search, {
-    resource: resource,
+    resource: this.config.resource,
     input: input
   });
 
   return new Request({
     url: url,
-    token: this.getToken(),
+    token: this._tokenSource(),
     headers: headers
   });
 };
@@ -254,7 +325,23 @@ Resource.prototype.searchItems = function (input, headers) {
  */
 Resource.prototype.count = function () {
   var url = utils.parseTokens(this.config.host + this.config.all, {
-    resource: resource
+    resource: this.config.resource
+  });
+
+  return new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'HEAD'
+  }).then(this._handleCountResponse);
+};
+
+/**
+ * Get the total count of resources in the trash.
+ * @return {promise} A promise which resolves when the request is complete.
+ */
+Resource.prototype.trashCount = function () {
+  var url = utils.parseTokens(this.config.host + this.config.trash, {
+    resource: this.config.resource
   });
 
   return new Request({

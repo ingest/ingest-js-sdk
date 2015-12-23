@@ -17,6 +17,10 @@ var Utils = {};
  * @return {string}                 Parsed string.
  */
 Utils.parseTokens = function (template, hash) {
+  if (!template) {
+    return null;
+  }
+
   var keys = Object.keys(hash);
   var i;
   var length = keys.length;

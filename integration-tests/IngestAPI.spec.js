@@ -27,22 +27,12 @@ describe('Ingest API', function () {
     var required = [
       'setToken',
       'getToken',
-      'getVideos',
-      'getVideoById',
-      'addVideo',
-      'deleteVideo',
-      'getVideosCount',
-      'getTrashedVideos',
-      'getTrashedVideosCount',
       'signUploadBlob',
-      'updateVideo',
-      'searchVideos',
       'getNetworkSecureKeys',
       'addNetworkSecureKey',
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      'getVideoThumbnails',
       'getInputs',
       'getInputsById',
       'addInputs',
@@ -125,7 +115,7 @@ describe('Ingest API', function () {
   });
 
   it('Should return access to the responeHeaders.', function (done) {
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeDefined();
       expect(response.data).toBeDefined();
@@ -150,7 +140,7 @@ describe('Ingest API', function () {
   });
 
   it('Should return http status code.', function (done) {
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeDefined();
       expect(response.data).toBeDefined();
@@ -178,8 +168,7 @@ describe('Ingest API', function () {
 
     it('Should retrieve videos.', function (done) {
 
-      var request = api.getVideos().then(function (response) {
-
+      var request = api.videos.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
@@ -209,7 +198,7 @@ describe('Ingest API', function () {
 
     it('Should retrieve the next page of videos.', function (done) {
 
-      var request = api.getVideos({
+      var request = api.videos.getAll({
         Range: nextRange
       }).then(function (response) {
 
@@ -240,7 +229,7 @@ describe('Ingest API', function () {
 
       api.setToken('invalid-token');
 
-      var request = api.getVideos().then(function (response) {
+      var request = api.videos.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
@@ -276,7 +265,7 @@ describe('Ingest API', function () {
 
     it('Should return a single video.', function (done) {
 
-      var request = api.getVideoById(validVideoId).then(function (response) {
+      var request = api.videos.getById(validVideoId).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -299,7 +288,7 @@ describe('Ingest API', function () {
     });
 
     it('Should fail if no ID is provided.', function (done) {
-      var request = api.getVideoById('').then(function (response) {
+      var request = api.videos.getById('').then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -317,7 +306,7 @@ describe('Ingest API', function () {
     });
 
     it('Should fail if an invalid ID is provided.', function (done) {
-      var request = api.getVideoById('invalid-id').then(function (response) {
+      var request = api.videos.getById('invalid-id').then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -334,7 +323,7 @@ describe('Ingest API', function () {
     });
 
     it('should fail if the passed in ID is not a string', function (done) {
-      var request = api.getVideoById(1234).then(function (response) {
+      var request = api.videos.getById(1234).then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -399,7 +388,7 @@ describe('Ingest API', function () {
           url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
         },
         url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
-      }
+      };
 
       // Mock the response from the REST api.
       mock.mock('POST', api.config.host + api.config.videos , function (request, response) {
@@ -412,7 +401,7 @@ describe('Ingest API', function () {
 
       });
 
-      var request = api.addVideo(video).then(function (response) {
+      var request = api.videos.add(video).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -441,7 +430,7 @@ describe('Ingest API', function () {
 
       var video = 'test video';
 
-      var request = api.addVideo(video).then(function (response) {
+      var request = api.videos.add(video).then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -489,7 +478,7 @@ describe('Ingest API', function () {
 
         });
 
-      var request = api.updateVideo(video).then(function (response) {
+      var request = api.videos.update(video).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.id).toEqual('test-video');
@@ -510,7 +499,7 @@ describe('Ingest API', function () {
     it('Should fail to update a video if something other than an object is passed',
       function (done) {
 
-        var request = api.updateVideo('video').then(function (response) {
+        var request = api.videos.update('video').then(function (response) {
 
           expect(response).toBeUndefined();
           done();
@@ -553,7 +542,7 @@ describe('Ingest API', function () {
 
         });
 
-      var request = api.deleteVideo('1234').then(function (response) {
+      var request = api.videos.delete('1234').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -575,7 +564,7 @@ describe('Ingest API', function () {
 
     it('Should fail if the videoId is not a string', function (done) {
 
-      var request = api.deleteVideo({test: true}).then(function (response) {
+      var request = api.videos.delete({test: true}).then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -616,7 +605,7 @@ describe('Ingest API', function () {
 
         });
 
-      var request = api.permanentlyDeleteVideo('1234').then(function (response) {
+      var request = api.videos.permanentDelete('1234').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.ok).toEqual(true);
@@ -655,7 +644,7 @@ describe('Ingest API', function () {
             .body(JSON.stringify(data));
         });
 
-      var request = api.searchVideos('test').then(function (response) {
+      var request = api.videos.search('test').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.called).toEqual(true);
@@ -675,7 +664,7 @@ describe('Ingest API', function () {
 
     it('Should fail if search input is not supplied', function (done) {
 
-      var request = api.searchVideos().then(function (response) {
+      var request = api.videos.search().then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -698,7 +687,7 @@ describe('Ingest API', function () {
 
     it('Should retrieve a count of all the videos', function (done) {
 
-      var request = api.getVideosCount().then(function (response) {
+      var request = api.videos.count().then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response).toBe('number');
@@ -734,11 +723,11 @@ describe('Ingest API', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data))
+            .body(JSON.stringify(data));
 
         });
 
-      var request = api.getTrashedVideos().then(function (response) {
+      var request = api.videos.getTrashed().then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -778,7 +767,7 @@ describe('Ingest API', function () {
 
         });
 
-      var request = api.getTrashedVideos({
+      var request = api.videos.getTrashed({
         Range: '12345'
       }).then(function (response) {
 
@@ -809,7 +798,7 @@ describe('Ingest API', function () {
 
     it('Should return the count of trashed videos.', function (done) {
 
-      var request = api.getTrashedVideosCount().then(function (response) {
+      var request = api.videos.trashCount().then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response).toBe('number');
@@ -1780,7 +1769,7 @@ describe('Ingest API', function () {
 
     it('Should fail if no videos are passed in.', function (done) {
 
-      var request = api.updateVideos().then(function (response) {
+      var request = api.videos.update().then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -1875,7 +1864,7 @@ describe('Ingest API', function () {
         }
       ];
 
-      request = api.updateVideos(data).then(function (response) {
+      request = api.videos.update(data).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.Body).toBeDefined();
@@ -1904,7 +1893,7 @@ describe('Ingest API', function () {
 
     it('Should fail if no videos are passed in.', function (done) {
 
-      var request = api.deleteVideos().then(function (response) {
+      var request = api.videos.delete().then(function (response) {
 
         expect(response).toBeUndefined();
 
@@ -1948,7 +1937,7 @@ describe('Ingest API', function () {
         }
       ];
 
-      request = api.deleteVideos(data).then(function (response) {
+      request = api.videos.delete(data).then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response.headers).toBe('function');
@@ -1999,7 +1988,7 @@ describe('Ingest API', function () {
         }
       ];
 
-      request = api.permanentlyDeleteVideos(data, true).then(function (response) {
+      request = api.videos.permanentDelete(data, true).then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response.headers).toBe('function');
@@ -2027,7 +2016,7 @@ describe('Ingest API', function () {
 
     it('Should fail if an id is not provided.', function (done) {
 
-      var request = api.getVideoThumbnails().then(function (response) {
+      var request = api.videos.getThumbnails().then(function (response) {
 
         expect(response).toBeUndefined();
         done();
@@ -2088,7 +2077,7 @@ describe('Ingest API', function () {
 
         });
 
-      var request = api.getVideoThumbnails('a-video-id').then(function (response) {
+      var request = api.videos.getThumbnails('a-video-id').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data.length).toEqual(4);
