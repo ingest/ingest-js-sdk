@@ -11,7 +11,7 @@ describe('Ingest API : Request', function () {
   // Reset the auth token.
   beforeEach(function () {
     api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:8080',
+      host: 'http://weasley.teamspace.ad:3000',
       token: access_token
     });
 
@@ -33,7 +33,6 @@ describe('Ingest API : Request', function () {
           .header('Content-Type', 'application/json')
           .body(data);
       });
-
 
     var request = api.videos.getAll().then(function (response) {
 
@@ -85,7 +84,7 @@ describe('Ingest API : Request', function () {
     mock.setup();
 
     // Mock the response from the REST api.
-    mock.get(api.config.host + api.config.videos,
+    mock.get(api.config.host + '/videos',
       function (request, response) {
 
         // Restore the XHR object.
@@ -145,7 +144,7 @@ describe('Ingest API : Request', function () {
     });
 
     var request = new Request({
-      url: api.config.host + api.config.videos,
+      url: api.config.host + '/videos',
       token: api.getToken(),
       method: 'POST',
       data: {test: true}

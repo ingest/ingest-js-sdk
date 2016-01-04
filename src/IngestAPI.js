@@ -16,10 +16,6 @@ function IngestAPI (options) {
 
   this.defaults = {
     'host': 'https://api.ingest.io',
-    'videos': '/videos',
-    'videoById': '/videos/<%=id%>',
-    'thumbnails': '/videos/<%=id%>/thumbnails',
-    'trash': '/videos?filter=trashed',
     'networks': '/networks',
     'networksKeys': '/networks/keys',
     'networksKeysById': '/networks/keys/<%=id%>',
@@ -34,10 +30,6 @@ function IngestAPI (options) {
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
     },
-    'deleteMethods': {
-      'permanent': '?permanent=1'
-    },
-    'search': '/<%=resource%>?search=<%=input%>',
     'currentUserInfo': '/users/me'
   };
 
@@ -54,6 +46,7 @@ function IngestAPI (options) {
   this.request = Request;
   this.JWTUtils = JWTUtils;
   this.utils = utils;
+  this.resource = Resource;
 
   this.videos = new Resource({
     host: this.config.host,
