@@ -24,7 +24,7 @@ describe('Ingest API : Request', function () {
 
     var data = '"1';
 
-    mock.get(api.config.host + api.config.videos,
+    mock.get(api.config.host + '/videos',
       function (request, response) {
 
         mock.teardown();

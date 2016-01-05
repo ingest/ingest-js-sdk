@@ -22,6 +22,36 @@ describe('Ingest API : Resource', function () {
     });
   });
 
+  describe('parse resource', function () {
+
+    it('Should properly build the resource urls.', function () {
+
+      var url = api.utils.parseTokens(resource.config.host + resource.config.all, {
+        resource: resource.config.resource
+      });
+
+      expect(url).toEqual(resource.config.host + '/videos');
+
+    });
+
+  });
+
+  describe('_tokenSource', function () {
+
+    it('Should return null if the token source is not defined.', function () {
+
+      var result;
+
+      resource.config.tokenSource = null;
+
+      result = resource._tokenSource();
+
+      expect(result).toEqual(null);
+
+    });
+
+  });
+
   describe('getAll', function () {
 
     it('Should retrieve all resources.', function (done) {
@@ -790,7 +820,7 @@ describe('Ingest API : Resource', function () {
 
   });
 
-  xdescribe('delete', function () {
+  describe('delete', function () {
 
     it('Should fail if no resources are passed in.', function (done) {
 
@@ -901,6 +931,27 @@ describe('Ingest API : Resource', function () {
       }, function (error) {
 
         expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if no resources are passed in.', function (done) {
+
+      var request = resource.permanentDelete().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
 
         done();
 
