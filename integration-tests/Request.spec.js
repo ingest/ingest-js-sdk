@@ -11,7 +11,7 @@ describe('Ingest API : Request', function () {
   // Reset the auth token.
   beforeEach(function () {
     api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:8080',
+      host: 'http://weasley.teamspace.ad:3000',
       token: access_token
     });
 
@@ -24,7 +24,7 @@ describe('Ingest API : Request', function () {
 
     var data = '"1';
 
-    mock.get(api.config.host + api.config.videos,
+    mock.get(api.config.host + '/videos',
       function (request, response) {
 
         mock.teardown();
@@ -34,8 +34,7 @@ describe('Ingest API : Request', function () {
           .body(data);
       });
 
-
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeUnDefined();
 
@@ -56,10 +55,10 @@ describe('Ingest API : Request', function () {
 
   it('Should reject the promise if the url is not defined.', function (done) {
 
-    api.config.host = null;
-    api.config.videos = null;
+    api.videos.config.host = null;
+    api.videos.config.all = null;
 
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeUndefined();
       done();
@@ -85,7 +84,7 @@ describe('Ingest API : Request', function () {
     mock.setup();
 
     // Mock the response from the REST api.
-    mock.get(api.config.host + api.config.videos,
+    mock.get(api.config.host + '/videos',
       function (request, response) {
 
         // Restore the XHR object.
@@ -98,7 +97,7 @@ describe('Ingest API : Request', function () {
     // Mock the call to getToken.
     spyOn(api, 'getToken').and.returnValue(null);
 
-    var request = api.getVideos().then(function (response) {
+    var request = api.videos.getAll().then(function (response) {
 
       expect(response).toBeDefined();
       done();
@@ -145,7 +144,7 @@ describe('Ingest API : Request', function () {
     });
 
     var request = new Request({
-      url: api.config.host + api.config.videos,
+      url: api.config.host + '/videos',
       token: api.getToken(),
       method: 'POST',
       data: {test: true}

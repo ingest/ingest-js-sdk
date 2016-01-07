@@ -6,12 +6,12 @@ var malformed_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS
 
 var JWTUtils;
 
-describe('JWTUtils', function () {
+describe('Ingest API : JWTUtils', function () {
 
   // Reset the auth token.
   beforeEach(function () {
     var api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:8080',
+      host: 'http://weasley.teamspace.ad:3000',
       token: valid_token
     });
 
