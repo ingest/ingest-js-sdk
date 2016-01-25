@@ -2,13 +2,53 @@
 <html>
     <head>
         <title>IngestAPI Test Coverage</title>
+        <script src="authToken.js"></script>
+        <script src="./dist/ingest.js"></script>
+
     </head>
     <body>
-      <h1>Test Coverage</h1>
+      <h1>IngestAPI</h1>
+
+      <h2>Test Coverage</h2>
       <ul>
         <li>
           <a href="dist/integration-coverage/index.html">Javascript Integration Test Coverage</a>
         </li>
       </ul>
+
+      <h2>Upload test</h2>
+      <input class="file-picker" type="file" name="file" />
+      <input class="btn-submit" type="submit" value="upload" />
+
+      <script>
+        var ingest = new IngestAPI({
+          host: 'http://local.weasley.teamspace.ad:8080'
+        });
+
+        ingest.setToken('Bearer ' + window.token);
+
+        var filePicker = document.getElementsByClassName('file-picker')[0];
+        var submitbtn =  document.getElementsByClassName('btn-submit')[0];
+
+        submitbtn.addEventListener('click', function () {
+
+          var file = filePicker.files[0];
+
+          var upload = ingest.upload(file);
+
+          upload.progress(function (message, percent) {
+            console.log(message, ' : ', percent);
+          });
+
+          upload.complete(function () {
+            console.log('Upload complete.');
+          });
+
+          // Start the upload of the file.
+          upload.save();
+
+        });
+
+      </script>
     </body>
 <html>

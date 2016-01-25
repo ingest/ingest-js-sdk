@@ -27,20 +27,11 @@ describe('Ingest API', function () {
     var required = [
       'setToken',
       'getToken',
-      'signUploadBlob',
       'getNetworkSecureKeys',
       'addNetworkSecureKey',
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      'getInputs',
-      'getInputsById',
-      'addInputs',
-      'deleteInput',
-      'deleteInputs',
-      'initializeInputUpload',
-      'completeInputUpload',
-      'abortInputUpload',
       'getCurrentUserInfo'
     ];
 
@@ -168,353 +159,6 @@ describe('Ingest API', function () {
 
   });
 
-  describe('signUploadBlob', function () {
-
-    it('Should return signing information from the api.', function (done) {
-
-      // Mock the XHR object
-      mock.setup();
-
-      var url = api.utils.parseTokens
-        .call(this, api.config.inputsUploadSign, {id: 'test-upload-input-id', method: ''});
-
-      // Mock the response from the REST api.
-      mock.post(api.config.host + url,
-        function (request, response) {
-
-          var data = {
-            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
-            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
-            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
-          };
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      // Mock blob to sign.
-      var data = {
-        id: 'test-upload-input-id',
-        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
-        partNumber: 2,
-        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
-        method: true  // It *is* a multi part upload.
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.authHeader).toBeDefined();
-        expect(response.data.dateHeader).toBeDefined();
-        expect(response.data.url).toBeDefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should sign the upload with the singlepart method.', function (done) {
-      // Mock the XHR object
-      mock.setup();
-
-      var url = api.utils.parseTokens
-        .call(
-          this, api.config.inputsUploadSign,
-          {id: 'test-upload-input-id', method: '?type=amazon'}
-        );
-
-      // Mock the response from the REST api.
-      mock.post(api.config.host + url,
-        function (request, response) {
-
-          var data = {
-            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
-            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
-            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
-          };
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      // Mock blob to sign.
-      var data = {
-        id: 'test-upload-input-id',
-        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
-        partNumber: 2,
-        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
-        method: false  // It *is not* a multi part upload.
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.authHeader).toBeDefined();
-        expect(response.data.dateHeader).toBeDefined();
-        expect(response.data.url).toBeDefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-
-    it('Should fail if supplied data is not an object.', function (done) {
-
-      var data = 'test';
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if id is not supplied.', function (done) {
-
-      var data = {
-        key: 'testkey',
-        uploadId: 'testid',
-        partNumber: 1,
-        method: 'testmethod'
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if key is not supplied.', function (done) {
-
-      var data = {
-        id: 'test',
-        uploadId: 'testid',
-        partNumber: 1,
-        method: 'testmethod'
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if uploadId is not supplied.', function (done) {
-
-      var data = {
-        id: 'test',
-        key: 'testkey',
-        partNumber: 1,
-        method: 'testmethod'
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if partNumber is not supplied.', function (done) {
-
-      var data = {
-        id: 'test',
-        key: 'testkey',
-        uploadId: 'testid',
-        method: 'testmethod'
-      };
-
-      // Make the request to sign the blob.
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail if method is not supplied.', function (done) {
-
-      var data = {
-        id: 'test',
-        key: 'testKey',
-        uploadId: 'test',
-        partNumber: 1
-      };
-
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeUndefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should pass if the method is single part and the uploadId is not defined', function (done) {
-      // Mock the XHR object
-      mock.setup();
-
-      var url = api.utils.parseTokens
-        .call(this, api.config.inputsUploadSign, {id: 'test', method: '?type=amazon'});
-
-      // Mock the response from the REST api.
-      mock.post(api.config.host + url,
-        function (request, response) {
-
-          var data = {
-            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
-            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
-            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
-          };
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      // Mock blob to sign.
-      var data = {
-        id: 'test',
-        key: 'testKey',
-        partNumber: 1,
-        method: false
-      };
-
-      var request = api.signUploadBlob(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.authHeader).toBeDefined();
-        expect(response.data.dateHeader).toBeDefined();
-        expect(response.data.url).toBeDefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-  });
-
   describe('getNetworkSecureKeys', function () {
 
     it('Should retrieve all network secure keys from the current network.', function (done) {
@@ -571,7 +215,6 @@ describe('Ingest API', function () {
       expect(request.then).toBeDefined();
 
     });
-
   });
 
   describe('addNetworkSecureKey', function () {
@@ -1102,333 +745,7 @@ describe('Ingest API', function () {
     });
   });
 
-  describe('getInputs', function () {
-    it('Should return a list of inputs.', function (done) {
-      // Mock the XHR object.
-      mock.setup();
-
-      var data = [
-        {
-          'id': '1359545e-1108-4149-bf8a-8504576ab713',
-          'filename': 'test-vid.avi',
-          'type': 'video/avi',
-          'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-          'size': 67301934,
-          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-          'job_id': null
-        }, {
-          'id': '54f2f4e7-3468-4e11-ae8a-194cc516b42a',
-          'filename': 'test_vid.mp4',
-          'type': 'video/mp4',
-          'path': 'redspace/54f2f4e7-3468-4e11-ae8a-194cc516b42a/43b02457-ed64-4d79-a102-c5f443b93',
-          'size': 37992174,
-          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-          'job_id': null
-        },
-      ];
-
-      // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + api.config.inputs , function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify(data));
-
-      });
-
-      var request = api.getInputs().then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.length).toEqual(2);
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-  });
-
-  describe('getInputsById', function () {
-    it('Should fail if an id is not provided.', function (done) {
-
-      var request = api.getInputsById().then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should return a single input.', function (done) {
-
-      // Mock the XHR object.
-      mock.setup();
-
-      var data = {
-        'Body': [
-          {
-            'id': '1359545e-1108-4149-bf8a-8504576ab713',
-            'filename': 'test-vid.avi',
-            'type': 'video/avi',
-            'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-            'size': 67301934,
-            'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-            'job_id': null
-          }
-        ]
-      }
-
-      var url = api.utils.parseTokens
-        .call(this, api.config.inputsById, {id: '1359545e-1108-4149-bf8a-8504576ab713'});
-
-      // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + url,
-        function (request, response) {
-
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify(data));
-      });
-
-      var request = api.getInputsById('1359545e-1108-4149-bf8a-8504576ab713').then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data.Body).toBeDefined();
-        expect(response.data.Body[0].id).toBeDefined();
-        expect(response.data.Body[0].filename).toBe('test-vid.avi');
-
-        done();
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-  });
-
-  describe('addInput', function () {
-    it('Should fail if an array is not provided.', function (done) {
-
-      var inputs = {
-        'id': '1359545e-1108-4149-bf8a-8504576ab713',
-        'filename': 'test-vid.avi',
-        'type': 'video/avi',
-        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-        'size': 67301934,
-        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-        'job_id': null
-      };
-
-      var request = api.addInputs(inputs).then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('should return the added input', function (done) {
-      // Mock the XHR object.
-      mock.setup();
-
-      var addedInput = {
-        'Body': [{
-          'id': '1359545e-1108-4149-bf8a-8504576ab713',
-          'filename': 'filename.mp4',
-          'type': 'video/mp4',
-          'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-          'size': 67301934,
-          'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-          'job_id': null
-        }]
-      }
-
-      var toAdd = [{
-        'type': 'video/mp4',
-        'filename': 'filename.mp4',
-        'size': 5242880 // 5MB
-      }];
-
-      // Mock the response from the REST api.
-      mock.mock('POST', api.config.host + api.config.inputs, function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify(addedInput));
-      });
-
-      var request = api.addInputs(toAdd).then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data.Body).toBeDefined();
-        expect(response.data.Body[0].id).toBeDefined();
-        expect(response.data.Body[0].filename).toBe('filename.mp4');
-
-        done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-  });
-
-  describe('deleteInput', function () {
-    it('should fail if the passed in id is not a string', function (done) {
-      var id = 1234;
-
-      var request = api.deleteInput(id).then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-
-    it('should return a status code of 202', function (done) {
-      // Mock the XHR object.
-      mock.setup();
-
-      var input = {
-        'id': '1359545e-1108-4149-bf8a-8504576ab713',
-        'filename': 'filename.mp4',
-        'type': 'video/mp4',
-        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-        'size': 67301934,
-        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-        'job_id': null
-      };
-
-      var url = api.utils.parseTokens
-        .call(this, api.config.inputsById, {id: input.id});
-
-      // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + url, function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(202);
-      });
-
-      var request = api.deleteInput(input.id).then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.statusCode).toBe(202);
-
-        done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-  });
-
-  describe('deleteInputs', function () {
-    it('should fail if the passed in inputs is not an array', function (done) {
-      var inputs = {
-        'id': '12345'
-      };
-
-      var request = api.deleteInputs(inputs).then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-
-    it('should return a status code of 202', function (done) {
-      // Mock the XHR object.
-      mock.setup();
-
-      var inputs = [{
-        'id': '1359545e-1108-4149-bf8a-8504576ab713',
-        'filename': 'filename.mp4',
-        'type': 'video/mp4',
-        'path': 'redspace/1359545e-1108-4149-bf8a-8504576ab713/0db0e821-5c90-4070-a900-4aa0f7c3a',
-        'size': 67301934,
-        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
-        'job_id': null
-      }];
-
-      // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + api.config.inputs, function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(202);
-      });
-
-      var request = api.deleteInputs(inputs).then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.statusCode).toBe(202);
-
-        done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-  });
-
-  describe('initializeInputUpload', function () {
+  xdescribe('initializeInputUpload', function () {
     it('should fail if the passed in inputId is not a string', function (done) {
       var inputId = 1234;
       var data = {
@@ -1604,7 +921,7 @@ describe('Ingest API', function () {
     });
   });
 
-  describe('completeInputUpload', function () {
+  xdescribe('completeInputUpload', function () {
     it('should fail if the inputId is not a string', function (done) {
       var inputId = 1234;
       var data = {
@@ -1705,7 +1022,7 @@ describe('Ingest API', function () {
     });
   });
 
-  describe('abortInputUpload', function () {
+  xdescribe('abortInputUpload', function () {
     it('should fail if the inputId is not a string', function (done) {
       var inputId = 1234;
       var data = {
@@ -1803,6 +1120,352 @@ describe('Ingest API', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+    });
+  });
+
+  xdescribe('signUploadBlob', function () {
+
+    it('Should return signing information from the api.', function (done) {
+
+      // Mock the XHR object
+      mock.setup();
+
+      var url = api.utils.parseTokens
+        .call(this, api.config.inputsUploadSign, {id: 'test-upload-input-id', method: ''});
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + url,
+        function (request, response) {
+
+          var data = {
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        id: 'test-upload-input-id',
+        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
+        partNumber: 2,
+        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
+        method: true  // It *is* a multi part upload.
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should sign the upload with the singlepart method.', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      var url = api.utils.parseTokens
+        .call(
+          this, api.config.inputsUploadSign,
+          {id: 'test-upload-input-id', method: '?type=amazon'}
+        );
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + url,
+        function (request, response) {
+
+          var data = {
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        id: 'test-upload-input-id',
+        key: 'redspace/4c97015a-922c-495e-929e-3c83ecd15f73/SampleVideo_1080x720_30mb.mp4',
+        partNumber: 2,
+        uploadId: 'zeFlDBXK2paCLDr1O0yZ0y1giq4YuJvoPelEWhfpa0QnAf2ldw8sFlOulkAX0h9tJNigd9sXOW.n4wm4gPBrSBAvA.xYTqcFdJtZ75OzhsAuMzrWgTuXAH4gwPFwyDyn', //eslint-disable-line
+        method: false  // It *is not* a multi part upload.
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should fail if supplied data is not an object.', function (done) {
+
+      var data = 'test';
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if id is not supplied.', function (done) {
+
+      var data = {
+        key: 'testkey',
+        uploadId: 'testid',
+        partNumber: 1,
+        method: 'testmethod'
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if key is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        uploadId: 'testid',
+        partNumber: 1,
+        method: 'testmethod'
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if uploadId is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testkey',
+        partNumber: 1,
+        method: 'testmethod'
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if partNumber is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testkey',
+        uploadId: 'testid',
+        method: 'testmethod'
+      };
+
+      // Make the request to sign the blob.
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if method is not supplied.', function (done) {
+
+      var data = {
+        id: 'test',
+        key: 'testKey',
+        uploadId: 'test',
+        partNumber: 1
+      };
+
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should pass if the method is single part and the uploadId is not defined', function (done) {
+      // Mock the XHR object
+      mock.setup();
+
+      var url = api.utils.parseTokens
+        .call(this, api.config.inputsUploadSign, {id: 'test', method: '?type=amazon'});
+
+      // Mock the response from the REST api.
+      mock.post(api.config.host + url,
+        function (request, response) {
+
+          var data = {
+            authHeader: 'AWS AKIAJGPE726GTYWESRYQ:6+Yn1E8SwsqNuySrLPJkHhllL2k=',
+            dateHeader: 'Tue, 17 Nov 2015 15:06:20 +0000',
+            url: 'https://s3.amazonaws.com/ingest-dev-uploads/redspace/91b26626-d592-4f01-ba6…7Rqhp.Zss030Z.gLsRpMCPnWUbVWWMu7wLRgJbnVVCxX6WQAU8yYEuQ7U2XhfyLMULLAf35Zsz' //eslint-disable-line
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      // Mock blob to sign.
+      var data = {
+        id: 'test',
+        key: 'testKey',
+        partNumber: 1,
+        method: false
+      };
+
+      var request = api.signUploadBlob(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.authHeader).toBeDefined();
+        expect(response.data.dateHeader).toBeDefined();
+        expect(response.data.url).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
     });
   });
 
