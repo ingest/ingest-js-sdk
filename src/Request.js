@@ -59,6 +59,8 @@ Request.prototype.setupListeners = function () {
 Request.prototype.makeRequest = function () {
 
   var postData = this.preparePostData(this.options.data);
+  var headers = this.options.headers;
+  var hasContentType = headers && headers.hasOwnProperty('Content-Type');
 
   if (!postData.success) {
     this.requestError('Request Error : error preparing post data.');
@@ -67,8 +69,8 @@ Request.prototype.makeRequest = function () {
 
   this.request.open(this.options.method, this.options.url, this.options.async);
 
-  if (this.options.headers) {
-    this.applyRequestHeaders(this.options.headers);
+  if (headers) {
+    this.applyRequestHeaders(headers);
   }
 
   // Make the token optional.
@@ -81,11 +83,16 @@ Request.prototype.makeRequest = function () {
     }
 
     this.request.setRequestHeader('Authorization', this.options.token);
+
+  }
+
+  // Set the default content type when posting data.
+  if (postData.data && postData.type === 'JSON' && !hasContentType) {
+    this.request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
   }
 
   // If there is data then we need to pass that along with the request.
   if (postData.data) {
-    this.request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
     this.request.send(postData.data);
   } else {
     this.request.send();
@@ -102,19 +109,24 @@ Request.prototype.preparePostData = function (data) {
 
   var result = {
     success: true,
-    data: data
+    data: data,
+    type: 'JSON'
   };
+
+  // In the case of file uploads, all FormData to be passed to the request.
+  if (data instanceof FormData) {
+    result.type = 'FormData';
+    return result;
+  }
 
   // If the data is populated, and its not already a string parse it.
   if (data) {
-
     try {
       result.data = JSON.stringify(data);
     } catch (error) {
       result.success = false;
       result.data = null;
     }
-
   }
 
   return result;
