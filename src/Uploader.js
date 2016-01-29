@@ -42,6 +42,7 @@ function Upload (options) {
   this.chunkCount = 0;
   this.chunksComplete = 0;
 
+  this.aborted = false;
   this.paused = false;
 
   this.fileRecord = {
@@ -68,8 +69,7 @@ Upload.prototype.progress = function (callback) {
 Upload.prototype.save = function () {
   return this.create(this.fileRecord)
     .then(this.initialize.bind(this))
-    .then(this.createChunks.bind(this))
-    .then(this.completeUpload.bind(this));
+    .then(this.prepareUpload.bind(this));
 };
 
 /**
@@ -93,6 +93,11 @@ Upload.prototype.updateProgress = function (percent) {
  * @return  {Promise}         A promise which resolves when the new input record is created.
  */
 Upload.prototype.create = function (record) {
+
+  if (this.aborted) {
+    return;
+  }
+
   return this.api.inputs.add([record]).then(this._createSuccess.bind(this));
 };
 
@@ -105,6 +110,7 @@ Upload.prototype.create = function (record) {
 Upload.prototype._createSuccess = function (response) {
   this.updateProgress('Input Created.', 0);
   this.fileRecord.id = response.data[0].id;
+
   return this.fileRecord.id;
 };
 
@@ -119,19 +125,8 @@ Upload.prototype.initialize = function () {
   var tokens;
   var signing = '';
 
-  if (typeof this.fileRecord.id !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
-  }
-
-  if (typeof this.fileRecord.type !== 'string') {
-    return utils.promisify(false,
-      'Missing or invalid property : type.');
-  }
-
-  if (typeof this.fileRecord.size !== 'number') {
-    return utils.promisify(false,
-      'Missing or invalid property : size');
+  if (this.aborted) {
+    return;
   }
 
   if (!this.fileRecord.method) {
@@ -151,7 +146,6 @@ Upload.prototype.initialize = function () {
     method: 'POST',
     data: this.fileRecord
   }).then(this._initializeComplete.bind(this));
-
 };
 
 /**
@@ -166,6 +160,24 @@ Upload.prototype._initializeComplete = function (response) {
 };
 
 /**
+ * Setup the upload depending on its type, single or multi part.
+ * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
+ */
+Upload.prototype.prepareUpload = function () {
+
+  if (!this.fileRecord.method) {
+    // Singlepart.
+    return this.uploadFile()
+      .then(this._completeUpload.bind(this));
+  } else {
+    // Multipart.
+    return this.createChunks()
+      .then(this.completeUpload.bind(this));
+  }
+
+};
+
+/**
  * Break a file into blobs and create a chunk object for each piece.
  * @private
  * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
@@ -175,6 +187,11 @@ Upload.prototype.createChunks = function () {
   var sliceMethod = this.getSliceMethod(this.file);
   var i, blob, chunk,
     chunkPromises = [];
+
+  if (this.aborted) {
+    this.abort();
+    return;
+  }
 
   for (i = 0; i < this.chunkCount - 1; i++) {
 
@@ -204,9 +221,24 @@ Upload.prototype.createChunks = function () {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype.uploadChunk = function (chunk) {
-  return this.signChunk(chunk)
-    .then(this.sendChunk.bind(this, chunk))
+  return this.signUpload(chunk)
+    .then(this.sendUpload.bind(this, chunk))
     .then(this.completeChunk.bind(this, chunk));
+};
+
+/**
+ * Create a promise chain for a single part file upload.
+ * @param  {file}   file    A file reference to upload.
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Upload.prototype.uploadFile = function () {
+  var chunk = {
+    data: this.file
+  };
+
+  return this.signUpload(chunk)
+    .then(this.sendUpload.bind(this, chunk))
+    .then(this.updateProgress.bind(this, 100));
 };
 
 /**
@@ -215,14 +247,16 @@ Upload.prototype.uploadChunk = function (chunk) {
  * @param  {object}   chunk           Information about the chunk to be uploaded.
  * @return {Promise}                  A promise which resolves when the request is complete.
  */
-Upload.prototype.signChunk = function (chunk, index) {
-
-  // Set the part number for the current chunk.
-  this.fileRecord.partNumber = chunk.partNumber;
+Upload.prototype.signUpload = function (chunk, index) {
 
   var url;
   var signing = '';
   var headers = {};
+
+  // Set the part number for the current chunk.
+  if (chunk.partNumber) {
+    this.fileRecord.partNumber = chunk.partNumber;
+  }
 
   headers['Content-Type'] = 'multipart/form-data';
 
@@ -246,16 +280,17 @@ Upload.prototype.signChunk = function (chunk, index) {
 };
 
 /**
- * Send the chunk to the server.
+ * Send the upload to the server.
  * @private
- * @return {Promise} A promise which resolves when the request is complete.
+ * @param   {object} upload  An object representing the upload to send to the server.
+ * @return  {Promise}       A promise which resolves when the request is complete.
  */
-Upload.prototype.sendChunk = function (chunk, response) {
+Upload.prototype.sendUpload = function (upload, response) {
 
   var headers = {};
 
   var formData = new FormData();
-  formData.append('file', chunk.data);
+  formData.append('file', upload.data);
 
   // Set the proper headers to send with the file.
   headers['Content-Type'] = 'multipart/form-data';
@@ -302,6 +337,11 @@ Upload.prototype.completeUpload = function () {
   var url;
   var tokens;
 
+  if (this.aborted) {
+    this.abort();
+    return;
+  }
+
   tokens = {
     id: this.fileRecord.id
   };
@@ -340,20 +380,34 @@ Upload.prototype.abort = function () {
 
   var url;
   var tokens;
+  var signing = '';
+
+  if (!this.fileRecord.uploadId || !this.fileRecord.method) {
+    this.aborted = true;
+    return;
+  }
+
+  if (this.currentUpload) {
+    this.currentUpload.pause();
+    this.currentUpload = null;
+  }
+
+  if (!this.fileRecord.method) {
+    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
+  }
 
   tokens = {
-    id: this.fileRecord.id
+    id: this.fileRecord.id,
+    method: signing
   };
 
-  this.currentUpload.pause();
-
-  url = utils.parseTokens(this.api.config.host + this.config.uploadAbort, tokens);
+  url = utils.parseTokens(this.api.config.host + this.config.upload, tokens);
 
   return new Request({
     url: url,
     token: this.api.getToken(),
     method: 'POST',
-    data: data
+    data: this.fileRecord
   });
 
 };
