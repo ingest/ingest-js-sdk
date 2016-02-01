@@ -108,7 +108,8 @@ Upload.prototype.create = function (record) {
  * @return {string}           new input record id.
  */
 Upload.prototype._createSuccess = function (response) {
-  this.updateProgress('Input Created.', 0);
+
+  this.updateProgress(0);
   this.fileRecord.id = response.data[0].id;
 
   return this.fileRecord.id;
@@ -146,6 +147,7 @@ Upload.prototype.initialize = function () {
     method: 'POST',
     data: this.fileRecord
   }).then(this._initializeComplete.bind(this));
+
 };
 
 /**
@@ -164,7 +166,6 @@ Upload.prototype._initializeComplete = function (response) {
  * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
  */
 Upload.prototype.prepareUpload = function () {
-
   if (!this.fileRecord.method) {
     // Singlepart.
     return this.uploadFile()
@@ -174,7 +175,6 @@ Upload.prototype.prepareUpload = function () {
     return this.createChunks()
       .then(this.completeUpload.bind(this));
   }
-
 };
 
 /**
@@ -183,7 +183,6 @@ Upload.prototype.prepareUpload = function () {
  * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
  */
 Upload.prototype.createChunks = function () {
-
   var sliceMethod = this.getSliceMethod(this.file);
   var i, blob, chunk,
     chunkPromises = [];
@@ -212,7 +211,6 @@ Upload.prototype.createChunks = function () {
   this.currentUpload = utils.series(chunkPromises, this.paused);
 
   return this.currentUpload;
-
 };
 
 /**
@@ -247,8 +245,7 @@ Upload.prototype.uploadFile = function () {
  * @param  {object}   chunk           Information about the chunk to be uploaded.
  * @return {Promise}                  A promise which resolves when the request is complete.
  */
-Upload.prototype.signUpload = function (chunk, index) {
-
+Upload.prototype.signUpload = function (chunk) {
   var url;
   var signing = '';
   var headers = {};
@@ -276,7 +273,6 @@ Upload.prototype.signUpload = function (chunk, index) {
     headers: headers,
     data: this.fileRecord
   });
-
 };
 
 /**
@@ -286,7 +282,6 @@ Upload.prototype.signUpload = function (chunk, index) {
  * @return  {Promise}       A promise which resolves when the request is complete.
  */
 Upload.prototype.sendUpload = function (upload, response) {
-
   var headers = {};
 
   var formData = new FormData();
@@ -303,7 +298,6 @@ Upload.prototype.sendUpload = function (upload, response) {
     headers: headers,
     data: formData
   });
-
 };
 
 /**
@@ -311,7 +305,6 @@ Upload.prototype.sendUpload = function (upload, response) {
  *  @private
  */
 Upload.prototype.completeChunk = function (chunk) {
-
   var progress;
 
   this.chunksComplete++;
@@ -323,7 +316,6 @@ Upload.prototype.completeChunk = function (chunk) {
   progress = Math.round(progress);
 
   this.updateProgress(progress);
-
 };
 
 /**
@@ -333,7 +325,6 @@ Upload.prototype.completeChunk = function (chunk) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype.completeUpload = function () {
-
   var url;
   var tokens;
 
@@ -354,7 +345,6 @@ Upload.prototype.completeUpload = function () {
     method: 'POST',
     data: this.fileRecord
   }).then(this._completeUpload.bind(this));
-
 };
 
 /**
@@ -377,15 +367,9 @@ Upload.prototype._completeUpload = function () {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype.abort = function () {
-
   var url;
   var tokens;
   var signing = '';
-
-  if (!this.fileRecord.uploadId || !this.fileRecord.method) {
-    this.aborted = true;
-    return;
-  }
 
   if (this.currentUpload) {
     this.currentUpload.pause();
@@ -401,7 +385,7 @@ Upload.prototype.abort = function () {
     method: signing
   };
 
-  url = utils.parseTokens(this.api.config.host + this.config.upload, tokens);
+  url = utils.parseTokens(this.api.config.host + this.config.uploadAbort, tokens);
 
   return new Request({
     url: url,
@@ -409,7 +393,6 @@ Upload.prototype.abort = function () {
     method: 'POST',
     data: this.fileRecord
   });
-
 };
 
 /**

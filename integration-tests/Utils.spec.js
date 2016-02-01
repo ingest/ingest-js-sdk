@@ -44,6 +44,9 @@ describe('Utils:Series', function () {
       expect(utils._seriesComplete).toHaveBeenCalled();
 
       done();
+    }, function (error) {
+      expect(error).not.toBeDefined();
+      done();
     });
 
   });

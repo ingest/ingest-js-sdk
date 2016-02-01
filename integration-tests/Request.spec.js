@@ -114,7 +114,6 @@ describe('Ingest API : Request', function () {
 
   });
 
-
   it('Should fail if the data object cannot be stringifyed.', function () {
 
     // The follow code sets up an object with a cyclical reference. This will
@@ -167,6 +166,18 @@ describe('Ingest API : Request', function () {
     // Ensure a promise was returned.
     expect(request.then).toBeDefined();
 
+  });
+
+  it('Should not stringify the postData if is passed as FormData', function () {
+    var result;
+    var formData = new FormData();
+    formData.append('test', 'test-value');
+
+    result = Request.prototype.preparePostData(formData);
+
+    expect(result.success).toEqual(true);
+    expect(result.type).toEqual('FormData');
+    expect(result.data).toEqual(formData);
   });
 
 });

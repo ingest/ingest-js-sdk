@@ -32,7 +32,8 @@ describe('Ingest API', function () {
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      'getCurrentUserInfo'
+      'getCurrentUserInfo',
+      'upload'
     ];
 
     var requiredLength = required.length;
@@ -1508,4 +1509,19 @@ describe('Ingest API', function () {
       });
     });
   });
+
+  describe('upload', function () {
+    it('Should return an upload object', function () {
+
+      var file = new File([""], "testfile");
+
+      var upload = api.upload(file);
+
+      var instanceCheck = upload instanceof api.uploader;
+
+      expect(instanceCheck).toEqual(true);
+
+    });
+  });
+
 });
