@@ -62,13 +62,14 @@ Utils.series = function (promises, paused) {
     complete: 0,
     responses: [],
     promises: promises,
-    paused: false
+    paused: true
   };
 
-  all.pause = Utils._seriesPause.bind(this, all, state);
-  all.resume = Utils._seriesResume.bind(this, all, state);
+  all.pause = Utils._seriesPause.bind(undefined, all, state);
+  all.resume = Utils._seriesResume.bind(undefined, all, state);
 
   if (!paused) {
+    state.paused = false;
     Utils._seriesCallPromise(promises[0], state, all);
   }
 
@@ -84,8 +85,8 @@ Utils.series = function (promises, paused) {
 Utils._seriesCallPromise = function (promise, state, all) {
   // call the promise;
   if (!state.paused) {
-    promise().then(Utils._seriesComplete.bind(this, all, state),
-      Utils._seriesError.bind(this, all, state));
+    promise().then(Utils._seriesComplete.bind(undefined, all, state),
+      Utils._seriesError.bind(undefined, all, state));
   }
 };
 
@@ -120,7 +121,7 @@ Utils._seriesComplete = function (all, state, response) {
  * @param  {Object}  response Response of the promise being fulfilled.
  */
 Utils._seriesError = function (all, state, error) {
-  all(false, error);
+  all(false, [error]);
 };
 
 /**
