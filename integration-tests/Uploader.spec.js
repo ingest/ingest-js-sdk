@@ -72,14 +72,14 @@ describe('Ingest API : Uploader', function () {
 
       expect(upload.config.progress).toBeDefined();
 
-      upload.updateProgress();
+      upload._updateProgress();
 
       expect(test.progress).toHaveBeenCalled();
 
     });
 
     it('Should not fail if a progress function is not defined', function () {
-      expect(upload.updateProgress.bind(upload)).not.toThrow();
+      expect(upload._updateProgress.bind(upload)).not.toThrow();
     });
   });
 
@@ -87,23 +87,26 @@ describe('Ingest API : Uploader', function () {
 
     it('Should call the proper sequence of functions.', function (done) {
 
-      spyOn(upload, 'create').and.callFake(function () {
+      spyOn(upload, '_create').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'initialize').and.callFake(function () {
+      spyOn(upload, '_initialize').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'prepareUpload').and.callFake(function () {
+      spyOn(upload, '_prepareUpload').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
       upload.save().then(function () {
-        expect(upload.create).toHaveBeenCalled();
-        expect(upload.initialize).toHaveBeenCalled();
-        expect(upload.prepareUpload).toHaveBeenCalled();
+        expect(upload._create).toHaveBeenCalled();
+        expect(upload._initialize).toHaveBeenCalled();
+        expect(upload._prepareUpload).toHaveBeenCalled();
 
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
         done();
       });
 
@@ -121,7 +124,7 @@ describe('Ingest API : Uploader', function () {
           ]});
       });
 
-      upload.create(upload.fileRecord).then(function (id) {
+      upload._create(upload.fileRecord).then(function (id) {
         expect(api.inputs.add).toHaveBeenCalled();
         expect(id).toEqual('test-id');
         done();
@@ -138,7 +141,7 @@ describe('Ingest API : Uploader', function () {
 
       upload.aborted = true;
 
-      expect(upload.create.bind(upload, upload.fileRecord)).not.toThrow();
+      expect(upload._create.bind(upload, upload.fileRecord)).not.toThrow();
 
       expect(api.inputs.add).not.toHaveBeenCalled();
 
@@ -180,7 +183,7 @@ describe('Ingest API : Uploader', function () {
 
       spyOn(upload, '_initializeComplete').and.callThrough();
 
-      upload.initialize().then(function (response) {
+      upload._initialize().then(function (response) {
         expect(upload._initializeComplete).toHaveBeenCalled();
 
         expect(upload.chunkSize).toEqual(5000);
@@ -228,7 +231,7 @@ describe('Ingest API : Uploader', function () {
 
       spyOn(upload, '_initializeComplete').and.callThrough();
 
-      upload.initialize().then(function (response) {
+      upload._initialize().then(function (response) {
         expect(upload._initializeComplete).toHaveBeenCalled();
 
         expect(upload.chunkSize).toEqual(500);
@@ -249,7 +252,7 @@ describe('Ingest API : Uploader', function () {
 
       spyOn(utils, 'parseTokens');
 
-      var result = upload.initialize();
+      var result = upload._initialize();
 
       // The function should not have returned a promise.
       expect(result).not.toBeDefined();
@@ -261,7 +264,7 @@ describe('Ingest API : Uploader', function () {
 
   describe('prepareUpload', function () {
     it('Should call uploadFile on single part uploads.', function () {
-      spyOn(upload, 'uploadFile').and.callFake(function () {
+      spyOn(upload, '_uploadFile').and.callFake(function () {
         return utils.promisify(true, ['success']);
       });
 
@@ -269,14 +272,14 @@ describe('Ingest API : Uploader', function () {
         method: false
       };
 
-      upload.prepareUpload();
+      upload._prepareUpload();
 
-      expect(upload.uploadFile).toHaveBeenCalled();
+      expect(upload._uploadFile).toHaveBeenCalled();
 
     });
 
     it('Should call createChunks on multipart uploads.', function () {
-      spyOn(upload, 'createChunks').and.callFake(function () {
+      spyOn(upload, '_createChunks').and.callFake(function () {
         return utils.promisify(true, ['success']);
       });
 
@@ -284,9 +287,9 @@ describe('Ingest API : Uploader', function () {
         method: true
       };
 
-      upload.prepareUpload();
+      upload._prepareUpload();
 
-      expect(upload.createChunks).toHaveBeenCalled();
+      expect(upload._createChunks).toHaveBeenCalled();
     });
   });
 
@@ -294,7 +297,7 @@ describe('Ingest API : Uploader', function () {
 
     it('Should return a series of promises.', function () {
 
-      spyOn(upload, 'uploadChunk').and.callFake(function () {
+      spyOn(upload, '_uploadChunk').and.callFake(function () {
         return utils.promisify(true, ['success']);
       });
 
@@ -302,7 +305,7 @@ describe('Ingest API : Uploader', function () {
       upload.chunkSize = 50000;
       upload.chunkCount = 20;
 
-      var result = upload.createChunks();
+      var result = upload._createChunks();
 
       expect(result.pause).toBeDefined();
       expect(result.resume).toBeDefined();
@@ -316,7 +319,7 @@ describe('Ingest API : Uploader', function () {
 
       upload.aborted = true;
 
-      upload.createChunks();
+      upload._createChunks();
 
       expect(upload.abort).toHaveBeenCalled();
 
@@ -327,22 +330,22 @@ describe('Ingest API : Uploader', function () {
 
     it('Should call the proper sequence of functions.', function (done) {
 
-      spyOn(upload, 'signUpload').and.callFake(function () {
+      spyOn(upload, '_signUpload').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'sendUpload').and.callFake(function () {
+      spyOn(upload, '_sendUpload').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'completeChunk').and.callFake(function () {
+      spyOn(upload, '_completeChunk').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      upload.uploadChunk().then(function () {
-        expect(upload.signUpload).toHaveBeenCalled();
-        expect(upload.sendUpload).toHaveBeenCalled();
-        expect(upload.completeChunk).toHaveBeenCalled();
+      upload._uploadChunk().then(function () {
+        expect(upload._signUpload).toHaveBeenCalled();
+        expect(upload._sendUpload).toHaveBeenCalled();
+        expect(upload._completeChunk).toHaveBeenCalled();
 
         done();
       }, function (error) {
@@ -355,22 +358,22 @@ describe('Ingest API : Uploader', function () {
 
   describe('uploadFile', function () {
     it('Should call the proper sequence of functions.', function (done) {
-      spyOn(upload, 'signUpload').and.callFake(function () {
+      spyOn(upload, '_signUpload').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'sendUpload').and.callFake(function () {
+      spyOn(upload, '_sendUpload').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, 'updateProgress').and.callFake(function () {
+      spyOn(upload, '_updateProgress').and.callFake(function () {
         return utils.promisify(true, []);
       });
 
-      upload.uploadFile().then(function () {
-        expect(upload.signUpload).toHaveBeenCalled();
-        expect(upload.sendUpload).toHaveBeenCalled();
-        expect(upload.updateProgress).toHaveBeenCalled();
+      upload._uploadFile().then(function () {
+        expect(upload._signUpload).toHaveBeenCalled();
+        expect(upload._sendUpload).toHaveBeenCalled();
+        expect(upload._updateProgress).toHaveBeenCalled();
 
         done();
       });
@@ -407,7 +410,7 @@ describe('Ingest API : Uploader', function () {
 
       });
 
-      upload.signUpload(chunk).then(function (response) {
+      upload._signUpload(chunk).then(function (response) {
         expect(response.data).toEqual('signed');
         done();
       }, function (error) {
@@ -443,7 +446,7 @@ describe('Ingest API : Uploader', function () {
 
       });
 
-      upload.signUpload(chunk).then(function (response) {
+      upload._signUpload(chunk).then(function (response) {
         expect(response.data).toEqual('signed');
         done();
       }, function (error) {
@@ -481,7 +484,7 @@ describe('Ingest API : Uploader', function () {
 
       });
 
-      upload.sendUpload(chunk, response).then(function (response) {
+      upload._sendUpload(chunk, response).then(function (response) {
         expect(response.data).toEqual('uploaded');
         done();
       }, function (error) {
@@ -495,7 +498,7 @@ describe('Ingest API : Uploader', function () {
 
     it('Should update the chunks complete and the current progress.', function () {
 
-      spyOn(upload, 'updateProgress').and.callFake(function (percent) {
+      spyOn(upload, '_updateProgress').and.callFake(function (percent) {
         expect(percent).toEqual(50);
       });
 
@@ -505,9 +508,9 @@ describe('Ingest API : Uploader', function () {
       upload.chunkSize = 5000;
       upload.fileRecord.size = 10000;
 
-      upload.completeChunk(chunk);
+      upload._completeChunk(chunk);
 
-      expect(upload.updateProgress).toHaveBeenCalled();
+      expect(upload._updateProgress).toHaveBeenCalled();
 
     });
   });
@@ -535,7 +538,7 @@ describe('Ingest API : Uploader', function () {
 
       });
 
-      upload.completeUpload().then(function (response) {
+      upload._completeUpload().then(function (response) {
         expect(response).toEqual('test-id');
         expect(upload.currentUpload).toEqual(null);
         done();
@@ -552,7 +555,7 @@ describe('Ingest API : Uploader', function () {
       spyOn(utils, 'parseTokens').and.returnValue(null);
 
       upload.aborted = true;
-      upload.completeUpload();
+      upload._completeUpload();
 
       expect(upload.abort).toHaveBeenCalled();
       expect(utils.parseTokens).not.toHaveBeenCalled();
@@ -600,7 +603,6 @@ describe('Ingest API : Uploader', function () {
 
 
     it('Should abort a multi part upload.', function (done) {
-
 
       upload.fileRecord.id = 'test-id';
       upload.fileRecord.method = false;
@@ -699,7 +701,7 @@ describe('Ingest API : Uploader', function () {
         size: 10485760
       };
 
-      expect(upload.checkMultipart(file)).toEqual(true);
+      expect(upload._checkMultipart(file)).toEqual(true);
 
     });
 
@@ -709,12 +711,12 @@ describe('Ingest API : Uploader', function () {
         size: 5242880
       };
 
-      expect(upload.checkMultipart(file)).toEqual(false);
+      expect(upload._checkMultipart(file)).toEqual(false);
 
     });
 
     it('Should return undefined if a file is not passed.', function () {
-      expect(upload.checkMultipart()).not.toBeDefined();
+      expect(upload._checkMultipart()).not.toBeDefined();
     });
 
   });
@@ -727,7 +729,7 @@ describe('Ingest API : Uploader', function () {
       delete file.webkitSlice;
       delete file.slice;
 
-      expect(upload.getSliceMethod(file)).toEqual('mozSlice');
+      expect(upload._getSliceMethod(file)).toEqual('mozSlice');
 
     });
 
@@ -737,7 +739,7 @@ describe('Ingest API : Uploader', function () {
       delete file.mozSlice;
       delete file.slice;
 
-      expect(upload.getSliceMethod(file)).toEqual('webkitSlice');
+      expect(upload._getSliceMethod(file)).toEqual('webkitSlice');
 
     });
 

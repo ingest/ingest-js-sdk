@@ -49,7 +49,7 @@ function Upload (options) {
     filename: this.file.name,
     type: this.file.type,
     size: this.file.size,
-    method: this.checkMultipart(this.file)
+    method: this._checkMultipart(this.file)
   };
 
 };
@@ -67,9 +67,9 @@ Upload.prototype.progress = function (callback) {
  * @return  {Promise}         A promise which resolves when the new input record is created and uploaded.
  */
 Upload.prototype.save = function () {
-  return this.create(this.fileRecord)
-    .then(this.initialize.bind(this))
-    .then(this.prepareUpload.bind(this));
+  return this._create(this.fileRecord)
+    .then(this._initialize.bind(this))
+    .then(this._prepareUpload.bind(this));
 };
 
 /**
@@ -77,7 +77,7 @@ Upload.prototype.save = function () {
  * @private
  * @param  {number} message Current progress percentage.
  */
-Upload.prototype.updateProgress = function (percent) {
+Upload.prototype._updateProgress = function (percent) {
 
   if (!this.config.progress) {
     return;
@@ -92,7 +92,7 @@ Upload.prototype.updateProgress = function (percent) {
  * @param   {object}  record  A JSON object representing the input record to create.
  * @return  {Promise}         A promise which resolves when the new input record is created.
  */
-Upload.prototype.create = function (record) {
+Upload.prototype._create = function (record) {
 
   if (this.aborted) {
     return;
@@ -109,7 +109,7 @@ Upload.prototype.create = function (record) {
  */
 Upload.prototype._createSuccess = function (response) {
 
-  this.updateProgress(0);
+  this._updateProgress(0);
   this.fileRecord.id = response.data[0].id;
 
   return this.fileRecord.id;
@@ -120,7 +120,7 @@ Upload.prototype._createSuccess = function (response) {
  * @private
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.initialize = function () {
+Upload.prototype._initialize = function () {
 
   var url;
   var tokens;
@@ -165,15 +165,15 @@ Upload.prototype._initializeComplete = function (response) {
  * Setup the upload depending on its type, single or multi part.
  * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
  */
-Upload.prototype.prepareUpload = function () {
+Upload.prototype._prepareUpload = function () {
   if (!this.fileRecord.method) {
     // Singlepart.
-    return this.uploadFile()
-      .then(this._completeUpload.bind(this));
+    return this._uploadFile()
+      .then(this._onCompleteUpload.bind(this));
   } else {
     // Multipart.
-    return this.createChunks()
-      .then(this.completeUpload.bind(this));
+    return this._createChunks()
+      .then(this._completeUpload.bind(this));
   }
 };
 
@@ -182,8 +182,8 @@ Upload.prototype.prepareUpload = function () {
  * @private
  * @return {Promise} A promise which resolves when all of the pieces have completed uploading.
  */
-Upload.prototype.createChunks = function () {
-  var sliceMethod = this.getSliceMethod(this.file);
+Upload.prototype._createChunks = function () {
+  var sliceMethod = this._getSliceMethod(this.file);
   var i, blob, chunk,
     chunkPromises = [];
 
@@ -203,7 +203,7 @@ Upload.prototype.createChunks = function () {
 
     this.chunks.push(chunk);
 
-    chunkPromises.push(this.uploadChunk.bind(this, chunk));
+    chunkPromises.push(this._uploadChunk.bind(this, chunk));
 
   }
 
@@ -218,10 +218,10 @@ Upload.prototype.createChunks = function () {
  * @private
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.uploadChunk = function (chunk) {
-  return this.signUpload(chunk)
-    .then(this.sendUpload.bind(this, chunk))
-    .then(this.completeChunk.bind(this, chunk));
+Upload.prototype._uploadChunk = function (chunk) {
+  return this._signUpload(chunk)
+    .then(this._sendUpload.bind(this, chunk))
+    .then(this._completeChunk.bind(this, chunk));
 };
 
 /**
@@ -229,14 +229,14 @@ Upload.prototype.uploadChunk = function (chunk) {
  * @param  {file}   file    A file reference to upload.
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.uploadFile = function () {
+Upload.prototype._uploadFile = function () {
   var chunk = {
     data: this.file
   };
 
-  return this.signUpload(chunk)
-    .then(this.sendUpload.bind(this, chunk))
-    .then(this.updateProgress.bind(this, 100));
+  return this._signUpload(chunk)
+    .then(this._sendUpload.bind(this, chunk))
+    .then(this._updateProgress.bind(this, 100));
 };
 
 /**
@@ -245,7 +245,7 @@ Upload.prototype.uploadFile = function () {
  * @param  {object}   chunk           Information about the chunk to be uploaded.
  * @return {Promise}                  A promise which resolves when the request is complete.
  */
-Upload.prototype.signUpload = function (chunk) {
+Upload.prototype._signUpload = function (chunk) {
   var url;
   var signing = '';
   var headers = {};
@@ -281,7 +281,7 @@ Upload.prototype.signUpload = function (chunk) {
  * @param   {object} upload  An object representing the upload to send to the server.
  * @return  {Promise}       A promise which resolves when the request is complete.
  */
-Upload.prototype.sendUpload = function (upload, response) {
+Upload.prototype._sendUpload = function (upload, response) {
   var headers = {};
 
   var formData = new FormData();
@@ -304,7 +304,7 @@ Upload.prototype.sendUpload = function (upload, response) {
  *  Executed when a chunk is finished uploading.
  *  @private
  */
-Upload.prototype.completeChunk = function (chunk) {
+Upload.prototype._completeChunk = function (chunk) {
   var progress;
 
   this.chunksComplete++;
@@ -315,7 +315,7 @@ Upload.prototype.completeChunk = function (chunk) {
   progress = progress * 100;
   progress = Math.round(progress);
 
-  this.updateProgress(progress);
+  this._updateProgress(progress);
 };
 
 /**
@@ -324,7 +324,7 @@ Upload.prototype.completeChunk = function (chunk) {
  * @private
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.completeUpload = function () {
+Upload.prototype._completeUpload = function () {
   var url;
   var tokens;
 
@@ -344,7 +344,7 @@ Upload.prototype.completeUpload = function () {
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
-  }).then(this._completeUpload.bind(this));
+  }).then(this._onCompleteUpload.bind(this));
 };
 
 /**
@@ -352,7 +352,7 @@ Upload.prototype.completeUpload = function () {
  * @private
  * @return {string} ID for the input record that was created.
  */
-Upload.prototype._completeUpload = function () {
+Upload.prototype._onCompleteUpload = function () {
   this.currentUpload = null;
   return this.fileRecord.id;
 };
@@ -421,7 +421,7 @@ Upload.prototype.resume = function () {
  * @param  {file}   file  The file to evaluate.
  * @return {boolean}      True if the file will be uploading using mutlipart upload.
  */
-Upload.prototype.checkMultipart = function (file) {
+Upload.prototype._checkMultipart = function (file) {
   if (!file) {
     return;
   }
@@ -435,7 +435,7 @@ Upload.prototype.checkMultipart = function (file) {
  * @param {object} file - The file object you wish to determine the slice method for
  * @return {string} sliceMethod - The slice method to use.
  */
-Upload.prototype.getSliceMethod = function (file) {
+Upload.prototype._getSliceMethod = function (file) {
   var sliceMethod;
 
   if ('mozSlice' in file) {
