@@ -714,7 +714,7 @@ describe('Ingest API : Uploader', function () {
     });
 
     it('Should return undefined if a file is not passed.', function () {
-      expect(upload.checkMultipart()).toEqual(undefined);
+      expect(upload.checkMultipart()).not.toBeDefined();
     });
 
   });
