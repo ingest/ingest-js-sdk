@@ -345,6 +345,9 @@ describe('Ingest API : Uploader', function () {
         expect(upload.completeChunk).toHaveBeenCalled();
 
         done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
       });
 
     });
