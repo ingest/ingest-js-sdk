@@ -244,8 +244,8 @@ IngestAPI.prototype.getCurrentUserInfo = function () {
 
 /**
  * Create a new input and upload a file.
- * @param  {[type]} file [description]
- * @return {[type]}      [description]
+ * @param  {File}   file    File to upload.
+ * @return {Promise} A promise which resolves when the upload is complete.
  */
 IngestAPI.prototype.upload = function (file) {
   return new Uploader({
