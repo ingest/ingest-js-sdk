@@ -4,6 +4,7 @@ var extend = require('extend');
 var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
 var Resource = require('./Resource');
+var Uploader = require('./Uploader');
 
 /**
  * IngestAPI Object
@@ -43,10 +44,12 @@ function IngestAPI (options) {
     this.setToken(this.config.token);
   }
 
+  /* Exposed for testing */
   this.request = Request;
   this.JWTUtils = JWTUtils;
   this.utils = utils;
   this.resource = Resource;
+  this.uploader = Uploader;
 
   this.videos = new Resource({
     host: this.config.host,
@@ -57,6 +60,12 @@ function IngestAPI (options) {
   this.playlists = new Resource({
     host: this.config.host,
     resource: 'playlists',
+    tokenSource: this.getToken.bind(this)
+  });
+
+  this.inputs = new Resource({
+    host: this.config.host,
+    resource: 'encoding/inputs',
     tokenSource: this.getToken.bind(this)
   });
 
@@ -82,390 +91,6 @@ IngestAPI.prototype.setToken = function (token) {
  */
 IngestAPI.prototype.getToken = function () {
   return this.token;
-};
-
-/** Uploads **/
-
-/**
- * Make a request and sign the blob to be uploaded.
- * @param  {object}   data            File data used to sign the upload.
- * @param  {string}   data.id         The uuid in the ingest service that represents a video record,
- * @param  {string}   data.key        The key associated with the file on AWS.
- * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
- * @param  {string}   data.partNumber The part of the file being signed.
- * @param  {boolean}  data.method     Whether or not the file requires singlepart or multipart uploading.
- *
- * @return {Promise}                  A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.signUploadBlob = function (data) {
-
-  var checkObject = this.validateUploadObject(data);
-  var url;
-  var tokens;
-  var signing = '';
-
-  // Make sure all the proper properties have been passed in.
-  if (!checkObject.valid) {
-    return utils.promisify(false, checkObject.message);
-  }
-
-  if (!data.method) {
-    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
-  }
-
-  // Replacing <%=id%> with data.id
-  // Replacing <%=method%> with '?type=amazon' or ''
-  tokens = {
-    id: data.id,
-    method: signing
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsUploadSign, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'POST',
-    data: data
-  });
-};
-
-/**
- * Validate the object supplying the upload key and uploadId.
- * @private
- *
- * @param  {object}   data            File data used to sign the upload.
- * @param  {string}   data.key        The key associated with the file on AWS.
- * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
- *
- * @return {boolean}  Boolean         Representing weather or not the object is valid.
- **/
-IngestAPI.prototype._validateUploadIds = function (data) {
-
-  var result = {
-    valid: true,
-    message: ''
-  };
-
-  if (typeof data !== 'object') {
-    result.valid = false;
-    result.message = 'The passed value was not an object.';
-  }
-
-  if (typeof data.key !== 'string') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : key.';
-  }
-
-  if (typeof data.uploadId !== 'string') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : uploadId';
-  }
-
-  return result;
-};
-
-/**
- * Validate the object supplying the upload data.
- * @param  {object}   data            File data used to sign the upload.
- * @param  {string}   data.id         The uuid in the ingest service that represents a video record,
- * @param  {string}   data.key        The key associated with the file on AWS.
- * @param  {string}   data.uploadId   An id provided by amazon s3 to track multi-part uploads.
- * @param  {string}   data.partNumber The part of the file being signed.
- * @param  {boolean}  data.method     Whether or not the file requires singlepart or multipart uploading.
- *
- * @return {boolean}  Boolean         Representing weather or not the object is valid.
- **/
-IngestAPI.prototype.validateUploadObject = function (data) {
-
-  var validIds = this._validateUploadIds(data);
-  var result = {
-    valid: true,
-    message: ''
-  };
-
-  if (typeof data !== 'object') {
-    result.valid = false;
-    result.message = 'The passed value was not an object.';
-  }
-
-  // Make sure all the proper properties have been passed in.
-  if (!validIds.valid) {
-    result = validIds;
-  }
-
-  if (typeof data.id !== 'string') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : id.';
-  }
-
-  if (typeof data.partNumber !== 'number') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : partNumber';
-  }
-
-  if (!data.hasOwnProperty('method') || typeof data.method !== 'boolean') {
-    result.valid = false;
-    result.message = 'Missing or invalid property : method';
-  }
-
-  // For the case of single part uploads, the uploadId is not required.
-  if (data.hasOwnProperty('method') && !data.method && !data.uploadId) {
-    result.valid = true;
-    result.message = '';
-  }
-
-  return result;
-};
-
-/**
- * Return a list of inputs for the current user and network.
- * @param  {object}  headers Javascript object representing headers to apply to the call.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.getInputs = function (headers) {
-
-  return new Request({
-    url: this.config.host + this.config.inputs,
-    token: this.getToken(),
-    headers: headers
-  });
-};
-
-/**
- * Return an input that matches the supplied id.
- * @param  {string}  inputId ID for the requested video.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.getInputsById = function (inputId) {
-
-  var url;
-  var tokens;
-
-  if (typeof inputId !== 'string') {
-    // Wrap the error in a promise so the user is still catching the errors.
-    return utils.promisify(false,
-      'IngestAPI getInputsById requires a valid inputId as a string.');
-  }
-
-  tokens = {
-    id: inputId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken()
-  });
-};
-
-/**
- * Add a new input.
- * @param  {array}  inputObject An object representing the input to add.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.addInputs = function (inputs) {
-
-  // Validate the object being passed in.
-  if (!Array.isArray(inputs)) {
-    // Wrap the error in a promise.
-    return utils.promisify(false,
-      'IngestAPI addInput requires an array of input objects.');
-  }
-
-  // Return the promise from the request.
-  return new Request({
-    url: this.config.host + this.config.inputs,
-    token: this.getToken(),
-    method: 'POST',
-    data: inputs
-  });
-};
-
-/**
- * Delete a single input
- * @param  {string}  inputId An id for the input you wish to delete
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.deleteInput = function (inputId) {
-
-  var url;
-  var tokens;
-
-  if (typeof inputId !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI deleteInput requires a video ID passed as a string.');
-  }
-
-  tokens = {
-    id: inputId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsById, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'DELETE'
-  });
-};
-
-/**
- * Delete many inputs
- * @param  {array}   inputs An array of inputs to be deleted
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.deleteInputs = function (inputs) {
-
-  var url;
-
-  if (!Array.isArray(inputs)) {
-    return utils.promisify(false,
-      'IngestAPI deleteInputs requires an array of input Ids');
-  }
-
-  url = this.config.host + this.config.inputs;
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'DELETE',
-    data: inputs
-  });
-};
-
-/**
- * Initializes an Input for upload
- * @param  {string}  inputId     An id for the input you wish to delete
- * @param  {object}  data        The object containing data for the upload initialization.
- * @param  {string}  data.type   The content type of the item you wish to upload
- * @param  {number}  data.size   The size of the item you wish to upload
- * @param  {boolean} data.method A boolean representing whether or not it is a multipart upload
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.initializeInputUpload = function (inputId, data) {
-
-  var url;
-  var tokens;
-  var signing = '';
-
-  if (typeof inputId !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
-  }
-
-  if (typeof data.type !== 'string') {
-    return utils.promisify(false,
-      'Missing or invalid property : type.');
-  }
-
-  if (typeof data.size !== 'number') {
-    return utils.promisify(false,
-      'Missing or invalid property : size');
-  }
-
-  if (!data.method) {
-    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
-  }
-
-  tokens = {
-    id: inputId,
-    method: signing
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsUpload, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'POST',
-    data: data
-  });
-};
-
-/**
- * Completes an input upload
- * @param  {string}  inputId        An id for the input you wish to delete
- * @param  {object}  data           The object containing data for the upload completion.
- * @param  {string}  data.uploadId  The uploadId you wish to complete the upload for
- * @param  {number}  data.key       The key of the upload you wish to complete
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.completeInputUpload = function (inputId, data) {
-
-  var url;
-  var tokens;
-  var checkObject = this._validateUploadIds(data);
-
-  if (typeof inputId !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
-  }
-
-  // Make sure all the proper properties have been passed in.
-  if (!checkObject.valid) {
-    return utils.promisify(false, checkObject.message);
-  }
-
-  tokens = {
-    id: inputId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsUploadComplete, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'POST',
-    data: data
-  });
-};
-
-/**
- * Completes an input upload
- * @param  {string}  inputId        An id for the input you wish to delete
- * @param  {object}  data           The object containing data for the upload completion.
- * @param  {string}  data.uploadId  The uploadId you wish to complete the upload for
- * @param  {number}  data.key       The key of the upload you wish to complete
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-IngestAPI.prototype.abortInputUpload = function (inputId, data) {
-
-  var url;
-  var tokens;
-  var checkObject = this._validateUploadIds(data);
-
-  if (typeof inputId !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI initializeUploadInput requires a valid input ID passed as a string.');
-  }
-
-  // Make sure all the proper properties have been passed in.
-  if (!checkObject.valid) {
-    return utils.promisify(false, checkObject.message);
-  }
-
-  tokens = {
-    id: inputId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.inputsUploadAbort, tokens);
-
-  return new Request({
-    url: url,
-    token: this.getToken(),
-    method: 'POST',
-    data: data
-  });
 };
 
 /** Network Information **/
@@ -614,6 +239,19 @@ IngestAPI.prototype.getCurrentUserInfo = function () {
   return new Request({
     url: this.config.host + this.config.currentUserInfo,
     token: this.getToken()
+  });
+};
+
+/**
+ * Create a new input and upload a file.
+ * @param  {File}   file    File to upload.
+ * @return {Promise} A promise which resolves when the upload is complete.
+ */
+IngestAPI.prototype.upload = function (file) {
+  return new Uploader({
+    file: file,
+    api: this,
+    host: this.config.host
   });
 };
 
