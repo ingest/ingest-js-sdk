@@ -18,8 +18,12 @@ describe('Ingest API : Resource', function () {
     resource = new api.resource({
       host: api.config.host,
       resource: 'videos',
-      tokenSource: api.getToken.bind(api)
+      tokenSource: api.getToken.bind(api),
+      cache: api.cache
     });
+
+    // Re-enable cache each time.
+    resource.cache.enabled = true;
   });
 
   describe('parse resource', function () {
@@ -56,6 +60,8 @@ describe('Ingest API : Resource', function () {
 
     it('Should retrieve all resources.', function (done) {
 
+      resource.cache.enabled = false;
+
       var request = resource.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -70,6 +76,38 @@ describe('Ingest API : Resource', function () {
         expect(nextRange).toBeDefined();
 
         expect(validVideoId).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve all resources and cache the result', function (done) {
+
+      spyOn(resource.cache, 'save').and.callThrough();
+
+      var request = resource.getAll().then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        validVideoId = response.data[0].id;
+
+        nextRange = response.headers('Next-Range');
+
+        expect(nextRange).toBeDefined();
+
+        expect(validVideoId).toBeDefined();
+
+        expect(resource.cache.save).toHaveBeenCalled();
 
         done();
       }, function (error) {
@@ -146,9 +184,6 @@ describe('Ingest API : Resource', function () {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
-        expect(response.headers).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBeDefined();
 
         done();
 
@@ -215,11 +250,40 @@ describe('Ingest API : Resource', function () {
       expect(request.then).toBeDefined();
     });
 
+    it('Should ignore the cache if it is disabled.', function (done) {
+
+      spyOn(resource.cache, 'retrieve').and.callThrough();
+
+      resource.cache.enabled = false;
+
+      var request = resource.getById(validVideoId).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+
+        expect(resource.cache.retrieve).not.toHaveBeenCalled();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
   });
 
   describe('add', function () {
 
     it('Should add a resource.', function (done) {
+
+      resource.cache.enabled = false;
 
       var video = {
         'title': 'an-example.mkve.mkv',
@@ -285,6 +349,94 @@ describe('Ingest API : Resource', function () {
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
+
+        // Store the video to use later with the delete test.
+        createdVideo = response.data.id;
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should add a resource and cache the result.', function (done) {
+
+      var video = {
+        'title': 'an-example.mkve.mkv',
+        'size': 0,
+        'description': 'Test video.'
+      };
+
+      // Mock the XHR object.
+      mock.setup();
+
+      var resp = {
+        author: {
+          deleted_at: null,
+          email: "shawn.gillam-wright@redspace.com",
+          first_time_user: true,
+          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+          profile: {},
+          timezone: "UTC",
+          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+        },
+        created_at: "2015-12-18T15:54:53.085423Z",
+        deleted_at: null,
+        description: "sdf",
+        id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+        playback_url: null,
+        poster: null,
+        private: null,
+        published_at: null,
+        schedule_end: null,
+        schedule_start: null,
+        size: 0,
+        status: 0,
+        tags: ["sdf"],
+        title: "ad",
+        updated_at: "2015-12-18T15:54:53.085423Z",
+        updater: {
+          deleted_at: null,
+          email: "shawn.gillam-wright@redspace.com",
+          first_time_user: true,
+          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+          profile: {},
+          timezone: "UTC",
+          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+        },
+        url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+      };
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + '/videos' , function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(resp));
+
+      });
+
+      spyOn(resource.cache, 'save').and.callThrough();
+
+      var request = resource.add(video).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        expect(resource.cache.save).toHaveBeenCalled();
 
         // Store the video to use later with the delete test.
         createdVideo = response.data.id;
@@ -399,6 +551,8 @@ describe('Ingest API : Resource', function () {
 
     it('Should delete a resource.', function (done) {
 
+      resource.cache.enabled = false;
+
       // Mock the XHR object
       mock.setup();
 
@@ -423,6 +577,52 @@ describe('Ingest API : Resource', function () {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should delete a resource and remove it from cache.', function (done) {
+
+      // Mock the XHR object
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos/1234',
+        function (request, response) {
+
+          var data = {
+            ok: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+
+        });
+
+      spyOn(resource.cache, 'remove').and.callThrough();
+
+      var request = resource.delete('1234').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+
+        expect(resource.cache.remove).toHaveBeenCalled();
 
         done();
 
@@ -845,6 +1045,8 @@ describe('Ingest API : Resource', function () {
 
     it('Should soft-delete all resources inside the passed in array.', function (done) {
 
+      resource.cache.enabled = false;
+
       var data, request;
 
       // Mock the XHR object.
@@ -874,6 +1076,57 @@ describe('Ingest API : Resource', function () {
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBe(202);
         expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should soft-delete all resources and remove them from cache.', function (done) {
+
+      var data, request;
+
+      spyOn(resource.cache, 'remove').and.callThrough();
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(202);
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
+        }
+      ];
+
+      request = api.videos.delete(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(202);
+        expect(response.data).toBeFalsy();
+
+        expect(resource.cache.remove).toHaveBeenCalled();
 
         done();
 

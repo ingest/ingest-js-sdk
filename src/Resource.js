@@ -25,6 +25,8 @@ function Resource (options) {
 
   this.config = extend(true, {}, this.defaults, options);
 
+  this.cache = this.config.cache;
+
 }
 
 /**
@@ -56,7 +58,7 @@ Resource.prototype.getAll = function (headers) {
     url: url,
     token: this._tokenSource(),
     headers: headers
-  });
+  }).then(this._updateCachedResources.bind(this));
 };
 
 /**
@@ -65,7 +67,7 @@ Resource.prototype.getAll = function (headers) {
  * @return {promise}        A promise which resolves when the request is complete.
  */
 Resource.prototype.getById = function (id) {
-  var url;
+  var url, cachedResult;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -77,10 +79,22 @@ Resource.prototype.getById = function (id) {
     id: id
   });
 
-  return new Request({
-    url: url,
-    token: this._tokenSource()
-  });
+  if (this.cache && this.cache.enabled) {
+    // retrieve the cached item.
+    cachedResult = this.cache.retrieve(id);
+  }
+
+  // Return a cached result if we've found one.
+  if (cachedResult) {
+    return utils.promisify(true, {
+      data: cachedResult
+    });
+  } else {
+    return new Request({
+      url: url,
+      token: this._tokenSource()
+    });
+  }
 };
 
 /**
@@ -146,7 +160,7 @@ Resource.prototype.add = function (resource) {
     token: this._tokenSource(),
     method: 'POST',
     data: resource
-  });
+  }).then(this._updateCachedResource.bind(this));
 };
 
 /**
@@ -185,7 +199,7 @@ Resource.prototype._updateResource = function (resource) {
     token: this._tokenSource(),
     method: 'PATCH',
     data: resource
-  });
+  }).then(this._updateCachedResource.bind(this));
 };
 
 /**
@@ -204,7 +218,7 @@ Resource.prototype._updateResourceArray = function (resources) {
     token: this._tokenSource(),
     method: 'PATCH',
     data: resources
-  });
+  }).then(this._updateCachedResources.bind(this));
 };
 
 /**
@@ -266,7 +280,7 @@ Resource.prototype._deleteResource = function (resource, permanent) {
     url: url,
     token: this._tokenSource(),
     method: 'DELETE',
-  });
+  }).then(this._deleteCachedResource.bind(this, resource));
 };
 
 /**
@@ -290,7 +304,7 @@ Resource.prototype._deleteResourceArray = function (resources, permanent) {
     token: this._tokenSource(),
     method: 'DELETE',
     data: resources
-  });
+  }).then(this._deleteCachedResources.bind(this, resources));
 };
 
 /**
@@ -359,6 +373,75 @@ Resource.prototype.trashCount = function () {
  */
 Resource.prototype._handleCountResponse = function (response) {
   return parseInt(response.headers('Resource-Count'), 10);
+};
+
+/**
+ * Update a single cached resource based on the response data.
+ * @param  {object}   response   Response object from the getAll request.
+ * @return {response}            Response object from the getAll request.
+ */
+Resource.prototype._updateCachedResource = function (response) {
+  if (this.cache && this.cache.enabled) {
+    this.cache.save(response.data.id, response.data);
+  }
+
+  return response;
+};
+
+/**
+ * Store the returned items in cache.
+ * @param  {object}   response   Response object from the getAll request.
+ * @return {response}            Response object from the getAll request.
+ */
+Resource.prototype._updateCachedResources = function (response) {
+  var data = response.data;
+  var dataLength = data.length;
+  var i;
+
+  if (this.cache && this.cache.enabled) {
+
+    for (i = 0; i < dataLength; i++) {
+      this.cache.save(data[i].id, data[i]);
+    }
+
+  }
+
+  return response;
+};
+
+/**
+ * Delete a single cached resource.
+ * @param  {string} id            ID of the resource to remove.
+ * @param  {object}   response    Response object from the getAll request.
+ * @return {response}             Response object from the getAll request.
+ */
+Resource.prototype._deleteCachedResource = function (id, response) {
+  if (this.cache && this.cache.enabled) {
+    this.cache.remove(id);
+  }
+
+  return response;
+};
+
+/**
+ * Delete an array of cached resources
+ * @param  {array}    ids         Array of resource id's to delete from cache.
+ * @param  {object}   response    Response object from the getAll request.
+ * @return {response}             Response object from the getAll request.
+ */
+Resource.prototype._deleteCachedResources = function (ids, response) {
+  var dataLength = ids.length;
+  var i;
+
+  if (this.cache && this.cache.enabled) {
+
+    for (i = 0; i < dataLength; i++) {
+      this.cache.remove(ids[i]);
+    }
+
+  }
+
+  return response;
 };
 
 module.exports = Resource;
