@@ -5,6 +5,7 @@ var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
 var Resource = require('./Resource');
 var Uploader = require('./Uploader');
+var Cache = require('./Cache');
 
 /**
  * IngestAPI Object
@@ -17,6 +18,7 @@ function IngestAPI (options) {
 
   this.defaults = {
     'host': 'https://api.ingest.io',
+    'cacheAge': 300000, // 5 minutes
     'networks': '/networks',
     'networksKeys': '/networks/keys',
     'networksKeysById': '/networks/keys/<%=id%>',
@@ -51,22 +53,27 @@ function IngestAPI (options) {
   this.resource = Resource;
   this.uploader = Uploader;
 
+  this.cache = new Cache(this.config.cacheAge);
+
   this.videos = new Resource({
     host: this.config.host,
     resource: 'videos',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache
   });
 
   this.playlists = new Resource({
     host: this.config.host,
     resource: 'playlists',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache
   });
 
   this.inputs = new Resource({
     host: this.config.host,
     resource: 'encoding/inputs',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache
   });
 
 }
