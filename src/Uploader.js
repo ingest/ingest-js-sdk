@@ -4,8 +4,6 @@ var extend = require('extend');
 var utils = require('./Utils.js');
 var JWTUtils = require('./JWTUtils');
 
-// TODO Add better pause support, uploads should be able to pause right after creation.
-
 /**
  * Create a new upload wrapper.  Manages the entire upload of a file.
  * @class
