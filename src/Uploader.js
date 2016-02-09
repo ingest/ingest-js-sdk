@@ -4,6 +4,8 @@ var extend = require('extend');
 var utils = require('./Utils.js');
 var JWTUtils = require('./JWTUtils');
 
+// TODO Add better pause support, uploads should be able to pause right after creation.
+
 /**
  * Create a new upload wrapper.  Manages the entire upload of a file.
  * @class
@@ -41,6 +43,7 @@ function Upload (options) {
   this.chunkSize = 0;
   this.chunkCount = 0;
   this.chunksComplete = 0;
+  this.uploadedBytes = 0;
 
   this.aborted = false;
   this.paused = false;
@@ -77,13 +80,13 @@ Upload.prototype.save = function () {
  * @private
  * @param  {number} message Current progress percentage.
  */
-Upload.prototype._updateProgress = function (percent) {
+Upload.prototype._updateProgress = function (percent, chunkSize) {
 
   if (!this.config.progress) {
     return;
   }
 
-  this.config.progress.call(this, percent);
+  this.config.progress.call(this, percent, chunkSize);
 };
 
 /**
@@ -95,7 +98,7 @@ Upload.prototype._updateProgress = function (percent) {
 Upload.prototype._create = function (record) {
 
   if (this.aborted) {
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   return this.api.inputs.add([record]).then(this._createSuccess.bind(this));
@@ -127,7 +130,7 @@ Upload.prototype._initialize = function () {
   var signing = '';
 
   if (this.aborted) {
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   if (!this.fileRecord.method) {
@@ -189,10 +192,10 @@ Upload.prototype._createChunks = function () {
 
   if (this.aborted) {
     this.abort();
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
-  for (i = 0; i < this.chunkCount - 1; i++) {
+  for (i = 0; i < this.chunkCount; i++) {
 
     blob = this.file[sliceMethod](i * this.chunkSize, (i + 1) * this.chunkSize);
 
@@ -310,12 +313,13 @@ Upload.prototype._completeChunk = function (chunk) {
   this.chunksComplete++;
   chunk.complete = true;
 
-  progress = this.chunksComplete * this.chunkSize;
-  progress = progress / this.fileRecord.size;
+  this.uploadedBytes += chunk.data.size;
+
+  progress = this.uploadedBytes / this.fileRecord.size;
   progress = progress * 100;
   progress = Math.round(progress);
 
-  this._updateProgress(progress);
+  this._updateProgress(progress, chunk.data.size);
 };
 
 /**
@@ -330,7 +334,7 @@ Upload.prototype._completeUpload = function () {
 
   if (this.aborted) {
     this.abort();
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   tokens = {

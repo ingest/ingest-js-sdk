@@ -246,18 +246,20 @@ describe('Ingest API : Uploader', function () {
 
     });
 
-    it('Should not try to initialize if the upload has been aborted', function () {
+    it('Should not try to initialize if the upload has been aborted', function (done) {
 
       upload.aborted = true;
 
       spyOn(utils, 'parseTokens');
 
-      var result = upload._initialize();
-
-      // The function should not have returned a promise.
-      expect(result).not.toBeDefined();
-
-      expect(utils.parseTokens).not.toHaveBeenCalled();
+      var result = upload._initialize().then(function (result) {
+        expect(result).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        expect(utils.parseTokens).not.toHaveBeenCalled();
+        done();
+      });
 
     });
   });
@@ -498,15 +500,20 @@ describe('Ingest API : Uploader', function () {
 
     it('Should update the chunks complete and the current progress.', function () {
 
+      upload.fileRecord.size = 10000;
+
       spyOn(upload, '_updateProgress').and.callFake(function (percent) {
         expect(percent).toEqual(50);
       });
 
-      var chunk = {};
+      var chunk = {
+        data: {
+          size: 5000
+        }
+      };
 
+      upload.chunkCount = 2;
       upload.chunksComplete = 0;
-      upload.chunkSize = 5000;
-      upload.fileRecord.size = 10000;
 
       upload._completeChunk(chunk);
 
