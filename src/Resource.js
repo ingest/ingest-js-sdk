@@ -224,49 +224,60 @@ Resource.prototype._updateResourceArray = function (resources) {
 /**
  * Delete an existing resource
  * @param  {object | array} resource The id, or an array of ids for the resource(s) to be deleted.
+ * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
  * @return {promise}          A promise which resolves when the request is complete.
  */
-Resource.prototype.delete = function (resource) {
+Resource.prototype.delete = function (resource, async) {
+  if (typeof async === 'undefined') {
+    async = true;
+  }
+
   if (typeof resource !== 'string') {
     // If they've passed an array fire the updateArray function.
     if (Array.isArray(resource)) {
-      return this._deleteResourceArray(resource);
+      return this._deleteResourceArray(resource, false, async);
     }
 
     return utils.promisify(false,
       'IngestAPI Resource delete requires a resource to be passed either as a string or an array of strings.'); //eslint-disable-line
   }
 
-  return this._deleteResource(resource);
+  return this._deleteResource(resource, false, async);
 };
 
 /**
  * Permanently delete an existing resource.
  * @param  {object | array} resource The id, or an array of ids for the resource(s) to be deleted.
+ * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
  * @return {promise}          A promise which resolves when the request is complete.
  */
-Resource.prototype.permanentDelete = function (resource) {
+Resource.prototype.permanentDelete = function (resource, async) {
+  if (typeof async === 'undefined') {
+    async = true;
+  }
+
   if (typeof resource !== 'string') {
     // If they've passed an array fire the updateArray function.
     if (Array.isArray(resource)) {
-      return this._deleteResourceArray(resource, true);
+      return this._deleteResourceArray(resource, true, async);
     }
 
     return utils.promisify(false,
       'IngestAPI Resource delete requires a resource to be passed either as a string or an array of strings.'); //eslint-disable-line
   }
 
-  return this._deleteResource(resource, true);
+  return this._deleteResource(resource, true, async);
 };
 
 /**
  * Delete a single resource
  * @private
  * @param  {object}   resource  The id of the resource to be deleted.
- * @param {boolean}  permanent  A flag to permanently delete each video.
+ * @param {boolean}   permanent  A flag to permanently delete each video.
+ * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
  * @return {promise}            A promise which resolves when the request is complete.
  */
-Resource.prototype._deleteResource = function (resource, permanent) {
+Resource.prototype._deleteResource = function (resource, permanent, async) {
   var url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource
@@ -278,6 +289,7 @@ Resource.prototype._deleteResource = function (resource, permanent) {
 
   return new Request({
     url: url,
+    async: async,
     token: this._tokenSource(),
     method: 'DELETE',
   }).then(this._deleteCachedResource.bind(this, resource));

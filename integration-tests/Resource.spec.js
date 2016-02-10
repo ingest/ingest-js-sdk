@@ -593,6 +593,36 @@ describe('Ingest API : Resource', function () {
 
     });
 
+    it('Should delete a resource synchronously.', function (done) {
+
+      resource.cache.enabled = false;
+
+      spyOn(resource, '_deleteResource').and.callFake(function (resource, permanent, async) {
+        expect(async).toEqual(false);
+        return api.utils.promisify(true, 'deleted');
+      });
+
+      var request = resource.delete('1234', false).then(function (response) {
+
+        expect(resource._deleteResource).toHaveBeenCalled();
+        expect(response).toBeDefined();
+        expect(response).toEqual('deleted');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
     it('Should delete a resource and remove it from cache.', function (done) {
 
       // Mock the XHR object

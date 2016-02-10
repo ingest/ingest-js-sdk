@@ -23,7 +23,7 @@ function Upload (options) {
     upload: '/encoding/inputs/<%=id%>/upload<%=method%>',
     sign: '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
     uploadComplete: '/encoding/inputs/<%=id%>/upload/complete',
-    uploadAbort: '/encoding/inputs/<%=id%>/upload/abort',
+    uploadAbort: '/encoding/inputs/<%=id%>/upload/abort<%=method%>',
     uploadMethods: {
       param: '?type=',
       singlePart: 'amazon',
@@ -41,9 +41,12 @@ function Upload (options) {
   this.chunkSize = 0;
   this.chunkCount = 0;
   this.chunksComplete = 0;
+  this.uploadedBytes = 0;
 
   this.aborted = false;
   this.paused = false;
+  this.created = false;
+  this.initialized = false;
 
   this.fileRecord = {
     filename: this.file.name,
@@ -77,13 +80,13 @@ Upload.prototype.save = function () {
  * @private
  * @param  {number} message Current progress percentage.
  */
-Upload.prototype._updateProgress = function (percent) {
+Upload.prototype._updateProgress = function (percent, chunkSize) {
 
   if (!this.config.progress) {
     return;
   }
 
-  this.config.progress.call(this, percent);
+  this.config.progress.call(this, percent, chunkSize);
 };
 
 /**
@@ -95,7 +98,7 @@ Upload.prototype._updateProgress = function (percent) {
 Upload.prototype._create = function (record) {
 
   if (this.aborted) {
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   return this.api.inputs.add([record]).then(this._createSuccess.bind(this));
@@ -108,6 +111,8 @@ Upload.prototype._create = function (record) {
  * @return {string}           new input record id.
  */
 Upload.prototype._createSuccess = function (response) {
+
+  this.created = true;
 
   this._updateProgress(0);
   this.fileRecord.id = response.data[0].id;
@@ -127,7 +132,7 @@ Upload.prototype._initialize = function () {
   var signing = '';
 
   if (this.aborted) {
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   if (!this.fileRecord.method) {
@@ -155,6 +160,7 @@ Upload.prototype._initialize = function () {
  * @private
  */
 Upload.prototype._initializeComplete = function (response) {
+  this.initialized = true;
   this.fileRecord.key = response.data.key;
   this.fileRecord.uploadId = response.data.uploadId;
   this.chunkSize = response.data.pieceSize;
@@ -189,10 +195,10 @@ Upload.prototype._createChunks = function () {
 
   if (this.aborted) {
     this.abort();
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
-  for (i = 0; i < this.chunkCount - 1; i++) {
+  for (i = 0; i < this.chunkCount; i++) {
 
     blob = this.file[sliceMethod](i * this.chunkSize, (i + 1) * this.chunkSize);
 
@@ -310,12 +316,13 @@ Upload.prototype._completeChunk = function (chunk) {
   this.chunksComplete++;
   chunk.complete = true;
 
-  progress = this.chunksComplete * this.chunkSize;
-  progress = progress / this.fileRecord.size;
+  this.uploadedBytes += chunk.data.size;
+
+  progress = this.uploadedBytes / this.fileRecord.size;
   progress = progress * 100;
   progress = Math.round(progress);
 
-  this._updateProgress(progress);
+  this._updateProgress(progress, chunk.data.size);
 };
 
 /**
@@ -330,7 +337,7 @@ Upload.prototype._completeUpload = function () {
 
   if (this.aborted) {
     this.abort();
-    return;
+    return utils.promisify(false, 'upload aborted');
   }
 
   tokens = {
@@ -358,18 +365,38 @@ Upload.prototype._onCompleteUpload = function () {
 };
 
 /**
- * Completes an input upload
- * @param  {string}  inputId        An id for the input you wish to delete
- * @param  {object}  data           The object containing data for the upload completion.
- * @param  {string}  data.uploadId  The uploadId you wish to complete the upload for
- * @param  {number}  data.key       The key of the upload you wish to complete
+ * Aborts an input upload
+ *
+ * @param {boolean} async A flag to indicate whether or not the request to delete the input should be async.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.abort = function () {
+Upload.prototype.abort = function (async) {
   var url;
   var tokens;
   var signing = '';
+
+  if (typeof async === 'undefined') {
+    async = true;
+  }
+
+  this.aborted = true;
+
+  // If initialize hasn't been called yet there is no need to abort the upload as it doesn't
+  // exist yet.
+  if (!this.initialized) {
+
+    if (this.created) {
+      // If the input has been created simply return early with a
+      // promise to delete the created input record.
+      return this.api.inputs.delete(this.fileRecord.id, async);
+    } else {
+      // Resolve as a successful promise. This case would be fulfilled when an upload
+      // has been created but save() hasn't yet been called.
+      return utils.promisify(true);
+    }
+
+  }
 
   if (this.currentUpload) {
     this.currentUpload.pause();
@@ -389,10 +416,20 @@ Upload.prototype.abort = function () {
 
   return new Request({
     url: url,
+    async: async,
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
-  });
+  }).then(this._abortComplete.bind(this, async));
+};
+
+/**
+ * Delete the input that was created.
+ * @private
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Upload.prototype._abortComplete = function (async) {
+  return this.api.inputs.delete(this.fileRecord.id, async);
 };
 
 /**
