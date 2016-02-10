@@ -367,7 +367,7 @@ Upload.prototype._onCompleteUpload = function () {
 /**
  * Aborts an input upload
  *
- * @param {boolean} async A flag to indicate weather or not the request to delete the input should be async.
+ * @param {boolean} async A flag to indicate whether or not the request to delete the input should be async.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
