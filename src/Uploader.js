@@ -382,13 +382,17 @@ Upload.prototype.abort = function (async) {
 
   this.aborted = true;
 
-  // If it hasn't been initialized then we only need to delete the newly created input.
+  // If initialize hasn't been called yet there is no need to abort the upload as it doesn't
+  // exist yet.
   if (!this.initialized) {
 
     if (this.created) {
+      // If the input has been created simply return early with a
+      // promise to delete the created input record.
       return this.api.inputs.delete(this.fileRecord.id, async);
     } else {
-      // Resolve as a succesful abort.
+      // Resolve as a successful promise. This case would be fulfilled when an upload
+      // has been created but save() hasn't yet been called.
       return utils.promisify(true);
     }
 
