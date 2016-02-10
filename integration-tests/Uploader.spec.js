@@ -32,6 +32,7 @@ describe('Ingest API : Uploader', function () {
       api: api,
       host: api.config.host
     });
+
   });
 
   it('Should expose the required functions.', function () {
@@ -573,6 +574,8 @@ describe('Ingest API : Uploader', function () {
   describe('abort', function () {
 
     it('Should abort a single part upload.', function (done) {
+      upload.created = true;
+      upload.initialized = true;
 
       upload.currentUpload = {
         pause: function () {}
@@ -583,14 +586,17 @@ describe('Ingest API : Uploader', function () {
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
         id: 'test-id',
-        signing: ''
+        method: ''
+      });
+
+      var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
+        id: 'test-id',
+        resource: api.inputs.config.resource
       });
 
       mock.setup();
 
       mock.mock('POST', url, function (request, response) {
-
-        mock.teardown();
 
         return response.status(200)
           .header('Content-Type', 'application/json')
@@ -598,10 +604,20 @@ describe('Ingest API : Uploader', function () {
 
       });
 
+      mock.mock('DELETE', deleteUrl, function (request, response) {
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify('deleted'));
+
+      });
+
       upload.abort().then(function (response) {
-        expect(response.data).toEqual('aborted');
+        mock.teardown();
+        expect(response.data).toEqual('deleted');
         done();
       }, function (error) {
+        mock.teardown();
         expect(error).not.toBeDefined();
         done();
       });
@@ -611,19 +627,25 @@ describe('Ingest API : Uploader', function () {
 
     it('Should abort a multi part upload.', function (done) {
 
+      upload.created = true;
+      upload.initialized = true;
+
       upload.fileRecord.id = 'test-id';
       upload.fileRecord.method = false;
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
         id: 'test-id',
-        signing: '?type=amazon'
+        method: '?type=amazon'
+      });
+
+      var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
+        id: 'test-id',
+        resource: api.inputs.config.resource
       });
 
       mock.setup();
 
       mock.mock('POST', url, function (request, response) {
-
-        mock.teardown();
 
         return response.status(200)
           .header('Content-Type', 'application/json')
@@ -631,8 +653,38 @@ describe('Ingest API : Uploader', function () {
 
       });
 
+      mock.mock('DELETE', deleteUrl, function (request, response) {
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify('deleted'));
+
+      });
+
       upload.abort().then(function (response) {
-        expect(response.data).toEqual('aborted');
+        expect(response.data).toEqual('deleted');
+        mock.teardown();
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        mock.teardown();
+        done();
+      });
+
+    });
+
+    it('Should attempt to delete the input when the upload isn\'t initialized', function (done) {
+
+      upload.created = true;
+      upload.initialized = false;
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      spyOn(upload.api.inputs, 'delete').and.returnValue(api.utils.promisify(true, 'deleted'));
+
+      upload.abort().then(function (response) {
+        expect(upload.api.inputs.delete).toHaveBeenCalled();
+        expect(response).toEqual('deleted');
         done();
       }, function (error) {
         expect(error).not.toBeDefined();
@@ -640,6 +692,46 @@ describe('Ingest API : Uploader', function () {
       });
 
     });
+
+    it('Should attempt to abort the upload synchronously', function (done) {
+      upload.created = true;
+      upload.initialized = false;
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      spyOn(upload.api.inputs, 'delete').and.callFake(function (fileid, async) {
+        expect(async).toEqual(false);
+        return api.utils.promisify(true, 'deleted');
+      });
+
+      upload.abort(false).then(function (response) {
+        expect(upload.api.inputs.delete).toHaveBeenCalled();
+        expect(response).toEqual('deleted');
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+
+    });
+
+    it('Should silently resolve the promise if there is nothing to be done.', function (done) {
+      upload.created = false;
+      upload.initialized = false;
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      spyOn(upload.api.inputs, 'delete').and.returnValue();
+
+      upload.abort().then(function (response) {
+        expect(upload.api.inputs.delete).not.toHaveBeenCalled();
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+    });
+
   });
 
   describe('pause', function () {
