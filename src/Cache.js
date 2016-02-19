@@ -148,7 +148,7 @@ Cache.prototype.diff = function (cacheKey, item, forced) {
     // Check the values if both objects have the property.
     if (original.hasOwnProperty(property)) {
       if (item[property] === original[property]) {
-        // If the values are the same we don't need to add it to the diff so break.
+        // If the values are the same we don't need to add it to the diff so continue.
         continue;
       }
     }

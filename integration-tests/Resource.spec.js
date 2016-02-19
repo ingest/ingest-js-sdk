@@ -606,7 +606,7 @@ describe('Ingest API : Resource', function () {
 
       var request = resource.delete({test: true}).then(function (response) {
 
-        expect(response).toBeUndefined();
+        expect(response).not.toBeDefined();
 
         done();
 
