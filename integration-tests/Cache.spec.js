@@ -153,4 +153,126 @@ describe('Ingest API : Cache', function () {
 
   });
 
+  describe('diff', function () {
+
+    it('Should return the provided object if a cached value is not found.', function () {
+
+      var test = {
+        'id': '12345'
+      };
+
+      var diff = cache.diff('test-id', test);
+
+      expect(diff).toEqual(diff);
+
+    });
+
+    it('Should return null if the two objects match.', function () {
+
+      var test = {
+        'id': '12345'
+      };
+
+      spyOn(cache, 'retrieve').and.returnValue(test);
+
+      var diff = cache.diff.call(cache, 'test-id', test);
+
+      expect(diff).toEqual(null);
+
+    });
+
+    it('Should return an object containing the changed values.', function () {
+
+      var test = {
+        'name': 'TestName',
+        'title': 'TestTitle',
+        'weight': '1'
+      };
+
+      spyOn(cache, 'retrieve').and.returnValue(test);
+
+      var diff = cache.diff.call(cache, 'test-id', {
+        'name': 'NewTestName',
+        'weight': '1',
+        'title': 'NewTitle',
+        'newProperty': 'property'
+      });
+
+      expect(diff).toEqual({
+        'name': 'NewTestName',
+        'title': 'NewTitle',
+        'newProperty': 'property'
+      });
+
+    });
+
+    it('Should return an object containing atleast the forced properties.', function () {
+
+      var test = {
+        'name': 'TestName',
+        'title': 'TestTitle',
+        'weight': '1'
+      };
+
+      spyOn(cache, 'retrieve').and.returnValue(test);
+
+      var diff = cache.diff.call(cache, 'test-id', {
+        'name': 'TestName',
+        'weight': '1',
+        'title': 'NewTitle',
+        'newProperty': 'property'
+      }, ['name']);
+
+      expect(diff).toEqual({
+        'name': 'TestName',
+        'title': 'NewTitle',
+        'newProperty': 'property'
+      });
+
+    });
+
+  });
+
+  describe('diffArray', function () {
+
+    it('Should return the provided objects if cached values are not found.', function() {
+
+      var test = [
+        {'id': 1},
+        {'id': 2}
+      ];
+
+      var diff = cache.diffArray('id', test);
+
+      expect(diff).toEqual(test);
+
+    });
+
+    it('Should only return objects that have changes.', function () {
+
+      var test = [
+        {'id': 1, 'value': 'new value'},
+        {'id': 2, 'value': 'test2'}
+      ];
+
+      // Mock the retrieve and return a different cached value for the first test object.
+      spyOn(cache, 'retrieve').and.callFake(function (key){
+        if (key === 1) {
+          return {
+            'id': 1,
+            'value': 'test'
+          };
+        }
+
+        return test[key - 1];
+      });
+
+      var diff = cache.diffArray('id', test);
+
+      expect(diff).toEqual([{'value': 'new value'}]);
+
+    });
+
+  });
+
 });

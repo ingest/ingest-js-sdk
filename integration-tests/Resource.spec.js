@@ -480,73 +480,6 @@ describe('Ingest API : Resource', function () {
 
   });
 
-  describe('update', function () {
-
-    it('Should update a resource record.', function (done) {
-
-      var video = {
-        id: 'test-video'
-      };
-
-      // Mock the XHR object
-      mock.setup();
-
-      mock.mock('PATCH', api.config.host + '/videos/test-video',
-        function (request, response) {
-
-          var _video = JSON.stringify(video);
-
-          // Restore the XHR Object
-          mock.teardown();
-
-          expect(_video).toEqual(request._body);
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(_video);
-
-        });
-
-      var request = resource.update(video).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.id).toEqual('test-video');
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should fail to update a resource if something other than an object is passed',
-      function (done) {
-
-        var request = resource.update('video').then(function (response) {
-
-          expect(response).toBeUndefined();
-          done();
-
-        }, function (error) {
-
-          expect(error).toBeDefined();
-          done();
-
-        });
-
-        // Ensure a promise was returned.
-        expect(request.then).toBeDefined();
-
-      });
-
-  });
-
   describe('delete', function () {
 
     it('Should delete a resource.', function (done) {
@@ -673,7 +606,7 @@ describe('Ingest API : Resource', function () {
 
       var request = resource.delete({test: true}).then(function (response) {
 
-        expect(response).toBeUndefined();
+        expect(response).not.toBeDefined();
 
         done();
 
@@ -724,6 +657,127 @@ describe('Ingest API : Resource', function () {
         done();
 
       });
+
+    });
+
+    it('Should fail if no resources are passed in.', function (done) {
+
+      var request = resource.delete().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should soft-delete all resources inside the passed in array.', function (done) {
+
+      resource.cache.enabled = false;
+
+      var data, request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(202);
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
+        }
+      ];
+
+      request = api.videos.delete(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(202);
+        expect(response.data).toBeFalsy();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should soft-delete all resources and remove them from cache.', function (done) {
+
+      var data, request;
+
+      spyOn(resource.cache, 'remove').and.callThrough();
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('DELETE', api.config.host + '/videos',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(202);
+
+        });
+
+      // Mock request data.
+      data = [
+        {
+          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
+        }
+      ];
+
+      request = api.videos.delete(data).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(202);
+        expect(response.data).toBeFalsy();
+
+        expect(resource.cache.remove).toHaveBeenCalled();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
 
     });
 
@@ -1048,22 +1102,40 @@ describe('Ingest API : Resource', function () {
 
     });
 
-  });
+    it('Should update a resource record.', function (done) {
 
-  describe('delete', function () {
+      var video = {
+        id: 'test-video'
+      };
 
-    it('Should fail if no resources are passed in.', function (done) {
+      // Mock the XHR object
+      mock.setup();
 
-      var request = resource.delete().then(function (response) {
+      mock.mock('PATCH', api.config.host + '/videos/test-video',
+        function (request, response) {
 
-        expect(response).toBeUndefined();
+          var _video = JSON.stringify(video);
 
+          // Restore the XHR Object
+          mock.teardown();
+
+          expect(_video).toEqual(request._body);
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(_video);
+
+        });
+
+      var request = resource.update(video).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.id).toEqual('test-video');
         done();
 
       }, function (error) {
 
-        expect(error).toBeDefined();
-
+        expect(error).toBeUndefined();
         done();
 
       });
@@ -1073,39 +1145,60 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should soft-delete all resources inside the passed in array.', function (done) {
+    it('Should fail to update a resource if something other than an object is passed',
+      function (done) {
 
-      resource.cache.enabled = false;
+        var request = resource.update('video').then(function (response) {
 
-      var data, request;
+          expect(response).toBeUndefined();
+          done();
+
+        }, function (error) {
+
+          expect(error).toBeDefined();
+          done();
+
+        });
+
+        // Ensure a promise was returned.
+        expect(request.then).toBeDefined();
+
+      });
+
+    it('Should not perform a diff if caching is disabled.', function (done) {
+
+      var request;
+
+      api.cache.enabled = false;
+
+      spyOn(api.cache, 'diff');
+
+      // Mock request data.
+      var data = {
+        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
+        'title': 'an-exampleMODIFIED.mkve.mkv'
+      };
 
       // Mock the XHR object.
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/videos',
+      mock.mock('PATCH', api.config.host + '/videos/3fc358b0-630e-43f2-85f9-69195b346312',
         function (request, response) {
 
           // Restore the XHR object.
           mock.teardown();
 
-          return response.status(202);
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
 
         });
 
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
-        }
-      ];
-
-      request = api.videos.delete(data).then(function (response) {
+      request = resource.update(data).then(function (response) {
 
         expect(response).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBe(202);
-        expect(response.data).toBeFalsy();
+        expect(api.cache.diff).not.toHaveBeenCalled();
 
         done();
 
@@ -1122,54 +1215,39 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should soft-delete all resources and remove them from cache.', function (done) {
+    it('Should return the cached object if there were no changes detected.', function () {
 
-      var data, request;
+      var called = false;
 
-      spyOn(resource.cache, 'remove').and.callThrough();
+      // Mock the retrieve and return a different cached value for the first test object.
+      spyOn(api.cache, 'retrieve').and.returnValue({
+        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
+        'value': 'test'
+      });
 
       // Mock the XHR object.
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/videos',
+      mock.mock('PATCH', api.config.host + '/videos/3fc358b0-630e-43f2-85f9-69195b346312',
         function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(202);
-
+          called = true;
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
         });
 
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
-        }
-      ];
-
-      request = api.videos.delete(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBe(202);
-        expect(response.data).toBeFalsy();
-
-        expect(resource.cache.remove).toHaveBeenCalled();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
+      resource.update({'id': '3fc358b0-630e-43f2-85f9-69195b346312', 'value': 'test'})
+        .then(function (response) {
+          expect(response).toBeDefined();
+          expect(called).toEqual(false);
+          mock.teardown();
+          done();
+        }, function (error) {
+          expect(error).toBeUndefined();
+          mock.teardown();
+          done();
+        });
 
     });
 
