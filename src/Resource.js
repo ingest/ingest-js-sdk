@@ -189,16 +189,30 @@ Resource.prototype.update = function (resource) {
  * @return {promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype._updateResource = function (resource) {
+  var data = resource;
+
   var url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource.id
   });
 
+  if (this.cache && this.cache.enabled) {
+    data = this.cache.diff(resource.id, resource);
+  }
+
+  // Null is returned in the case that the two objects match.
+  if (!data) {
+    // Return a fulfilled promise with the cached object.
+    return utils.promisify(true, {
+      data: this.cache.retrieve(resource.id)
+    });
+  }
+
   return new Request({
     url: url,
     token: this._tokenSource(),
     method: 'PATCH',
-    data: resource
+    data: data
   }).then(this._updateCachedResource.bind(this));
 };
 
