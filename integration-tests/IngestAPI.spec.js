@@ -763,7 +763,7 @@ describe('Ingest API', function () {
       };
 
       // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + api.config.currentUserInfo,
+      mock.mock('GET', api.config.host + api.config.users.currentUser,
         function (request, response) {
 
           // Restore the XHR object.
