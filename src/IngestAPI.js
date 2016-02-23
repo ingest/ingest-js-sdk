@@ -6,6 +6,7 @@ var utils = require('./Utils');
 var Resource = require('./Resource');
 var Uploader = require('./Uploader');
 var Cache = require('./Cache');
+var Users = require('./resources/Users');
 
 /**
  * IngestAPI Object
@@ -32,8 +33,14 @@ function IngestAPI (options) {
       'param': '?type=',
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
-    },
-    'currentUserInfo': '/users/me'
+    }
+    // 'users': {
+    //   'all': '/users',
+    //   'currentUser': '/users/me',
+    //   'byId': '/users/<%=id%>',
+    //   'transfer': '/users/<%=oldId%>/transfer/<%=newId%>',
+    //   'revoke': '/revoke'
+    // }
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -74,6 +81,16 @@ function IngestAPI (options) {
     resource: 'encoding/inputs',
     tokenSource: this.getToken.bind(this),
     cache: this.cache
+  });
+
+  this.users = new Users({
+    host: this.config.host,
+    resource: 'users',
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache,
+    currentUser: '/users/me',
+    transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
+    revoke: '/revoke'
   });
 
 }
@@ -236,19 +253,6 @@ IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
   });
 };
 
-/** User Information **/
-
-/*
- * Retrieve information for the current user.
- * @return {object} A data object representing the user.
- */
-IngestAPI.prototype.getCurrentUserInfo = function () {
-  return new Request({
-    url: this.config.host + this.config.currentUserInfo,
-    token: this.getToken()
-  });
-};
-
 /**
  * Create a new input and upload a file.
  * @param  {File}   file    File to upload.
@@ -261,5 +265,321 @@ IngestAPI.prototype.upload = function (file) {
     host: this.config.host
   });
 };
+
+/** User Information **/
+
+/**
+ * Retrieves a count of all users in the authorized network.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.getUsersCount = function () {
+//   return new Request({
+//     url: this.config.host + this.config.users.all,
+//     token: this.getToken(),
+//     method: 'HEAD'
+//   });
+// };
+
+/**
+ * Retrieve information for the current user.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.getCurrentUserInfo = function () {
+//   return new Request({
+//     url: this.config.host + this.config.users.currentUser,
+//     token: this.getToken()
+//   });
+// };
+
+/**
+ * Retrieves a user object.
+ *
+ * @param {string} id - The unique ID of the user to retrieve.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.getUserById = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI getUserById requires an id to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken()
+//   });
+// };
+
+/**
+ * Retrieves all users in the authorized network.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.getAllUsers = function () {
+//   return new Request({
+//     url: this.config.host + this.config.users.all,
+//     token: this.getToken()
+//   });
+// };
+
+/**
+ * Adds a user to the authorized network.
+ *
+ * @param {object} user - The user object.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.addUser = function (user) {
+//   if (typeof user !== 'object') {
+//     return utils.promisify(false,
+//       'IngestAPI addUser requires a user object to be passed.');
+//   }
+
+//   return new Request({
+//     url: this.config.host + this.config.users.all,
+//     token: this.getToken(),
+//     method: 'POST'
+//   });
+// };
+
+/**
+ * Updates the given user object.
+ *
+ * @param {string} user.id - The unique ID of this user. Required.
+ * @param {object} user    - The user object.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.updateUser = function (user) {
+//   var tokens, url;
+
+//   if (typeof user !== 'object') {
+//     return utils.promisify(false,
+//       'IngestAPI updateUser requires a user object to be passed.');
+//   }
+
+//   if (typeof user.id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI updateUser requires a user object contain an "id" as a string.');
+//   }
+
+//   tokens = {
+//     id: user.id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'PATCH'
+//   });
+// };
+
+/**
+ * Disables a user within the authorized network.
+ *
+ * @param {string} id - The unique ID of the user.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.deleteUser = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI deleteUser requires "id" to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.byId, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'DELETE'
+//   });
+// };
+
+/**
+ * Deletes a user within the authorized network.
+ * Permanent deletion is only successful when the requested user has no authored content.
+ *
+ * @param {string} id - The unique ID of the user.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.permanentlyDeleteUser = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI permanentlyDeleteUser requires "id" to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.byId, tokens);
+
+//   return new Request({
+//     url: url + '?permanent=1',
+//     token: this.getToken(),
+//     method: 'DELETE'
+//   });
+// };
+
+/**
+ * Transfer all authorship currently under the specified user onto another.
+ * This includes all videos & playlists.
+ * This task is commonly used in conjunction with permanently deleting a user.
+ *
+ * @param {string} oldId - The user who currently has authorship.
+ * @param {string} newId - The user to transfer authorship to.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.transferUserAuthorship = function (oldId, newId) {
+//   var tokens, url;
+
+//   if (typeof oldId !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI transferUserAuthorship requires "oldId" to be passed a string.');
+//   }
+
+//   if (typeof newId !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI transferUserAuthorship requires "newId" to be passed as a string');
+//   }
+
+//   tokens = {
+//     oldId: oldId,
+//     newId: newId
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.users.transfer, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'PATCH'
+//   });
+// };
+
+/**
+ * Link an existing user to the currently authorized network.
+ *
+ * @param {string} id - The unique ID of the user to link.
+ *
+ * @return {object} - The user object.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.linkUser = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI linkUser requires "id" to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'LINK'
+//   });
+// };
+
+/**
+ * Remove the specified user from the currently authorized network.
+ *
+ * @param {string} id - The unique ID of the user to unlink.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.unlinkUser = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI unlinkUser requires "id" to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'UNLINK'
+//   });
+// };
+
+/**
+ * Revokes the authorization token for the current user.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.revokeCurrentUser = function () {
+//   return new Request({
+//     url: this.config.host + this.config.users.currentUser.revoke,
+//     token: this.getToken(),
+//     method: 'DELETE'
+//   });
+// };
+
+/**
+ * Revokes the authorization token for the specified user.
+ *
+ * @param {string} id - The unique ID of the user to revoke.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+// IngestAPI.prototype.revokeUserById = function (id) {
+//   var tokens, url;
+
+//   if (typeof id !== 'string') {
+//     return utils.promisify(false,
+//       'IngestAPI revokeUserById requires an "id" to be passed as a string.');
+//   }
+
+//   tokens = {
+//     id: id
+//   };
+
+//   url = utils.parseTokens(
+//     this.config.host + this.config.users.byId + this.config.users.revoke,
+//     tokens
+//   );
+
+//   return new Request({
+//     url: url,
+//     token: this.getToken(),
+//     method: 'DELETE'
+//   });
+// };
 
 module.exports = IngestAPI;
