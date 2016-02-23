@@ -242,7 +242,8 @@ Upload.prototype._uploadFile = function () {
 
   return this._signUpload(chunk)
     .then(this._sendUpload.bind(this, chunk))
-    .then(this._updateProgress.bind(this, 100));
+    .then(this._sendSinglepartComplete.bind(this))
+    .then(this._updateProgress.bind(this, 100, this.fileRecord.size));
 };
 
 /**
@@ -304,6 +305,13 @@ Upload.prototype._sendUpload = function (upload, response) {
     headers: headers,
     data: formData
   });
+};
+
+/**
+ * Update the upload bytes value when a single part file is uploaded.
+ */
+Upload.prototype._sendSinglepartComplete = function () {
+  this.uploadedBytes = this.fileRecord.size;
 };
 
 /**
