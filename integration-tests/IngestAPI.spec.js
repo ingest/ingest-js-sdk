@@ -32,7 +32,6 @@ describe('Ingest API', function () {
       'getNetworkSecureKeyById',
       'updateNetworkSecureKey',
       'deleteNetworkSecureKeyById',
-      // 'getCurrentUserInfo',
       'upload'
     ];
 
@@ -745,46 +744,6 @@ describe('Ingest API', function () {
 
     });
   });
-
-  // describe('getUserInfo', function () {
-  //   it('Should retrieve user information.', function (done) {
-
-  //     mock.setup();
-
-  //     var user = {
-  //       'id': 'f118ebd6-87ac-49f5-bb30-b1672e812be3',
-  //       'url': 'http://weasley.teamspace.ad:8080/users/07f6de51-4e2b-4d8e-9eac-79cbd5f6825f',
-  //       'email': 'test.tester@ingest.io',
-  //       'timezone': 'America/Halifax',
-  //       'profile': {
-  //         'name': 'Mr. Testy',
-  //         'title': 'Tester of things'
-  //       }
-  //     };
-
-  //     // Mock the response from the REST api.
-  //     mock.mock('GET', api.config.host + api.config.users.currentUser,
-  //       function (request, response) {
-
-  //         // Restore the XHR object.
-  //         mock.teardown();
-
-  //         return response.status(200)
-  //           .header('Content-Type', 'application/json')
-  //           .body(JSON.stringify(user));
-
-  //       });
-
-  //     var request = api.getCurrentUserInfo().then(function (response) {
-  //       expect(response).toBeDefined();
-  //       expect(response.data.id).toEqual(user.id);
-  //       done();
-  //     }, function (error) {
-  //       expect(error).toBeUndefined(0);
-  //       done();
-  //     });
-  //   });
-  // });
 
   describe('upload', function () {
     it('Should return an upload object', function () {

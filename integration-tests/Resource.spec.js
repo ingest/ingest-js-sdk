@@ -1266,8 +1266,6 @@ describe('Ingest API : Resource', function () {
       mock.mock('DELETE', api.config.host + '/videos?permanent=1',
         function (request, response) {
 
-          console.log(request);
-
           // Restore the XHR object.
           mock.teardown();
 
@@ -1289,13 +1287,9 @@ describe('Ingest API : Resource', function () {
         expect(response.statusCode).toBe(202);
         expect(response.data).toBeFalsy();
 
-        console.log('here', response);
-
         done();
 
       }, function (error) {
-
-        console.log('HERE', error);
 
         expect(error).toBeUndefined();
 

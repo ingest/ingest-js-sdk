@@ -1,6 +1,5 @@
-var Request = require('./Request.js');
-// var Promise = require('pinkyswear');
 var extend = require('extend');
+var Request = require('./Request');
 var utils = require('./Utils');
 
 /**

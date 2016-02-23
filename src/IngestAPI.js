@@ -34,13 +34,6 @@ function IngestAPI (options) {
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
     }
-    // 'users': {
-    //   'all': '/users',
-    //   'currentUser': '/users/me',
-    //   'byId': '/users/<%=id%>',
-    //   'transfer': '/users/<%=oldId%>/transfer/<%=newId%>',
-    //   'revoke': '/revoke'
-    // }
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -268,11 +261,11 @@ IngestAPI.prototype.upload = function (file) {
 
 /** User Information **/
 
-/**
- * Retrieves a count of all users in the authorized network.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Retrieves a count of all users in the authorized network.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.getUsersCount = function () {
 //   return new Request({
 //     url: this.config.host + this.config.users.all,
@@ -281,11 +274,11 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Retrieve information for the current user.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Retrieve information for the current user.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.getCurrentUserInfo = function () {
 //   return new Request({
 //     url: this.config.host + this.config.users.currentUser,
@@ -293,13 +286,13 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Retrieves a user object.
- *
- * @param {string} id - The unique ID of the user to retrieve.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Retrieves a user object.
+//  *
+//  * @param {string} id - The unique ID of the user to retrieve.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.getUserById = function (id) {
 //   var tokens, url;
 
@@ -320,11 +313,11 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Retrieves all users in the authorized network.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Retrieves all users in the authorized network.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.getAllUsers = function () {
 //   return new Request({
 //     url: this.config.host + this.config.users.all,
@@ -332,13 +325,13 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Adds a user to the authorized network.
- *
- * @param {object} user - The user object.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Adds a user to the authorized network.
+//  *
+//  * @param {object} user - The user object.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.addUser = function (user) {
 //   if (typeof user !== 'object') {
 //     return utils.promisify(false,
@@ -352,14 +345,14 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Updates the given user object.
- *
- * @param {string} user.id - The unique ID of this user. Required.
- * @param {object} user    - The user object.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Updates the given user object.
+//  *
+//  * @param {string} user.id - The unique ID of this user. Required.
+//  * @param {object} user    - The user object.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.updateUser = function (user) {
 //   var tokens, url;
 
@@ -386,13 +379,13 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Disables a user within the authorized network.
- *
- * @param {string} id - The unique ID of the user.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Disables a user within the authorized network.
+//  *
+//  * @param {string} id - The unique ID of the user.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.deleteUser = function (id) {
 //   var tokens, url;
 
@@ -414,14 +407,14 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Deletes a user within the authorized network.
- * Permanent deletion is only successful when the requested user has no authored content.
- *
- * @param {string} id - The unique ID of the user.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Deletes a user within the authorized network.
+//  * Permanent deletion is only successful when the requested user has no authored content.
+//  *
+//  * @param {string} id - The unique ID of the user.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.permanentlyDeleteUser = function (id) {
 //   var tokens, url;
 
@@ -443,16 +436,16 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Transfer all authorship currently under the specified user onto another.
- * This includes all videos & playlists.
- * This task is commonly used in conjunction with permanently deleting a user.
- *
- * @param {string} oldId - The user who currently has authorship.
- * @param {string} newId - The user to transfer authorship to.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Transfer all authorship currently under the specified user onto another.
+//  * This includes all videos & playlists.
+//  * This task is commonly used in conjunction with permanently deleting a user.
+//  *
+//  * @param {string} oldId - The user who currently has authorship.
+//  * @param {string} newId - The user to transfer authorship to.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.transferUserAuthorship = function (oldId, newId) {
 //   var tokens, url;
 
@@ -480,15 +473,15 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Link an existing user to the currently authorized network.
- *
- * @param {string} id - The unique ID of the user to link.
- *
- * @return {object} - The user object.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Link an existing user to the currently authorized network.
+//  *
+//  * @param {string} id - The unique ID of the user to link.
+//  *
+//  * @return {object} - The user object.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.linkUser = function (id) {
 //   var tokens, url;
 
@@ -510,13 +503,13 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Remove the specified user from the currently authorized network.
- *
- * @param {string} id - The unique ID of the user to unlink.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Remove the specified user from the currently authorized network.
+//  *
+//  * @param {string} id - The unique ID of the user to unlink.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.unlinkUser = function (id) {
 //   var tokens, url;
 
@@ -538,11 +531,11 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Revokes the authorization token for the current user.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Revokes the authorization token for the current user.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.revokeCurrentUser = function () {
 //   return new Request({
 //     url: this.config.host + this.config.users.currentUser.revoke,
@@ -551,13 +544,13 @@ IngestAPI.prototype.upload = function (file) {
 //   });
 // };
 
-/**
- * Revokes the authorization token for the specified user.
- *
- * @param {string} id - The unique ID of the user to revoke.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
+// /**
+//  * Revokes the authorization token for the specified user.
+//  *
+//  * @param {string} id - The unique ID of the user to revoke.
+//  *
+//  * @return {Promise} A promise which resolves when the request is complete.
+//  */
 // IngestAPI.prototype.revokeUserById = function (id) {
 //   var tokens, url;
 
