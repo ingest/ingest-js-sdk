@@ -39,7 +39,7 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
 
   if (typeof oldId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI transferUserAuthorship requires "oldId" to be passed a string.');
+      'IngestAPI transferUserAuthorship requires "oldId" to be passed as a string.');
   }
 
   if (typeof newId !== 'string') {
