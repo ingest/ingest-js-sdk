@@ -1325,7 +1325,7 @@ describe('Ingest API : Resource', function () {
 
   });
 
-  xdescribe('getThumbnails', function () {
+  describe('getThumbnails', function () {
 
     it('Should fail if an id is not provided.', function (done) {
 

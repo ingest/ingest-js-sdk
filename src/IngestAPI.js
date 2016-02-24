@@ -1,11 +1,11 @@
-var Request = require('./Request.js');
-var Promise = require('pinkyswear');
 var extend = require('extend');
+var Request = require('./Request');
 var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
-var Resource = require('./Resource');
 var Uploader = require('./Uploader');
 var Cache = require('./Cache');
+
+var Resource = require('./resources/Resource');
 var Users = require('./resources/Users');
 
 /**
@@ -51,6 +51,7 @@ function IngestAPI (options) {
   this.JWTUtils = JWTUtils;
   this.utils = utils;
   this.resource = Resource;
+  this.usersResource = Users;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);

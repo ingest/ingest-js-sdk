@@ -1,4 +1,4 @@
-var Resource = require('../Resource');
+var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 
@@ -8,6 +8,7 @@ function Users (options) {
 
 };
 
+// This extends the base class of 'Resource'.
 Users.prototype = Object.create(Resource.prototype);
 Users.prototype.constructor = Users;
 
@@ -18,8 +19,8 @@ Users.prototype.constructor = Users;
  */
 Users.prototype.getCurrentUserInfo = function () {
   return new Request({
-    url: this.config.host + this.config.users.currentUser,
-    token: this.getToken()
+    url: this.config.host + this.config.currentUser,
+    token: this._tokenSource()
   });
 };
 
@@ -51,11 +52,11 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
     newId: newId
   };
 
-  url = utils.parseTokens(this.config.host + this.config.users.transfer, tokens);
+  url = utils.parseTokens(this.config.host + this.config.transfer, tokens);
 
   return new Request({
     url: url,
-    token: this.getToken(),
+    token: this._tokenSource(),
     method: 'PATCH'
   });
 };
@@ -78,14 +79,15 @@ Users.prototype.linkUser = function (id) {
   }
 
   tokens = {
+    resource: 'users',
     id: id
   };
 
-  url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
 
   return new Request({
     url: url,
-    token: this.getToken(),
+    token: this._tokenSource(),
     method: 'LINK'
   });
 };
@@ -106,14 +108,15 @@ Users.prototype.unlinkUser = function (id) {
   }
 
   tokens = {
+    resource: 'users',
     id: id
   };
 
-  url = utils.parseTokens(this.config.host + this.config.users.byId, tokens);
+  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
 
   return new Request({
     url: url,
-    token: this.getToken(),
+    token: this._tokenSource(),
     method: 'UNLINK'
   });
 };
@@ -125,8 +128,8 @@ Users.prototype.unlinkUser = function (id) {
  */
 Users.prototype.revokeCurrentUser = function () {
   return new Request({
-    url: this.config.host + this.config.currentUser.revoke,
-    token: this.getToken(),
+    url: this.config.host + this.config.currentUser + this.config.revoke,
+    token: this._tokenSource(),
     method: 'DELETE'
   });
 };

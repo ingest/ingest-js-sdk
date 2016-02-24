@@ -1,6 +1,6 @@
 var extend = require('extend');
-var Request = require('./Request');
-var utils = require('./Utils');
+var Request = require('../Request');
+var utils = require('../Utils');
 
 /**
  * Resource Object
