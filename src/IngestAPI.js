@@ -1,11 +1,12 @@
-var Request = require('./Request.js');
-var Promise = require('pinkyswear');
 var extend = require('extend');
+var Request = require('./Request');
 var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
-var Resource = require('./Resource');
 var Uploader = require('./Uploader');
 var Cache = require('./Cache');
+
+var Resource = require('./resources/Resource');
+var Users = require('./resources/Users');
 
 /**
  * IngestAPI Object
@@ -32,8 +33,7 @@ function IngestAPI (options) {
       'param': '?type=',
       'singlePart': 'amazon',
       'multiPart': 'amazonMP'
-    },
-    'currentUserInfo': '/users/me'
+    }
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -51,6 +51,7 @@ function IngestAPI (options) {
   this.JWTUtils = JWTUtils;
   this.utils = utils;
   this.resource = Resource;
+  this.usersResource = Users;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
@@ -74,6 +75,16 @@ function IngestAPI (options) {
     resource: 'encoding/inputs',
     tokenSource: this.getToken.bind(this),
     cache: this.cache
+  });
+
+  this.users = new Users({
+    host: this.config.host,
+    resource: 'users',
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache,
+    currentUser: '/users/me',
+    transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
+    revoke: '/revoke'
   });
 
 }
@@ -233,19 +244,6 @@ IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
     url: url,
     token: this.getToken(),
     method: 'DELETE'
-  });
-};
-
-/** User Information **/
-
-/*
- * Retrieve information for the current user.
- * @return {object} A data object representing the user.
- */
-IngestAPI.prototype.getCurrentUserInfo = function () {
-  return new Request({
-    url: this.config.host + this.config.currentUserInfo,
-    token: this.getToken()
   });
 };
 
