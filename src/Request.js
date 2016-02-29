@@ -119,6 +119,11 @@ Request.prototype.preparePostData = function (data) {
     return result;
   }
 
+  if (data instanceof Blob) {
+    result.type = 'File';
+    return result;
+  }
+
   // If the data is populated, and its not already a string parse it.
   if (data) {
     try {

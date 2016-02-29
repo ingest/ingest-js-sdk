@@ -200,12 +200,8 @@ Upload.prototype._createChunks = function () {
   for (i = 0; i < this.chunkCount; i++) {
 
     start = i * this.chunkSize;
-    end = (i + 1) * this.chunkSize;
-
-    // Fix any possible overflow that could add extra bytes.
-    if (i === this.chunkCount - 1) {
-      end = this.fileRecord.size;
-    }
+    // Choose the smaller value, so that we don't go over the filesize.
+    end = Math.min((i + 1) * this.chunkSize, this.fileRecord.size);
 
     blob = this.file[sliceMethod](start, end);
 
@@ -298,9 +294,6 @@ Upload.prototype._signUpload = function (chunk) {
 Upload.prototype._sendUpload = function (upload, response) {
   var headers = {};
 
-  var formData = new FormData();
-  formData.append('file', upload.data);
-
   // Set the proper headers to send with the file.
   headers['Content-Type'] = 'multipart/form-data';
   headers['Authorization'] = response.data.authHeader;
@@ -310,7 +303,7 @@ Upload.prototype._sendUpload = function (upload, response) {
     url: response.data.url,
     method: 'PUT',
     headers: headers,
-    data: formData
+    data: upload.data
   });
 };
 
