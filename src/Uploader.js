@@ -190,7 +190,7 @@ Upload.prototype._prepareUpload = function () {
  */
 Upload.prototype._createChunks = function () {
   var sliceMethod = this._getSliceMethod(this.file);
-  var i, blob, chunk,
+  var i, blob, chunk, start, end,
     chunkPromises = [];
 
   if (this.aborted) {
@@ -200,7 +200,15 @@ Upload.prototype._createChunks = function () {
 
   for (i = 0; i < this.chunkCount; i++) {
 
-    blob = this.file[sliceMethod](i * this.chunkSize, (i + 1) * this.chunkSize);
+    start = i * this.chunkSize;
+    end = (i + 1) * this.chunkSize;
+
+    // Fix any possible overflow that could add extra bytes.
+    if (i === this.chunkCount - 1) {
+      end = this.fileRecord.size;
+    }
+
+    blob = this.file[sliceMethod](start, end);
 
     chunk = {
       partNumber: i + 1,
