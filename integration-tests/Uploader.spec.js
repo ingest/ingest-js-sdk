@@ -832,7 +832,7 @@ describe('Ingest API : Uploader', function () {
 
     });
 
-    it('Should return mozSlize when available.', function () {
+    it('Should return webkitSlice when available.', function () {
 
       file.webkitSlice = true;
       delete file.mozSlice;
