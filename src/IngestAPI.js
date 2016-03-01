@@ -7,6 +7,7 @@ var Cache = require('./Cache');
 
 var Resource = require('./resources/Resource');
 var Users = require('./resources/Users');
+var Networks = require('./resources/Networks');
 
 /**
  * IngestAPI Object
@@ -52,6 +53,7 @@ function IngestAPI (options) {
   this.utils = utils;
   this.resource = Resource;
   this.usersResource = Users;
+  this.networksResource = Networks;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
@@ -85,6 +87,14 @@ function IngestAPI (options) {
     currentUser: '/users/me',
     transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
     revoke: '/revoke'
+  });
+
+  this.networks = new Networks({
+    host: this.config.host,
+    resource: 'networks',
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache,
+    invite: '/networks/invite'
   });
 
 }
