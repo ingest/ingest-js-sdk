@@ -1215,7 +1215,7 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should return the cached object if there were no changes detected.', function () {
+    it('Should return the cached object if there were no changes detected.', function (done) {
 
       var called = false;
 

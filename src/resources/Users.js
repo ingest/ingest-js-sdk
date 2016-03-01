@@ -62,66 +62,6 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
 };
 
 /**
- * Link an existing user to the currently authorized network.
- *
- * @param {string} id - The unique ID of the user to link.
- *
- * @return {object} - The user object.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-Users.prototype.linkUser = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI linkUser requires "id" to be passed as a string.');
-  }
-
-  tokens = {
-    resource: 'users',
-    id: id
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
-
-  return new Request({
-    url: url,
-    token: this._tokenSource(),
-    method: 'LINK'
-  });
-};
-
-/**
- * Remove the specified user from the currently authorized network.
- *
- * @param {string} id - The unique ID of the user to unlink.
- *
- * @return {Promise} A promise which resolves when the request is complete.
- */
-Users.prototype.unlinkUser = function (id) {
-  var tokens, url;
-
-  if (typeof id !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI unlinkUser requires "id" to be passed as a string.');
-  }
-
-  tokens = {
-    resource: 'users',
-    id: id
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
-
-  return new Request({
-    url: url,
-    token: this._tokenSource(),
-    method: 'UNLINK'
-  });
-};
-
-/**
  * Revokes the authorization token for the current user.
  *
  * @return {Promise} A promise which resolves when the request is complete.
