@@ -129,6 +129,7 @@ Upload.prototype._initialize = function () {
   var url;
   var tokens;
   var signing = '';
+  var request;
 
   if (this.aborted) {
     return utils.promisify(false, 'upload aborted');
@@ -145,12 +146,15 @@ Upload.prototype._initialize = function () {
 
   url = utils.parseTokens(this.api.config.host + this.config.upload, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
-  }).then(this._initializeComplete.bind(this));
+  });
+
+  return request.send()
+          .then(this._initializeComplete.bind(this));
 
 };
 
@@ -259,6 +263,7 @@ Upload.prototype._signUpload = function (chunk) {
   var url;
   var signing = '';
   var headers = {};
+  var request;
 
   // Set the part number for the current chunk.
   if (chunk.partNumber) {
@@ -276,13 +281,15 @@ Upload.prototype._signUpload = function (chunk) {
     method: signing
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.api.getToken(),
     method: 'POST',
     headers: headers,
     data: this.fileRecord
   });
+
+  return request.send();
 };
 
 /**
@@ -293,18 +300,21 @@ Upload.prototype._signUpload = function (chunk) {
  */
 Upload.prototype._sendUpload = function (upload, response) {
   var headers = {};
+  var request;
 
   // Set the proper headers to send with the file.
   headers['Content-Type'] = 'multipart/form-data';
   headers['Authorization'] = response.data.authHeader;
   headers['x-amz-date'] = response.data.dateHeader;
 
-  return new Request({
+  request = new Request({
     url: response.data.url,
     method: 'PUT',
     headers: headers,
     data: upload.data
   });
+
+  return request.send();
 };
 
 /**
@@ -342,6 +352,7 @@ Upload.prototype._completeChunk = function (chunk) {
 Upload.prototype._completeUpload = function () {
   var url;
   var tokens;
+  var request;
 
   if (this.aborted) {
     this.abort();
@@ -354,12 +365,15 @@ Upload.prototype._completeUpload = function () {
 
   url = utils.parseTokens(this.api.config.host + this.config.uploadComplete, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
-  }).then(this._onCompleteUpload.bind(this));
+  });
+
+  return request.send()
+          .then(this._onCompleteUpload.bind(this));
 };
 
 /**
@@ -383,6 +397,7 @@ Upload.prototype.abort = function (async) {
   var url;
   var tokens;
   var signing = '';
+  var request;
 
   if (typeof async === 'undefined') {
     async = true;
@@ -422,13 +437,16 @@ Upload.prototype.abort = function (async) {
 
   url = utils.parseTokens(this.api.config.host + this.config.uploadAbort, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     async: async,
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
-  }).then(this._abortComplete.bind(this, async));
+  });
+
+  return request.send()
+          .then(this._abortComplete.bind(this, async));
 };
 
 /**

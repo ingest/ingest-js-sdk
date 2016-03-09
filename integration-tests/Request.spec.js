@@ -135,13 +135,6 @@ describe('Ingest API : Request', function () {
 
   it('Should fail if bad data is passed to makeRequest', function (done) {
 
-    spyOn(Request.prototype, 'preparePostData').and.callFake(function () {
-      return {
-        success: false,
-        data: null
-      };
-    });
-
     var request = new Request({
       url: api.config.host + '/videos',
       token: api.getToken(),
@@ -149,7 +142,14 @@ describe('Ingest API : Request', function () {
       data: {test: true}
     });
 
-    request.then(function (response) {
+    spyOn(request, 'preparePostData').and.callFake(function () {
+      return {
+        success: false,
+        data: null
+      };
+    });
+
+    request.send().then(function (response) {
 
       expect(response).toBeUndefined();
       done();
@@ -157,14 +157,11 @@ describe('Ingest API : Request', function () {
     }, function (error) {
 
       expect(error).toBeDefined();
-      expect(Request.prototype.preparePostData).toHaveBeenCalled();
+      expect(request.preparePostData).toHaveBeenCalled();
 
       done();
 
     });
-
-    // Ensure a promise was returned.
-    expect(request.then).toBeDefined();
 
   });
 

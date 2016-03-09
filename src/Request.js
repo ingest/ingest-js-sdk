@@ -21,8 +21,6 @@ var Request = function (options) {
     method: 'GET'
   };
 
-  this.promise = Promise();
-
   // Create the XHR object for this request.
   this.request = new XMLHttpRequest();
 
@@ -32,16 +30,24 @@ var Request = function (options) {
   // Todo, merge some defaults with this.
   this.options = extend(true, this.defaults, options);
 
+};
+
+/**
+ * Send the request and return a promise to resolve when the request is complete.
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Request.prototype.send = function () {
+
+  this.promise = Promise();
+
   // Make sure a url is passed before attempting to make the request.
-  if (!this.options.url) {
+  if (this.options.url) {
+    // Make the actual request.
+    this.makeRequest();
+  } else {
     this.requestError('Request Error : a url is required to make the request.');
-    return this.promise;
   }
 
-  // Make the actual request.
-  this.makeRequest();
-
-  // Return the promise.
   return this.promise;
 
 };

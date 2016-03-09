@@ -49,15 +49,19 @@ Resource.prototype._tokenSource = function () {
  * @return {promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype.getAll = function (headers) {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     headers: headers
-  }).then(this._updateCachedResources.bind(this));
+  });
+
+  return request.send()
+          .then(this._updateCachedResources.bind(this));
 };
 
 /**
@@ -66,7 +70,7 @@ Resource.prototype.getAll = function (headers) {
  * @return {promise}        A promise which resolves when the request is complete.
  */
 Resource.prototype.getById = function (id) {
-  var url, cachedResult;
+  var url, cachedResult, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -89,10 +93,14 @@ Resource.prototype.getById = function (id) {
       data: cachedResult
     });
   } else {
-    return new Request({
+
+    request = new Request({
       url: url,
       token: this._tokenSource()
     });
+
+    return request.send();
+
   }
 };
 
@@ -102,15 +110,18 @@ Resource.prototype.getById = function (id) {
  * @return {promise}         A promise which resolves when the request is complete.
  */
 Resource.prototype.getTrashed = function (headers) {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.trash, {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     headers: headers
   });
+
+  return request.send();
 };
 
 /**
@@ -119,7 +130,7 @@ Resource.prototype.getTrashed = function (headers) {
  * @return {promise}  A promise which resolves when the request is complete.
  */
 Resource.prototype.getThumbnails = function (id) {
-  var url;
+  var url, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -131,10 +142,12 @@ Resource.prototype.getThumbnails = function (id) {
     id: id
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource()
   });
+
+  return request.send();
 };
 
 /**
@@ -143,7 +156,7 @@ Resource.prototype.getThumbnails = function (id) {
  * @return  {promise}           A promise which resolves when the request is complete.
  */
 Resource.prototype.add = function (resource) {
-  var url;
+  var url, request;
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
@@ -154,12 +167,15 @@ Resource.prototype.add = function (resource) {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'POST',
     data: resource
-  }).then(this._updateCachedResource.bind(this));
+  });
+
+  return request.send()
+          .then(this._updateCachedResource.bind(this));
 };
 
 /**
@@ -188,6 +204,7 @@ Resource.prototype.update = function (resource) {
  * @return {promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype._updateResource = function (resource) {
+  var request;
   var data = resource;
 
   var url = utils.parseTokens(this.config.host + this.config.byId, {
@@ -207,12 +224,15 @@ Resource.prototype._updateResource = function (resource) {
     });
   }
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'PATCH',
     data: data
-  }).then(this._updateCachedResource.bind(this));
+  });
+
+  return request.send()
+          .then(this._updateCachedResource.bind(this));
 };
 
 /**
@@ -222,16 +242,20 @@ Resource.prototype._updateResource = function (resource) {
  * @return {promise}          A promise which resolves when the request is complete.
  */
 Resource.prototype._updateResourceArray = function (resources) {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'PATCH',
     data: resources
-  }).then(this._updateCachedResources.bind(this));
+  });
+
+  return request.send()
+          .then(this._updateCachedResources.bind(this));
 };
 
 /**
@@ -291,6 +315,7 @@ Resource.prototype.permanentDelete = function (resource, async) {
  * @return {promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype._deleteResource = function (resource, permanent, async) {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource
@@ -300,12 +325,15 @@ Resource.prototype._deleteResource = function (resource, permanent, async) {
     url += this.config.deleteMethods.permanent;
   }
 
-  return new Request({
+  request = new Request({
     url: url,
     async: async,
     token: this._tokenSource(),
     method: 'DELETE',
-  }).then(this._deleteCachedResource.bind(this, resource));
+  });
+
+  return request.send()
+          .then(this._deleteCachedResource.bind(this, resource));
 };
 
 /**
@@ -316,6 +344,7 @@ Resource.prototype._deleteResource = function (resource, permanent, async) {
  * @return {promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype._deleteResourceArray = function (resources, permanent) {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
@@ -324,12 +353,15 @@ Resource.prototype._deleteResourceArray = function (resources, permanent) {
     url += this.config.deleteMethods.permanent;
   }
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'DELETE',
     data: resources
-  }).then(this._deleteCachedResources.bind(this, resources));
+  });
+
+  return request.send()
+          .then(this._deleteCachedResources.bind(this, resources));
 };
 
 /**
@@ -339,7 +371,7 @@ Resource.prototype._deleteResourceArray = function (resources, permanent) {
  * @return {Promise}          A promise which resolves when the request is complete.
  */
 Resource.prototype.search = function (input, headers) {
-  var url;
+  var url, request;
 
   if (typeof input !== 'string') {
     return utils.promisify(false,
@@ -351,11 +383,13 @@ Resource.prototype.search = function (input, headers) {
     input: input
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     headers: headers
   });
+
+  return request.send();
 };
 
 /**
@@ -363,15 +397,19 @@ Resource.prototype.search = function (input, headers) {
  * @return {promise} A promise which resolves when the request is complete.
  */
 Resource.prototype.count = function () {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'HEAD'
-  }).then(this._handleCountResponse);
+  });
+
+  return request.send()
+          .then(this._handleCountResponse);
 };
 
 /**
@@ -379,15 +417,19 @@ Resource.prototype.count = function () {
  * @return {promise} A promise which resolves when the request is complete.
  */
 Resource.prototype.trashCount = function () {
+  var request;
   var url = utils.parseTokens(this.config.host + this.config.trash, {
     resource: this.config.resource
   });
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'HEAD'
-  }).then(this._handleCountResponse);
+  });
+
+  return request.send()
+          .then(this._handleCountResponse);
 };
 
 /**

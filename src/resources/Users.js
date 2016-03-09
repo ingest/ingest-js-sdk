@@ -18,10 +18,12 @@ Users.prototype.constructor = Users;
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Users.prototype.getCurrentUserInfo = function () {
-  return new Request({
+  var request = new Request({
     url: this.config.host + this.config.currentUser,
     token: this._tokenSource()
   });
+
+  return request.send();
 };
 
 /**
@@ -35,7 +37,7 @@ Users.prototype.getCurrentUserInfo = function () {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Users.prototype.transferUserAuthorship = function (oldId, newId) {
-  var tokens, url;
+  var tokens, url, request;
 
   if (typeof oldId !== 'string') {
     return utils.promisify(false,
@@ -54,11 +56,13 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
 
   url = utils.parseTokens(this.config.host + this.config.transfer, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this._tokenSource(),
     method: 'PATCH'
   });
+
+  return request.send();
 };
 
 /**
@@ -67,11 +71,13 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Users.prototype.revokeCurrentUser = function () {
-  return new Request({
+  var request = new Request({
     url: this.config.host + this.config.currentUser + this.config.revoke,
     token: this._tokenSource(),
     method: 'DELETE'
   });
+
+  return request.send();
 };
 
 module.exports = Users;
