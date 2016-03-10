@@ -314,6 +314,8 @@ Upload.prototype._sendUpload = function (upload, response) {
     data: upload.data
   });
 
+  this.currentUpload = request;
+
   return request.send();
 };
 
@@ -422,7 +424,7 @@ Upload.prototype.abort = function (async) {
   }
 
   if (this.currentUpload) {
-    this.currentUpload.pause();
+    this.currentUpload.cancel();
     this.currentUpload = null;
   }
 

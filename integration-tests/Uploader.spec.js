@@ -578,7 +578,7 @@ describe('Ingest API : Uploader', function () {
       upload.initialized = true;
 
       upload.currentUpload = {
-        pause: function () {}
+        cancel: function () {}
       };
 
       upload.fileRecord.id = 'test-id';

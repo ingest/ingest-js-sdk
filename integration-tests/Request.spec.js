@@ -177,4 +177,33 @@ describe('Ingest API : Request', function () {
     expect(result.data).toEqual(formData);
   });
 
+  it('Should abort a request when cancel is called.', function () {
+
+    // Mock the response from the REST api.
+    mock.mock('POST', '/test' , function (request, response) {
+      // Restore the XHR object.
+      mock.teardown();
+      return response.timeout(2000);
+    });
+
+    var request = new Request({
+      url: '/test',
+      method: 'POST'
+    });
+
+    spyOn(request, 'requestComplete');
+
+    request.send().then(function (response) {
+      expect(response).not.toBeDefined();
+      done();
+    }, function (error) {
+      expect(error).toBeDefined();
+      expect(request.requestComplete).not.toHaveBeenCalled();
+      done();
+    });
+
+    request.cancel();
+
+  });
+
 });

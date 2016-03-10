@@ -11,8 +11,6 @@ var VALID_RESPONSE_CODES = [200, 201, 202, 204];
  * @param {boolean} options.async   Whether to perform the request asynchronously
  * @param {string}  options.method  REST verb to use for the request.
  * @param {string}  options.url     URL for the request.
- *
- * @return {Promise} A promise which resolves when the request is complete.
  */
 var Request = function (options) {
 
@@ -254,6 +252,18 @@ Request.prototype.isValidResponseCode = function (responseCode) {
   }
 
   return result;
+
+};
+
+/**
+ * Cancel the current XHR request.
+ */
+Request.prototype.cancel = function () {
+
+  this.request.onreadystatechange = null;
+  this.request.abort();
+
+  this.requestError('Request has been canceled.');
 
 };
 
