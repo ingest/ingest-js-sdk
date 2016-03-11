@@ -1,5 +1,6 @@
 var extend = require('extend');
 var Request = require('./Request');
+var Promise = require('pinkyswear');
 var utils = require('./Utils');
 var JWTUtils = require('./JWTUtils');
 
@@ -221,9 +222,9 @@ Upload.prototype._createChunks = function () {
   }
 
   // Store a reference for pausing and resuming.
-  this.currentUpload = utils.series(chunkPromises, this.paused);
+  this.multiPartPromise = utils.series(chunkPromises, this.paused);
 
-  return this.currentUpload;
+  return this.multiPartPromise;
 };
 
 /**
@@ -247,10 +248,27 @@ Upload.prototype._uploadFile = function () {
     data: this.file
   };
 
-  return this._signUpload(chunk)
+  // Create a new promise if one doesn't exist.
+  if (!this.singlePartPromise) {
+    this.singlePartPromise = Promise();
+  }
+
+  // Broken off the chain, this will allow us to cancel single part uploads without breaking the
+  // initial chain.
+  this._signUpload(chunk)
     .then(this._sendUpload.bind(this, chunk))
     .then(this._sendSinglepartComplete.bind(this))
-    .then(this._updateProgress.bind(this, 100, this.fileRecord.size));
+    .then(this._updateProgress.bind(this, 100, this.fileRecord.size))
+    .then(this._uploadFileComplete.bind(this));
+
+  return this.singlePartPromise;
+};
+
+/**
+ *  Resolve the single part upload promise;
+ */
+Upload.prototype._uploadFileComplete = function () {
+  this.singlePartPromise(true, []);
 };
 
 /**
@@ -304,7 +322,7 @@ Upload.prototype._sendUpload = function (upload, response) {
 
   // Set the proper headers to send with the file.
   headers['Content-Type'] = 'multipart/form-data';
-  headers['Authorization'] = response.data.authHeader;
+  headers.authorization = response.data.authHeader;
   headers['x-amz-date'] = response.data.dateHeader;
 
   request = new Request({
@@ -314,7 +332,7 @@ Upload.prototype._sendUpload = function (upload, response) {
     data: upload.data
   });
 
-  this.currentUpload = request;
+  this.singlePartUpload = request;
 
   return request.send();
 };
@@ -384,7 +402,9 @@ Upload.prototype._completeUpload = function () {
  * @return {string} ID for the input record that was created.
  */
 Upload.prototype._onCompleteUpload = function () {
-  this.currentUpload = null;
+  this.multiPartPromise = null;
+  this.singlePartUpload = null;
+  this.singlePartPromise = null;
   return this.fileRecord.id;
 };
 
@@ -423,9 +443,13 @@ Upload.prototype.abort = function (async) {
 
   }
 
-  if (this.currentUpload) {
-    this.currentUpload.cancel();
-    this.currentUpload = null;
+  if (this.multiPartPromise) {
+    this.multiPartPromise.cancel();
+    this.multiPartPromise = null;
+  } else {
+    this.singlePartUpload.cancel();
+    this.singelPartPromise = null;
+    this.singlePartUpload = null;
   }
 
   if (!this.fileRecord.method) {
@@ -465,9 +489,16 @@ Upload.prototype._abortComplete = function (async) {
  */
 Upload.prototype.pause = function () {
   this.paused = true;
-  if (this.currentUpload) {
-    this.currentUpload.pause();
+
+  // Is there an upload
+  if (this.multiPartPromise) {
+    // Pause the series if its a multipart upload.
+    this.multiPartPromise.pause();
+  } else if (this.singlePartUpload) {
+    // Abort the upload if its a singlepart upload.
+    this.singlePartUpload.cancel();
   }
+
 };
 
 /**
@@ -475,9 +506,16 @@ Upload.prototype.pause = function () {
  */
 Upload.prototype.resume = function () {
   this.paused = false;
-  if (this.currentUpload) {
-    this.currentUpload.resume();
+
+  // resume the series if its multi part.
+  if (this.multiPartPromise) {
+    // resume the series if its multipart.
+    this.multiPartPromise.resume();
+  } else if (this.singlePartUpload) {
+    // Restart the file upload.
+    this._uploadFile();
   }
+
 };
 
 /**

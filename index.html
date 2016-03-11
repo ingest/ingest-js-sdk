@@ -19,6 +19,7 @@
       <h2>Upload test</h2>
       <input class="file-picker" type="file" name="file" />
       <input class="btn-submit" type="submit" value="upload" />
+      <input style="display: none;" class="btn-pause" type="button" value="pause" />
 
       <script>
         var ingest = new IngestAPI({
@@ -29,6 +30,7 @@
 
         var filePicker = document.getElementsByClassName('file-picker')[0];
         var submitbtn =  document.getElementsByClassName('btn-submit')[0];
+        var pausebtn = document.getElementsByClassName('btn-pause')[0];
 
         var upload;
 
@@ -38,16 +40,34 @@
 
           upload = ingest.upload(file);
 
+          pausebtn.style.display = 'inline';
+
           upload.progress(function (percent) {
             console.log('Progress : ', percent);
           });
 
           // Start the upload of the file.
           upload.save().then(function (response) {
-            console.log('Upload Complete : ', response);
+            pausebtn.style.display = 'none';
           }, function (error) {
-            console.log('Error during upload : ', error.stack);
+            pausebtn.style.display = 'none';
           });
+
+        });
+
+        pausebtn.addEventListener('click', function (event) {
+
+          var state = pausebtn.getAttribute('value');
+
+          if (state === 'pause') {
+            state = 'resume';
+            upload.pause();
+          } else {
+            state = 'pause';
+            upload.resume();
+          }
+
+          pausebtn.setAttribute('value', state);
 
         });
 
