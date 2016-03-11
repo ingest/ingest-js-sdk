@@ -128,10 +128,12 @@ IngestAPI.prototype.getToken = function () {
  * @return {Promise} Promise/A+ spec which resolves with the primary network key.
  */
 IngestAPI.prototype.getNetworkSecureKeys = function () {
-  return new Request({
+  var request = new Request({
     url: this.config.host + this.config.networksKeys,
     token: this.getToken()
   });
+
+  return request.send();
 };
 
 /**
@@ -143,6 +145,8 @@ IngestAPI.prototype.getNetworkSecureKeys = function () {
  * @return {Promise}          A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.addNetworkSecureKey = function (data) {
+  var request;
+
   if (typeof data !== 'object') {
     return utils.promisify(false,
       'IngestAPI addNetworkSecureKey requires data to be passed as an object.');
@@ -158,12 +162,14 @@ IngestAPI.prototype.addNetworkSecureKey = function (data) {
       'IngestAPI addNetworkSecureKey requires that the key be a string in RSA public key format.');
   }
 
-  return new Request({
+  request = new Request({
     url: this.config.host + this.config.networksKeys,
     token: this.getToken(),
     method: 'POST',
     data: data
   });
+
+  return request.send();
 };
 
 /**
@@ -173,7 +179,7 @@ IngestAPI.prototype.addNetworkSecureKey = function (data) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
-  var tokens, url;
+  var tokens, url, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -186,10 +192,12 @@ IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
 
   url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.getToken()
   });
+
+  return request.send();
 };
 
 /**
@@ -200,7 +208,7 @@ IngestAPI.prototype.getNetworkSecureKeyById = function (id) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.updateNetworkSecureKey = function (data) {
-  var tokens, url;
+  var tokens, url, request;
 
   if (typeof data !== 'object') {
     return utils.promisify(false,
@@ -222,12 +230,14 @@ IngestAPI.prototype.updateNetworkSecureKey = function (data) {
 
   url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.getToken(),
     method: 'PATCH',
     data: data
   });
+
+  return request.send();
 };
 
 /**
@@ -237,7 +247,7 @@ IngestAPI.prototype.updateNetworkSecureKey = function (data) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
-  var tokens, url;
+  var tokens, url, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -250,11 +260,14 @@ IngestAPI.prototype.deleteNetworkSecureKeyById = function (id) {
 
   url = utils.parseTokens(this.config.host + this.config.networksKeysById, tokens);
 
-  return new Request({
+  request = new Request({
     url: url,
     token: this.getToken(),
     method: 'DELETE'
   });
+
+  return request.send();
+
 };
 
 /**

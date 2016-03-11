@@ -50,9 +50,16 @@ module.exports = function (config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
 
+    customLaunchers: {
+      ChromeBackground: {
+        base: 'Chrome',
+        flags: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding']
+      }
+    },
+
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome']
+    browsers: ['ChromeBackground']
 
   });
 };

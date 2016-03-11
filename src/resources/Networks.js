@@ -20,7 +20,7 @@ Networks.prototype.constructor = Networks;
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.linkUser = function (id) {
-  var data;
+  var data, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -31,12 +31,14 @@ Networks.prototype.linkUser = function (id) {
     user_id: id
   };
 
-  return new Request({
+  request = new Request({
     url: this.config.host + '/' + this.config.resource,
     data: data,
     token: this._tokenSource(),
     method: 'LINK'
   });
+
+  return request.send();
 };
 
 /**
@@ -47,7 +49,7 @@ Networks.prototype.linkUser = function (id) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.unlinkUser = function (id) {
-  var data;
+  var data, request;
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
@@ -58,12 +60,14 @@ Networks.prototype.unlinkUser = function (id) {
     user_id: id
   };
 
-  return new Request({
+  request = new Request({
     url: this.config.host + '/' + this.config.resource,
     data: data,
     token: this._tokenSource(),
     method: 'UNLINK'
   });
+
+  return request.send();
 };
 
 /**
@@ -75,7 +79,7 @@ Networks.prototype.unlinkUser = function (id) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.inviteUser = function (email, name) {
-  var data;
+  var data, request;
 
   if (typeof email !== 'string') {
     return utils.promisify(false,
@@ -92,12 +96,14 @@ Networks.prototype.inviteUser = function (email, name) {
     name: name
   };
 
-  return new Request({
+  request = new Request({
     url: this.config.host + this.config.invite,
     data: data,
     token: this._tokenSource(),
     method: 'POST'
   });
+
+  return request.send();
 };
 
 

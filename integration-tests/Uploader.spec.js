@@ -527,8 +527,11 @@ describe('Ingest API : Uploader', function () {
 
     it('Should complete the upload and clear the current upload.', function (done) {
 
-      upload.currentUpload = 'test-upload';
       upload.fileRecord.id = 'test-id';
+
+      upload.multiPartPromise = true;
+      upload.singlePartUpload = true;
+      upload.singlePartPromise = true;
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadComplete, {
         id: 'test-id'
@@ -548,7 +551,9 @@ describe('Ingest API : Uploader', function () {
 
       upload._completeUpload().then(function (response) {
         expect(response).toEqual('test-id');
-        expect(upload.currentUpload).toEqual(null);
+        expect(upload.multiPartPromise).toEqual(null);
+        expect(upload.singlePartUpload).toEqual(null);
+        expect(upload.singlePartPromise).toEqual(null);
         done();
       }, function (error) {
         expect(error).not.toBeDefined();
@@ -577,8 +582,10 @@ describe('Ingest API : Uploader', function () {
       upload.created = true;
       upload.initialized = true;
 
-      upload.currentUpload = {
-        pause: function () {}
+      upload.singlePartPromise = true;
+
+      upload.singlePartUpload = {
+        cancel: function () {}
       };
 
       upload.fileRecord.id = 'test-id';
@@ -632,6 +639,10 @@ describe('Ingest API : Uploader', function () {
 
       upload.fileRecord.id = 'test-id';
       upload.fileRecord.method = false;
+
+      upload.multiPartPromise = {
+        cancel: function () {}
+      };
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
         id: 'test-id',
@@ -738,8 +749,27 @@ describe('Ingest API : Uploader', function () {
     it('Should pause the current upload.', function () {
       var called = false;
 
-      upload.currentUpload = {
+      upload.multiPartPromise = {
         pause: function () {
+          called = true;
+        }
+      };
+
+      upload.paused = false;
+
+      upload.pause();
+
+      expect(upload.paused).toEqual(true);
+      expect(called).toEqual(true);
+    });
+
+    it('Should pause a singlepart upload.', function () {
+      var called = false;
+
+      spyOn(upload, '_uploadFile');
+
+      upload.singlePartUpload = {
+        cancel: function () {
           called = true;
         }
       };
@@ -767,7 +797,7 @@ describe('Ingest API : Uploader', function () {
     it('Should resume the current upload.', function () {
       var called = false;
 
-      upload.currentUpload = {
+      upload.multiPartPromise = {
         resume: function () {
           called = true;
         }
@@ -779,6 +809,21 @@ describe('Ingest API : Uploader', function () {
 
       expect(upload.paused).toEqual(false);
       expect(called).toEqual(true);
+    });
+
+    it('Should resume a single part upload.', function () {
+
+      upload.singlePartUpload = true;
+
+      spyOn(upload, '_uploadFile').and.callThrough();
+
+      upload.singlePartPromise = true;
+      upload.paused = true;
+
+      upload.resume();
+
+      expect(upload.paused).toEqual(false);
+      expect(upload._uploadFile).toHaveBeenCalled();
     });
 
     it('Should set the paused state.', function () {

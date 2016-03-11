@@ -29,3 +29,5 @@ gulp.task('release', function (done) {
     done
   );
 });
+
+gulp.task('default', ['development']);
