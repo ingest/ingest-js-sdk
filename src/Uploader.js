@@ -418,7 +418,6 @@ Upload.prototype._onCompleteUpload = function () {
 Upload.prototype.abort = function (async) {
   var url;
   var tokens;
-  var signing = '';
   var request;
 
   if (typeof async === 'undefined') {
@@ -443,22 +442,19 @@ Upload.prototype.abort = function (async) {
 
   }
 
-  if (this.multiPartPromise) {
-    this.multiPartPromise.cancel();
-    this.multiPartPromise = null;
-  } else {
+  if (this.singlePartPromise) {
     this.singlePartUpload.cancel();
     this.singelPartPromise = null;
     this.singlePartUpload = null;
+    return this._abortComplete(async);
   }
 
-  if (!this.fileRecord.method) {
-    signing = this.config.uploadMethods.param + this.config.uploadMethods.singlePart;
-  }
+  this.multiPartPromise.cancel();
+  this.multiPartPromise = null;
 
   tokens = {
     id: this.fileRecord.id,
-    method: signing
+    method: ''
   };
 
   url = utils.parseTokens(this.api.config.host + this.config.uploadAbort, tokens);
