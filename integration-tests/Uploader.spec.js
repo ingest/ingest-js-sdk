@@ -589,11 +589,11 @@ describe('Ingest API : Uploader', function () {
       };
 
       upload.fileRecord.id = 'test-id';
-      upload.fileRecord.method = true;
+      upload.fileRecord.method = false;
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
         id: 'test-id',
-        method: ''
+        method: '?type=amazon'
       });
 
       var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
@@ -638,7 +638,7 @@ describe('Ingest API : Uploader', function () {
       upload.initialized = true;
 
       upload.fileRecord.id = 'test-id';
-      upload.fileRecord.method = false;
+      upload.fileRecord.method = true;
 
       upload.multiPartPromise = {
         cancel: function () {}
@@ -646,7 +646,7 @@ describe('Ingest API : Uploader', function () {
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
         id: 'test-id',
-        method: '?type=amazon'
+        method: ''
       });
 
       var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
