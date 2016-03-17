@@ -68,8 +68,7 @@ function IngestAPI (options) {
   this.playlists = new Resource({
     host: this.config.host,
     resource: 'playlists',
-    tokenSource: this.getToken.bind(this),
-    cache: this.cache
+    tokenSource: this.getToken.bind(this)
   });
 
   this.inputs = new Resource({
