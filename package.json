@@ -1,6 +1,6 @@
 {
   "name": "ingest-js-sdk",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "index.js",
   "repository": {
