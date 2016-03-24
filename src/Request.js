@@ -73,6 +73,9 @@ Request.prototype.makeRequest = function () {
 
   this.request.open(this.options.method, this.options.url, this.options.async);
 
+  // Set before we apply the headers so it can be override on a per request basis.
+  this.request.setRequestHeader('Accept', 'application/vnd.ingest.v1+json');
+
   if (headers) {
     this.applyRequestHeaders(headers);
   }
