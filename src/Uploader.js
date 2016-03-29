@@ -368,17 +368,17 @@ Upload.prototype._completeChunk = function (chunk, promise) {
 
   this.uploadedBytes += chunk.data.size;
 
+  // Upload is complete.
+  if (this.chunksComplete === this.chunkCount) {
+    this.uploadComplete = true;
+  }
+
   progress = this.uploadedBytes / this.fileRecord.size;
   // 0 - 99 for actual upload progress, 1% for the complete call.
   progress = progress * 99;
   progress = Math.round(progress);
 
   this._updateProgress(progress, chunk.data.size);
-
-  // Upload is complete.
-  if (this.chunksComplete === this.chunkCount) {
-    this.uploadComplete = true;
-  }
 
   // Resolve the promise.
   promise(true, []);
@@ -474,13 +474,12 @@ Upload.prototype.abort = function (async) {
 
   if (this.singlePartPromise) {
     this.singelPartPromise = null;
+    // return here because there is no need to abort a single part upload.
     return this._abortComplete(async);
   }
 
-  if (this.multiPartPromise) {
-    this.multiPartPromise.cancel();
-    this.multiPartPromise = null;
-  }
+  this.multiPartPromise.cancel();
+  this.multiPartPromise = null;
 
   tokens = {
     id: this.fileRecord.id,
