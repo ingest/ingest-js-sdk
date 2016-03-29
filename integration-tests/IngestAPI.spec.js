@@ -119,7 +119,7 @@ describe('Ingest API', function () {
       expect(response.statusCode).toBeDefined();
 
       // Validate that we can retrieve the response headers.
-      expect(response.headers('Content-type')).toBe('application/json; charset=utf-8');
+      expect(response.headers('Content-type').indexOf('json')).not.toBe(-1);
 
       done();
     }, function (error) {
