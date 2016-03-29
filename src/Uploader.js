@@ -337,7 +337,8 @@ Upload.prototype._sendUpload = function (upload, response) {
     url: response.data.url,
     method: 'PUT',
     headers: headers,
-    data: upload.data
+    data: upload.data,
+    ignoreAcceptHeader: true
   });
 
   this.requestPromise = request;
