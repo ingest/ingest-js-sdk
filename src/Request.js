@@ -98,7 +98,7 @@ Request.prototype.makeRequest = function () {
 
   // Set the default content type when posting data.
   if (postData.data && postData.type === 'JSON' && !hasContentType) {
-    this.request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    this.request.setRequestHeader('Content-Type', 'application/vnd.ingest.v1+json');
   }
 
   // If there is data then we need to pass that along with the request.
@@ -190,7 +190,7 @@ Request.prototype.processResponse = function (response) {
   var result = response;
 
   // Parse JSON if the result is JSON.
-  if (responseType && responseType.indexOf('application/json') !== -1) {
+  if (responseType && responseType.indexOf('json') !== -1) {
     try {
       result = JSON.parse(response);
     } catch (error) {
