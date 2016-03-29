@@ -16,7 +16,8 @@ var Request = function (options) {
 
   this.defaults = {
     async: true,
-    method: 'GET'
+    method: 'GET',
+    ignoreAcceptHeader: false
   };
 
   // Create the XHR object for this request.
@@ -74,7 +75,9 @@ Request.prototype.makeRequest = function () {
   this.request.open(this.options.method, this.options.url, this.options.async);
 
   // Set before we apply the headers so it can be overridden on a per request basis.
-  this.request.setRequestHeader('Accept', 'application/vnd.ingest.v1+json');
+  if (!this.options.ignoreAcceptHeader) {
+    this.request.setRequestHeader('Accept', 'application/vnd.ingest.v1+json');
+  }
 
   if (headers) {
     this.applyRequestHeaders(headers);
