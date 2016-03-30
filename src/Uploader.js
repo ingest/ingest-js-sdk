@@ -397,7 +397,7 @@ Upload.prototype._completeUpload = function () {
 
   // Early return so we don't process any of the complete information on an aborted upload.
   if (this.aborted) {
-    return;
+    return utils.promisify(false, ['Upload Aborted.']);
   }
 
   tokens = {
