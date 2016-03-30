@@ -67,7 +67,7 @@ Utils.series = function (promises, paused) {
 
   all.pause = Utils._seriesPause.bind(undefined, all, state);
   all.resume = Utils._seriesResume.bind(undefined, all, state);
-  all.cancel = Utils._seriesError.bind(undefined, all, 'The Series has been canceled.');
+  all.cancel = Utils._seriesCancel.bind(undefined, all, 'The Series has been canceled.');
 
   if (!paused) {
     state.paused = false;
@@ -99,6 +99,11 @@ Utils._seriesCallPromise = function (promise, state, all) {
  * @param  {Object}  response Response of the promise being fulfilled.
  */
 Utils._seriesComplete = function (all, state, response) {
+
+  // Early return if this has been canceled.
+  if (state.canceled) {
+    return;
+  }
 
   // Increment the complete promises.
   state.complete++;
@@ -145,6 +150,16 @@ Utils._seriesResume = function (all, state) {
   if (state.complete !== state.total) {
     Utils._seriesCallPromise(state.promises[state.complete], state, all);
   }
+};
+
+/**
+ * Resolve the promise but return an empty response.
+ * @param  {Promise}  all     All promise.
+ * @param  {Object}   state   State object used to persist the promise count.
+ */
+Utils._seriesCancel = function (all, state) {
+  state.canceled = true;
+  all(true, []);
 };
 
 module.exports = Utils;

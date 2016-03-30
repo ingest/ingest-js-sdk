@@ -48,6 +48,9 @@ function Upload (options) {
   this.created = false;
   this.initialized = false;
 
+  // Set to true when all the chunks are uploaded, but before the complete call is made.
+  this.uploadComplete = false;
+
   this.fileRecord = {
     filename: this.file.name,
     type: this.file.type,
@@ -233,9 +236,14 @@ Upload.prototype._createChunks = function () {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype._uploadChunk = function (chunk) {
-  return this._signUpload(chunk)
+  var promise = Promise();
+
+  // Break the promise chain.
+  this._signUpload(chunk)
     .then(this._sendUpload.bind(this, chunk))
-    .then(this._completeChunk.bind(this, chunk));
+    .then(this._completeChunk.bind(this, chunk, promise));
+
+  return promise;
 };
 
 /**
@@ -333,7 +341,7 @@ Upload.prototype._sendUpload = function (upload, response) {
     ignoreAcceptHeader: true
   });
 
-  this.singlePartUpload = request;
+  this.requestPromise = request;
 
   return request.send();
 };
@@ -342,14 +350,17 @@ Upload.prototype._sendUpload = function (upload, response) {
  * Update the upload bytes value when a single part file is uploaded.
  */
 Upload.prototype._sendSinglepartComplete = function () {
+  this.uploadComplete = true;
   this.uploadedBytes = this.fileRecord.size;
 };
 
 /**
  *  Executed when a chunk is finished uploading.
  *  @private
+ *  @param {object}   chunk   The current chunk that was uploaded.
+ *  @param {Promise}  promise The promise to resolve when the chunk is complete.
  */
-Upload.prototype._completeChunk = function (chunk) {
+Upload.prototype._completeChunk = function (chunk, promise) {
   var progress;
 
   this.chunksComplete++;
@@ -357,27 +368,36 @@ Upload.prototype._completeChunk = function (chunk) {
 
   this.uploadedBytes += chunk.data.size;
 
+  // Upload is complete.
+  if (this.chunksComplete === this.chunkCount) {
+    this.uploadComplete = true;
+  }
+
   progress = this.uploadedBytes / this.fileRecord.size;
-  progress = progress * 100;
+  // 0 - 99 for actual upload progress, 1% for the complete call.
+  progress = progress * 99;
   progress = Math.round(progress);
 
   this._updateProgress(progress, chunk.data.size);
+
+  // Resolve the promise.
+  promise(true, []);
 };
 
 /**
  * Notify the server that the upload is complete.
  *
  * @private
- * @return {Promise} A promise which resolves when the request is complete.
+ * @return  {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype._completeUpload = function () {
   var url;
   var tokens;
   var request;
 
+  // Early return so we don't process any of the complete information on an aborted upload.
   if (this.aborted) {
-    this.abort();
-    return utils.promisify(false, 'upload aborted');
+    return utils.promisify(false, 'Upload Aborted.');
   }
 
   tokens = {
@@ -403,8 +423,12 @@ Upload.prototype._completeUpload = function () {
  * @return {string} ID for the input record that was created.
  */
 Upload.prototype._onCompleteUpload = function () {
+  // Send the final progress update once the upload is actually complete.
+  this._updateProgress(100);
+
+  this.uploadComplete = true;
   this.multiPartPromise = null;
-  this.singlePartUpload = null;
+  this.requestPromise = null;
   this.singlePartPromise = null;
   return this.fileRecord.id;
 };
@@ -443,10 +467,15 @@ Upload.prototype.abort = function (async) {
 
   }
 
+  // Cancel the current request.
+  if (this.requestPromise) {
+    this.requestPromise.cancel();
+    this.requestPromise = null;
+  }
+
   if (this.singlePartPromise) {
-    this.singlePartUpload.cancel();
     this.singelPartPromise = null;
-    this.singlePartUpload = null;
+    // return here because there is no need to abort a single part upload.
     return this._abortComplete(async);
   }
 
@@ -485,15 +514,27 @@ Upload.prototype._abortComplete = function (async) {
  * Pause the current upload.
  */
 Upload.prototype.pause = function () {
+  // Return early if the upload portion is complete.
+  // The work is done by now so we might as well fire the
+  // complete call.
+  if (this.uploadComplete) {
+    return;
+  }
+
   this.paused = true;
 
   // Is there an upload
   if (this.multiPartPromise) {
+
     // Pause the series if its a multipart upload.
     this.multiPartPromise.pause();
-  } else if (this.singlePartUpload) {
+
+    // Cancel the http request for this chunk.
+    this.requestPromise.cancel();
+
+  } else if (this.requestPromise) {
     // Abort the upload if its a singlepart upload.
-    this.singlePartUpload.cancel();
+    this.requestPromise.cancel();
   }
 
 };
@@ -508,7 +549,7 @@ Upload.prototype.resume = function () {
   if (this.multiPartPromise) {
     // resume the series if its multipart.
     this.multiPartPromise.resume();
-  } else if (this.singlePartUpload) {
+  } else if (this.requestPromise) {
     // Restart the file upload.
     this._uploadFile();
   }

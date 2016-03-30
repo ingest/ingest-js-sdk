@@ -341,8 +341,8 @@ describe('Ingest API : Uploader', function () {
         return utils.promisify(true, []);
       });
 
-      spyOn(upload, '_completeChunk').and.callFake(function () {
-        return utils.promisify(true, []);
+      spyOn(upload, '_completeChunk').and.callFake(function (chunk, promise) {
+        return promise(true, []);
       });
 
       upload._uploadChunk().then(function () {
@@ -355,6 +355,23 @@ describe('Ingest API : Uploader', function () {
         expect(error).not.toBeDefined();
         done();
       });
+
+    });
+
+    it('Should set the uploadComplete flag when all chunks are complete.', function () {
+
+      var chunk = {
+        data: {
+          size: 10
+        }
+      };
+
+      upload.chunksComplete = 0;
+      upload.chunkCount = 1;
+
+      upload._completeChunk(chunk, function () {});
+
+      expect(upload.uploadComplete).toEqual(true);
 
     });
   });
@@ -516,7 +533,7 @@ describe('Ingest API : Uploader', function () {
       upload.chunkCount = 2;
       upload.chunksComplete = 0;
 
-      upload._completeChunk(chunk);
+      upload._completeChunk(chunk, function () {});
 
       expect(upload._updateProgress).toHaveBeenCalled();
 
@@ -529,9 +546,8 @@ describe('Ingest API : Uploader', function () {
 
       upload.fileRecord.id = 'test-id';
 
-      upload.multiPartPromise = true;
-      upload.singlePartUpload = true;
       upload.singlePartPromise = true;
+      upload.requestPromise = true;
 
       var url = utils.parseTokens(api.config.host + upload.config.uploadComplete, {
         id: 'test-id'
@@ -551,9 +567,8 @@ describe('Ingest API : Uploader', function () {
 
       upload._completeUpload().then(function (response) {
         expect(response).toEqual('test-id');
-        expect(upload.multiPartPromise).toEqual(null);
-        expect(upload.singlePartUpload).toEqual(null);
         expect(upload.singlePartPromise).toEqual(null);
+        expect(upload.requestPromise).toEqual(null);
         done();
       }, function (error) {
         expect(error).not.toBeDefined();
@@ -562,15 +577,13 @@ describe('Ingest API : Uploader', function () {
 
     });
 
-    it('Should call abort if the upload was aborted before this point.', function () {
+    it('Should return early if the upload was aborted before this point.', function () {
 
-      spyOn(upload, 'abort').and.returnValue(null);
       spyOn(utils, 'parseTokens').and.returnValue(null);
 
       upload.aborted = true;
       upload._completeUpload();
 
-      expect(upload.abort).toHaveBeenCalled();
       expect(utils.parseTokens).not.toHaveBeenCalled();
 
     });
@@ -584,7 +597,7 @@ describe('Ingest API : Uploader', function () {
 
       upload.singlePartPromise = true;
 
-      upload.singlePartUpload = {
+      upload.requestPromise = {
         cancel: function () {}
       };
 
@@ -640,6 +653,8 @@ describe('Ingest API : Uploader', function () {
       upload.fileRecord.id = 'test-id';
       upload.fileRecord.method = true;
 
+      upload.singlePartPromise = false;
+
       upload.multiPartPromise = {
         cancel: function () {}
       };
@@ -672,7 +687,7 @@ describe('Ingest API : Uploader', function () {
 
       });
 
-      upload.abort().then(function (response) {
+      upload.abort(upload).then(function (response) {
         expect(response.data).toEqual('deleted');
         mock.teardown();
         done();
@@ -749,8 +764,8 @@ describe('Ingest API : Uploader', function () {
     it('Should pause the current upload.', function () {
       var called = false;
 
-      upload.multiPartPromise = {
-        pause: function () {
+      upload.requestPromise = {
+        cancel: function () {
           called = true;
         }
       };
@@ -768,7 +783,7 @@ describe('Ingest API : Uploader', function () {
 
       spyOn(upload, '_uploadFile');
 
-      upload.singlePartUpload = {
+      upload.requestPromise = {
         cancel: function () {
           called = true;
         }
@@ -782,6 +797,33 @@ describe('Ingest API : Uploader', function () {
       expect(called).toEqual(true);
     });
 
+    it('Should pause a multipart upload.', function () {
+
+      var cancelCalled = false;
+      var pauseCalled = false;
+
+      upload.requestPromise = {
+        cancel: function () {
+          cancelCalled = true;
+        }
+      };
+
+      upload.multiPartPromise = {
+        pause: function () {
+          pauseCalled = true;
+        }
+      };
+
+      upload.paused = false;
+
+      upload.pause();
+
+      expect(upload.paused).toEqual(true);
+      expect(cancelCalled).toEqual(true);
+      expect(pauseCalled).toEqual(true);
+
+    });
+
     it('Should set the paused state.', function () {
 
       upload.paused = false;
@@ -789,6 +831,16 @@ describe('Ingest API : Uploader', function () {
       upload.pause();
 
       expect(upload.paused).toEqual(true);
+
+    });
+
+    it('Should return early if the upload is already complete.', function () {
+
+      upload.uploadComplete = true;
+
+      upload.pause();
+
+      expect(upload.paused).toEqual(false);
 
     });
   });
@@ -813,11 +865,12 @@ describe('Ingest API : Uploader', function () {
 
     it('Should resume a single part upload.', function () {
 
-      upload.singlePartUpload = true;
+      upload.requestPromise = true;
+      upload.singlePartPromise = true;
 
       spyOn(upload, '_uploadFile').and.callThrough();
 
-      upload.singlePartPromise = true;
+      upload.requestPromise = true;
       upload.paused = true;
 
       upload.resume();

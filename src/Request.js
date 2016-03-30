@@ -265,6 +265,8 @@ Request.prototype.isValidResponseCode = function (responseCode) {
  * Cancel the current XHR request.
  */
 Request.prototype.cancel = function () {
+  // Remove the event listener.
+  this.request.onreadystatechange = null;
   this.request.abort();
   this.requestError('Request has been canceled.');
 };

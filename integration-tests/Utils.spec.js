@@ -162,4 +162,29 @@ describe('Utils:Series', function () {
 
   });
 
+  it('Should cancel the series.', function () {
+
+    var state = {
+      canceled: false
+    };
+
+    utils._seriesCancel(function () {}, state);
+
+    expect(state.canceled).toEqual(true);
+
+  });
+
+  it('Should exit early if the series is canceled.', function () {
+
+    var state = {
+      complete: 0,
+      canceled: true
+    };
+
+    utils._seriesComplete(null, state);
+
+    expect(state.complete).toEqual(0);
+
+  });
+
 });
