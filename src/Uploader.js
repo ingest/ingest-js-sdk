@@ -426,6 +426,7 @@ Upload.prototype._onCompleteUpload = function () {
   // Send the final progress update once the upload is actually complete.
   this._updateProgress(100);
 
+  this.uploadComplete = true;
   this.multiPartPromise = null;
   this.requestPromise = null;
   this.singlePartPromise = null;
