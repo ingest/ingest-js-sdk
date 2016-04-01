@@ -100,6 +100,10 @@ Upload.prototype._updateProgress = function (percent, chunkSize) {
  */
 Upload.prototype._create = function (record) {
 
+  if (this.created) {
+    return utils.promisify(true, this.fileRecord.id);
+  }
+
   if (this.aborted) {
     return utils.promisify(false, 'upload aborted');
   }

@@ -147,6 +147,16 @@ describe('Ingest API : Uploader', function () {
       expect(api.inputs.add).not.toHaveBeenCalled();
 
     });
+
+    it('Should not create an input if the input has already been created.', function () {
+      spyOn(api.inputs, 'add');
+
+      upload.created = true;
+
+      expect(upload._create.bind(upload, upload.fileRecord)).not.toThrow();
+
+      expect(api.inputs.add).not.toHaveBeenCalled();
+    });
   });
 
   describe('initialize', function () {
