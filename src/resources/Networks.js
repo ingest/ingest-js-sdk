@@ -1,6 +1,7 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 function Networks (options) {
 
