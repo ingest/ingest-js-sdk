@@ -99,6 +99,13 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
+  this.jobs = new Resource({
+    host: this.config.host,
+    resource: 'encoding/jobs',
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache
+  });
+
 }
 /** Token **/
 /**
