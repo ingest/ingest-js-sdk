@@ -1,8 +1,17 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 function Users (options) {
+
+  var overrides = {
+    currentUser: '/users/me',
+    transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
+    revoke: '/revoke'
+  };
+
+  options = extend(true, {}, overrides, options);
 
   Resource.call(this, options);
 

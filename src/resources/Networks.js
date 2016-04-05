@@ -4,6 +4,12 @@ var utils = require('../Utils');
 
 function Networks (options) {
 
+  var overrides = {
+    invite: '/networks/invite'
+  };
+
+  options = extend(true, {}, overrides, options);
+
   Resource.call(this, options);
 
 };

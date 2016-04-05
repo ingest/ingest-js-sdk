@@ -82,18 +82,21 @@ function IngestAPI (options) {
     host: this.config.host,
     resource: 'users',
     tokenSource: this.getToken.bind(this),
-    cache: this.cache,
-    currentUser: '/users/me',
-    transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
-    revoke: '/revoke'
+    cache: this.cache
   });
 
   this.networks = new Networks({
     host: this.config.host,
     resource: 'networks',
     tokenSource: this.getToken.bind(this),
-    cache: this.cache,
-    invite: '/networks/invite'
+    cache: this.cache
+  });
+
+  this.profiles = new Resource({
+    host: this.config.host,
+    resource: 'encoding/profiles',
+    tokenSource: this.getToken.bind(this),
+    cache: this.cache
   });
 
 }
