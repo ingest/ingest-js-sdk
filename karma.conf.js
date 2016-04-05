@@ -20,6 +20,10 @@ module.exports = function (config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['spec', 'coverage'],
 
+    specReporter: {
+      suppressPassed: true  // do not print information about passed tests
+    },
+
     preprocessors: {
       './integration-tests/**/*.js': ['webpack']
     },
