@@ -1,8 +1,15 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 function Networks (options) {
+
+  var overrides = {
+    invite: '/networks/invite'
+  };
+
+  options = extend(true, {}, overrides, options);
 
   Resource.call(this, options);
 
