@@ -1,3 +1,5 @@
+'use strict';
+
 var extend = require('extend');
 var Request = require('./Request');
 var Promise = require('pinkyswear');
