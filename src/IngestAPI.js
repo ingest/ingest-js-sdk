@@ -8,6 +8,7 @@ var Cache = require('./Cache');
 var Resource = require('./resources/Resource');
 var Users = require('./resources/Users');
 var Networks = require('./resources/Networks');
+var Videos = require('./resources/Videos');
 
 /**
  * IngestAPI Object
@@ -54,11 +55,12 @@ function IngestAPI (options) {
   this.resource = Resource;
   this.usersResource = Users;
   this.networksResource = Networks;
+  this.videosResource = Videos;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
 
-  this.videos = new Resource({
+  this.videos = new Videos({
     host: this.config.host,
     resource: 'videos',
     tokenSource: this.getToken.bind(this),
