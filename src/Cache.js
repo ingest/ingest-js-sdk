@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * A management layer for storing app cache in local storage.
  */

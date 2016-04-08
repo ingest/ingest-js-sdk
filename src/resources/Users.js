@@ -1,3 +1,5 @@
+'use strict';
+
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');

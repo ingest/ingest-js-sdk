@@ -1,3 +1,5 @@
+'use strict';
+
 var api;
 
 // Token will need to be re-generated every 24 hours.
