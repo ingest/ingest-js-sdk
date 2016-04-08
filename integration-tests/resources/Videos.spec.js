@@ -31,6 +31,24 @@ var playlists = [
   }
 ];
 
+var variants = [
+  {
+    "id": "b1ede429-c623-4713-8442-d73c66a963a4",
+    "name": "low",
+    "duration": 734.167,
+    "type": "hls",
+    "video_id": "cd74a0df-3177-4a3e-9eb5-c890a90bd3e3",
+    "profile_id": "0519d89d-ac2e-4cd7-938a-89c32e764c8a"
+  },
+  {
+    "id": "626abeac-5389-4c91-9b7b-1c39b16e3ada",
+    "name": "medium",
+    "duration": 734.167,
+    "type": "hls",
+    "video_id": "cd74a0df-3177-4a3e-9eb5-c890a90bd3e3",
+    "profile_id": "0519d89d-ac2e-4cd7-938a-89c32e764c8a"
+  }
+];
 
 describe('Ingest API : Resource : Videos', function () {
 
@@ -83,6 +101,55 @@ describe('Ingest API : Resource : Videos', function () {
     it('Should fail if an id is not supplied.', function (done) {
 
       videosResource.getPlaylists().then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+    });
+
+  });
+
+  describe('getVariants', function () {
+
+    it('Should retrieve the variants for the provided video.', function (done) {
+      var url;
+
+      mock.setup();
+
+      url = api.utils.parseTokens(api.config.host + videosResource.config.variants, {
+        resource: videosResource.config.resource,
+        id: 'test-id'
+      });
+
+      mock.mock('GET', url,
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(variants));
+
+        });
+
+      videosResource.getVariants('test-id').then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(variants);
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+
+    });
+
+    it('Should fail if an id is not supplied.', function (done) {
+
+      videosResource.getVariants().then(function (response) {
         expect(response).not.toBeDefined();
         done();
       }, function (error) {
