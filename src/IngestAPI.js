@@ -12,6 +12,7 @@ var Media = require('./resources/PlaybackContent');
 var Users = require('./resources/Users');
 var Networks = require('./resources/Networks');
 var Videos = require('./resources/Videos');
+var Playlists = require('./resources/Playlists');
 
 /**
  * IngestAPI Object
@@ -68,7 +69,7 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
-  this.playlists = new Resource({
+  this.playlists = new Playlists({
     host: this.config.host,
     resource: 'playlists',
     tokenSource: this.getToken.bind(this)

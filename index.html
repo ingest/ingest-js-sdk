@@ -30,6 +30,32 @@
         <input class="thumbnail-btn-submit" type="submit" value="upload" />
       </div>
 
+      <hr/>
+
+      <div>
+        <p><button class="get-all-videos">Get All Videos</button></p>
+        <p>
+          <input type="text" placeholder="Video ID" class="in-get-video-by-id"/>
+          <button class="get-video-by-id">Get Video By ID</button>
+        </p>
+        <hr/>
+        <p><button class="get-all-playlists">Get All Playlists</button></p>
+        <p>
+          <input type="text" placeholder="Playlist ID" class="in-get-playlist-by-id"/>
+          <button class="get-playlist-by-id">Get Playlist By ID</button>
+        </p>
+        <hr/>
+        <p>
+          <input type="text" placeholder="Video ID" class="in-link-video-id"/>
+          <input type="text" placeholder="Playlist ID" class="in-link-playlist-id"/>
+          <button class="link-video">Link Video</button>
+        </p>
+      </div>
+
+      <div class="debug">
+
+      </div>
+
       <script>
         var ingest = new IngestAPI({
           host: 'http://weasley.teamspace.ad:8080'
@@ -44,6 +70,69 @@
         var thumbnailVideoId = document.getElementsByClassName('thumbnail-video-id')[0];
         var thumbnailFilePicker = document.getElementsByClassName('thumbnail-file-picker')[0];
         var thumbnailSubmitbtn = document.getElementsByClassName('thumbnail-btn-submit')[0];
+
+        var getAllVideos = document.getElementsByClassName('get-all-videos')[0];
+        var getVideoById = document.getElementsByClassName('get-video-by-id')[0];
+
+        var getAllPlaylists = document.getElementsByClassName('get-all-playlists')[0];
+        var getPlaylistById = document.getElementsByClassName('get-playlist-by-id')[0];
+
+        var linkVideo = document.getElementsByClassName('link-video')[0];
+        var debugOutput = document.getElementsByClassName('debug')[0];
+
+        getAllVideos.addEventListener('click', function () {
+          ingest.videos.getAll().then(function (response) {
+            console.log('getAll', response.data);
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+             debugOutput.innerHTML = error;
+          });
+        });
+
+        getVideoById.addEventListener('click', function () {
+          var id = document.getElementsByClassName('in-get-video-by-id')[0].value;
+
+          ingest.videos.getById(id).then(function (response) {
+            console.log(id, response.data);
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+            debugOutput.innerHTML = error;
+          });
+        });
+
+        getAllPlaylists.addEventListener('click', function () {
+          ingest.playlists.getAll().then(function (response) {
+            console.log('getAllPlaylists', response.data);
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+             debugOutput.innerHTML = error;
+          });
+        });
+
+        getPlaylistById.addEventListener('click', function () {
+          var id = document.getElementsByClassName('in-get-playlist-by-id')[0].value;
+
+          ingest.playlists.getById(id).then(function (response) {
+            console.log(id, response.data);
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+            debugOutput.innerHTML = error;
+          });
+        });
+
+        linkVideo.addEventListener('click', function () {
+
+          var id = document.getElementsByClassName('in-link-video-id')[0].value;
+          var playlistId = document.getElementsByClassName('in-link-playlist-id')[0].value;
+
+          ingest.playlists.link(playlistId, {id: id}).then(function (response) {
+            console.log('playlistId:', playlistId, 'id:', id, response.data);
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+            debugOutput.innerHTML = error;
+          });
+
+        });
 
         var upload;
 
