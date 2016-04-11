@@ -1,3 +1,5 @@
+'use strict';
+
 var api;
 
 var access_token = 'Bearer ' + window.token;

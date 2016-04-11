@@ -1,3 +1,5 @@
+'use strict';
+
 var api;
 var utils;
 var Promise = require('pinkyswear');

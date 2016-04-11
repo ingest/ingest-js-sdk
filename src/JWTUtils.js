@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * UTILS for dealing with jwt tokens.
  */

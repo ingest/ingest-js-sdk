@@ -1,3 +1,5 @@
+'use strict';
+
 var api;
 
 // Token will need to be re-generated every 24 hours.
@@ -314,7 +316,6 @@ describe('Ingest API : Uploader', function () {
         return utils.promisify(true, ['success']);
       });
 
-      upload.file.size = 1000000;
       upload.chunkSize = 50000;
       upload.chunkCount = 20;
 

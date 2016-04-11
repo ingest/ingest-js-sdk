@@ -1,3 +1,5 @@
+'use strict';
+
 // Token will need to be re-generated every 24 hours.
 var valid_token = 'Bearer ' + window.token;
 
