@@ -14,7 +14,6 @@ function Resource (options) {
     host: 'https://api.ingest.io',
     all: '/<%=resource%>',
     byId: '/<%=resource%>/<%=id%>',
-    thumbnails: '/<%=resource%>/<%=id%>/thumbnails',
     trash: '/<%=resource%>?filter=trashed',
     deleteMethods: {
       'permanent': '?permanent=1'
@@ -74,7 +73,7 @@ Resource.prototype.getAll = function (headers) {
 Resource.prototype.getById = function (id) {
   var url, cachedResult, request;
 
-  if (typeof id !== 'string') {
+  if (typeof id !== 'string' || id.length <= 0) {
     return utils.promisify(false,
       'IngestAPI Resource getById requires a valid id passed as a string.');
   }
@@ -121,32 +120,6 @@ Resource.prototype.getTrashed = function (headers) {
     url: url,
     token: this._tokenSource(),
     headers: headers
-  });
-
-  return request.send();
-};
-
-/**
- * Retrieve all thumbnails for a provided resource id.
- * @param {string} id ID of the resource to retrieve thumbnails for.
- * @return {promise}  A promise which resolves when the request is complete.
- */
-Resource.prototype.getThumbnails = function (id) {
-  var url, request;
-
-  if (typeof id !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI Resource getThumbnails requires an id to be passed as a string.');
-  }
-
-  url = utils.parseTokens(this.config.host + this.config.thumbnails, {
-    resource: this.config.resource,
-    id: id
-  });
-
-  request = new Request({
-    url: url,
-    token: this._tokenSource()
   });
 
   return request.send();
@@ -468,7 +441,6 @@ Resource.prototype._updateCachedResources = function (response) {
   var i;
 
   if (this.cache && this.cache.enabled) {
-
     for (i = 0; i < dataLength; i++) {
       this.cache.save(data[i].id, data[i]);
     }

@@ -14,6 +14,43 @@ var validVideoId;
 var createdVideo;
 var nextRange;
 
+var video = {
+  author: {
+    deleted_at: null,
+    email: "shawn.gillam-wright@redspace.com",
+    first_time_user: true,
+    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    profile: {},
+    timezone: "UTC",
+    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+  },
+  created_at: "2015-12-18T15:54:53.085423Z",
+  deleted_at: null,
+  description: "sdf",
+  id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+  playback_url: null,
+  poster: null,
+  private: null,
+  published_at: null,
+  schedule_end: null,
+  schedule_start: null,
+  size: 0,
+  status: 0,
+  tags: ["sdf"],
+  title: "ad",
+  updated_at: "2015-12-18T15:54:53.085423Z",
+  updater: {
+    deleted_at: null,
+    email: "shawn.gillam-wright@redspace.com",
+    first_time_user: true,
+    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    profile: {},
+    timezone: "UTC",
+    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+  },
+  url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+};
+
 describe('Ingest API : Resource', function () {
 
   beforeEach(function () {
@@ -62,22 +99,33 @@ describe('Ingest API : Resource', function () {
 
     it('Should retrieve all resources.', function (done) {
 
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + resource.config.all, {
+        resource: resource.config.resource
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify([video]));
+
+      });
+
       resource.cache.enabled = false;
 
-      var request = resource.getAll().then(function (response) {
+      request = resource.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
-
-        validVideoId = response.data[0].id;
-
-        nextRange = response.headers('Next-Range');
-
-        expect(nextRange).toBeDefined();
-
-        expect(validVideoId).toBeDefined();
 
         done();
       }, function (error) {
@@ -92,52 +140,37 @@ describe('Ingest API : Resource', function () {
 
     it('Should retrieve all resources and cache the result', function (done) {
 
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + resource.config.all, {
+        resource: resource.config.resource
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify([video]));
+
+      });
+
       spyOn(resource.cache, 'save').and.callThrough();
 
-      var request = resource.getAll().then(function (response) {
+      request = resource.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
-
-        validVideoId = response.data[0].id;
-
-        nextRange = response.headers('Next-Range');
-
-        expect(nextRange).toBeDefined();
-
-        expect(validVideoId).toBeDefined();
 
         expect(resource.cache.save).toHaveBeenCalled();
 
         done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should retrieve the next page of resources.', function (done) {
-
-      var request = resource.getAll({
-        Range: nextRange
-      }).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-        expect(response.headers).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBeDefined();
-
-        expect(response.data[0].id).not.toEqual(validVideoId);
-
-        done();
-
       }, function (error) {
         expect(error).toBeUndefined();
         done();
@@ -181,8 +214,31 @@ describe('Ingest API : Resource', function () {
   describe('getById', function () {
 
     it('Should return a single resource.', function (done) {
+      var url, request;
 
-      var request = resource.getById(validVideoId).then(function (response) {
+      url = api.utils.parseTokens(api.config.host + resource.config.byId, {
+        resource: resource.config.resource,
+        id: '12345'
+      });
+
+      spyOn(resource.cache, 'retrieve').and.callFake(function () {
+        return true;
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify({data: video}));
+
+      });
+
+      request = resource.getById('12345').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -219,23 +275,6 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should fail if an invalid ID is provided.', function (done) {
-      var request = resource.getById('invalid-id').then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
     it('should fail if the passed in ID is not a string', function (done) {
       var request = resource.getById(1234).then(function (response) {
 
@@ -254,11 +293,31 @@ describe('Ingest API : Resource', function () {
 
     it('Should ignore the cache if it is disabled.', function (done) {
 
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + resource.config.byId, {
+        resource: resource.config.resource,
+        id: '12345'
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify({data: video}));
+
+      });
+
       spyOn(resource.cache, 'retrieve').and.callThrough();
 
       resource.cache.enabled = false;
 
-      var request = resource.getById(validVideoId).then(function (response) {
+      request = resource.getById('12345').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
@@ -296,43 +355,6 @@ describe('Ingest API : Resource', function () {
       // Mock the XHR object.
       mock.setup();
 
-      var resp = {
-        author: {
-          deleted_at: null,
-          email: "shawn.gillam-wright@redspace.com",
-          first_time_user: true,
-          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-          profile: {},
-          timezone: "UTC",
-          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-        },
-        created_at: "2015-12-18T15:54:53.085423Z",
-        deleted_at: null,
-        description: "sdf",
-        id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
-        playback_url: null,
-        poster: null,
-        private: null,
-        published_at: null,
-        schedule_end: null,
-        schedule_start: null,
-        size: 0,
-        status: 0,
-        tags: ["sdf"],
-        title: "ad",
-        updated_at: "2015-12-18T15:54:53.085423Z",
-        updater: {
-          deleted_at: null,
-          email: "shawn.gillam-wright@redspace.com",
-          first_time_user: true,
-          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-          profile: {},
-          timezone: "UTC",
-          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-        },
-        url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
-      };
-
       // Mock the response from the REST api.
       mock.mock('POST', api.config.host + '/videos' , function (request, response) {
         // Restore the XHR object.
@@ -340,7 +362,7 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .body(JSON.stringify(resp));
+          .body(JSON.stringify(video));
 
       });
 
@@ -380,43 +402,6 @@ describe('Ingest API : Resource', function () {
       // Mock the XHR object.
       mock.setup();
 
-      var resp = {
-        author: {
-          deleted_at: null,
-          email: "shawn.gillam-wright@redspace.com",
-          first_time_user: true,
-          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-          profile: {},
-          timezone: "UTC",
-          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-        },
-        created_at: "2015-12-18T15:54:53.085423Z",
-        deleted_at: null,
-        description: "sdf",
-        id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
-        playback_url: null,
-        poster: null,
-        private: null,
-        published_at: null,
-        schedule_end: null,
-        schedule_start: null,
-        size: 0,
-        status: 0,
-        tags: ["sdf"],
-        title: "ad",
-        updated_at: "2015-12-18T15:54:53.085423Z",
-        updater: {
-          deleted_at: null,
-          email: "shawn.gillam-wright@redspace.com",
-          first_time_user: true,
-          id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-          profile: {},
-          timezone: "UTC",
-          url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
-        },
-        url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
-      };
-
       // Mock the response from the REST api.
       mock.mock('POST', api.config.host + '/videos' , function (request, response) {
         // Restore the XHR object.
@@ -424,7 +409,7 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .body(JSON.stringify(resp));
+          .body(JSON.stringify(video));
 
       });
 
@@ -850,7 +835,27 @@ describe('Ingest API : Resource', function () {
 
     it('Should retrieve a count of all the resources', function (done) {
 
-      var request = resource.count().then(function (response) {
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + resource.config.all, {
+        resource: resource.config.resource
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('HEAD', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 5)
+          .body('{}');
+
+      });
+
+      request = resource.count().then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response).toBe('number');
@@ -961,7 +966,27 @@ describe('Ingest API : Resource', function () {
 
     it('Should return the count of trashed resources.', function (done) {
 
-      var request = resource.trashCount().then(function (response) {
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + resource.config.trash, {
+        resource: resource.config.resource
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('HEAD', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 5)
+          .body('{}');
+
+      });
+
+      request = resource.trashCount().then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response).toBe('number');
@@ -1323,87 +1348,6 @@ describe('Ingest API : Resource', function () {
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
 
-    });
-
-  });
-
-  describe('getThumbnails', function () {
-
-    it('Should fail if an id is not provided.', function (done) {
-
-      var request = resource.getThumbnails().then(function (response) {
-
-        expect(response).toBeUndefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should return a list of thumbnails.', function (done) {
-
-      // Mock the XHR object.
-      mock.setup();
-
-      var data = [
-        {
-          'thumbnail_id':'a7d6da39-5d2e-4ff7-a5a1-b6b5da0ba124',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster01.jpg',
-          'thumbnail_type':'system'
-        },
-        {
-          'thumbnail_id':'969620c5-ea68-4b54-bdec-3300242b5eeb',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster02.jpg',
-          'thumbnail_type':'system'
-        },
-        {
-          'thumbnail_id':'6f5dbf2f-f9e5-406c-8856-aaf6daa9947e',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster03.jpg',
-          'thumbnail_type':'system'
-        },
-        {
-          'thumbnail_id':'5bf0fddc-39dd-4630-913c-2e3582c781ad',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster04.jpg',
-          'thumbnail_type':'system'
-        }
-      ];
-
-      // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + '/videos/a-video-id/thumbnails',
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      var request = resource.getThumbnails('a-video-id').then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.length).toEqual(4);
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
     });
 
   });

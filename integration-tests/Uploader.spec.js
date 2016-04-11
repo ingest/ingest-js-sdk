@@ -298,6 +298,8 @@ describe('Ingest API : Uploader', function () {
         return utils.promisify(true, ['success']);
       });
 
+      spyOn(upload, '_completeUpload');
+
       upload.fileRecord = {
         method: true
       };
@@ -879,7 +881,7 @@ describe('Ingest API : Uploader', function () {
       upload.requestPromise = true;
       upload.singlePartPromise = true;
 
-      spyOn(upload, '_uploadFile').and.callThrough();
+      spyOn(upload, '_uploadFile');
 
       upload.requestPromise = true;
       upload.paused = true;
