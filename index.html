@@ -16,10 +16,19 @@
         </li>
       </ul>
 
-      <h2>Upload test</h2>
-      <input class="file-picker" type="file" name="file" />
-      <input class="btn-submit" type="submit" value="upload" />
-      <input style="display: none;" class="btn-pause" type="button" value="pause" />
+      <div>
+        <h2>Upload test</h2>
+        <input class="file-picker" type="file" name="file" />
+        <input class="btn-submit" type="submit" value="upload" />
+        <input style="display: none;" class="btn-pause" type="button" value="pause" />
+      </div>
+
+      <div>
+        <h2>Upload Thumbnail test</h2>
+        <input type="text" class="thumbnail-video-id" placeholder="videoID" />
+        <input accept="image/*" class="thumbnail-file-picker" type="file" name="file" />
+        <input class="thumbnail-btn-submit" type="submit" value="upload" />
+      </div>
 
       <script>
         var ingest = new IngestAPI({
@@ -31,6 +40,10 @@
         var filePicker = document.getElementsByClassName('file-picker')[0];
         var submitbtn =  document.getElementsByClassName('btn-submit')[0];
         var pausebtn = document.getElementsByClassName('btn-pause')[0];
+
+        var thumbnailVideoId = document.getElementsByClassName('thumbnail-video-id')[0];
+        var thumbnailFilePicker = document.getElementsByClassName('thumbnail-file-picker')[0];
+        var thumbnailSubmitbtn = document.getElementsByClassName('thumbnail-btn-submit')[0];
 
         var upload;
 
@@ -68,6 +81,19 @@
           }
 
           pausebtn.setAttribute('value', state);
+
+        });
+
+        thumbnailSubmitbtn.addEventListener('click', function () {
+
+          var file = thumbnailFilePicker.files[0];
+          var id = thumbnailVideoId.value;
+
+          ingest.videos.uploadThumbnail(id, file).then(function (response) {
+            console.log('Thumbnail uploaded.');
+          }, function (error) {
+            console.log('There was an error with your upload : ', error);
+          });
 
         });
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var Resource = require('./Resource');
+var PlaybackContent = require('./PlaybackContent');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
@@ -16,12 +16,12 @@ function Videos (options) {
 
   options = extend(true, {}, overrides, options);
 
-  Resource.call(this, options);
+  PlaybackContent.call(this, options);
 
 };
 
 // This extends the base class of 'Resource'.
-Videos.prototype = Object.create(Resource.prototype);
+Videos.prototype = Object.create(PlaybackContent.prototype);
 Videos.prototype.constructor = Videos;
 
 /**

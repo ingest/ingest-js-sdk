@@ -124,7 +124,7 @@ describe('Ingest API : Resource : Videos', function () {
 
     videosResource = new api.videosResource({
       host: api.config.host,
-      resource: 'users',
+      resource: 'videos',
       tokenSource: api.getToken.bind(api),
       cache: api.cache
     });

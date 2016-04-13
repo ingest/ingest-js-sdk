@@ -111,56 +111,6 @@ describe('Ingest API', function () {
     expect(api.setToken).toThrow();
   });
 
-  it('Should return access to the responseHeaders.', function (done) {
-    var request = api.videos.getAll().then(function (response) {
-
-      expect(response).toBeDefined();
-      expect(response.data).toBeDefined();
-      expect(response.headers).toBeDefined();
-      expect(typeof response.headers).toBe('function');
-      expect(response.statusCode).toBeDefined();
-
-      // Validate that we can retrieve the response headers.
-      expect(response.headers('Content-type').indexOf('json')).not.toBe(-1);
-
-      done();
-    }, function (error) {
-
-      expect(error).toBeUndefined();
-
-      done();
-    });
-
-    // Ensure a promise was returned.
-    expect(request.then).toBeDefined();
-
-  });
-
-  it('Should return http status code.', function (done) {
-    var request = api.videos.getAll().then(function (response) {
-
-      expect(response).toBeDefined();
-      expect(response.data).toBeDefined();
-      expect(response.headers).toBeDefined();
-      expect(typeof response.headers).toBe('function');
-      expect(response.statusCode).toBeDefined();
-
-      // Validate that we can retrive the response status code.
-      expect(response.statusCode).toBe(200);
-
-      done();
-    }, function (error) {
-
-      expect(error).toBeUndefined();
-
-      done();
-    });
-
-    // Ensure a promise was returned.
-    expect(request.then).toBeDefined();
-
-  });
-
   describe('getNetworkSecureKeys', function () {
 
     it('Should retrieve all network secure keys from the current network.', function (done) {

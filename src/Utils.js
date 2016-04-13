@@ -164,4 +164,13 @@ Utils._seriesCancel = function (all, state) {
   all(true, []);
 };
 
+/**
+ * Return true if a file provided matches a support image type.
+ * @param  {file}     file  A reference to an image file.
+ * @return {Boolean}        True if the type matches a known image type.
+ */
+Utils.isImage = function (file) {
+  return file.type.indexOf('image') !== -1;
+};
+
 module.exports = Utils;

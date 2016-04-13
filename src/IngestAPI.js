@@ -8,6 +8,7 @@ var Uploader = require('./Uploader');
 var Cache = require('./Cache');
 
 var Resource = require('./resources/Resource');
+var Media = require('./resources/PlaybackContent');
 var Users = require('./resources/Users');
 var Networks = require('./resources/Networks');
 var Videos = require('./resources/Videos');
@@ -55,6 +56,7 @@ function IngestAPI (options) {
   this.JWTUtils = JWTUtils;
   this.utils = utils;
   this.resource = Resource;
+  this.playbackContent = Media;
   this.usersResource = Users;
   this.networksResource = Networks;
   this.videosResource = Videos;
