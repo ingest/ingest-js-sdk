@@ -24,16 +24,22 @@ Networks.prototype.constructor = Networks;
 /**
  * Link an existing user to the currently authorized network.
  *
- * @param {string} id - The unique ID of the user to link.
+ * @param {string} networkId - The unique ID of the network.
+ * @param {string} userId    - The unique ID of the user to link.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Networks.prototype.linkUser = function (id) {
+Networks.prototype.linkUser = function (networkId, userId) {
   var data, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI linkUser requires "networkId" to be passed as a string.');
+  }
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI linkUser requires "id" to be passed as a string.');
+      'IngestAPI linkUser requires "userId" to be passed as a string.');
   }
 
   data = {
@@ -41,7 +47,7 @@ Networks.prototype.linkUser = function (id) {
   };
 
   request = new Request({
-    url: this.config.host + '/' + this.config.resource,
+    url: this.config.host + '/' + networkId + '/' + this.config.resource,
     data: data,
     token: this._tokenSource(),
     method: 'LINK'
@@ -53,16 +59,22 @@ Networks.prototype.linkUser = function (id) {
 /**
  * Remove the specified user from the currently authorized network.
  *
- * @param {string} id - The unique ID of the user to unlink.
+ * @param {string} networkId - The unique ID of the network.
+ * @param {string} userId    - The unique ID of the user to unlink.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Networks.prototype.unlinkUser = function (id) {
+Networks.prototype.unlinkUser = function (networkId, userId) {
   var data, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI unlinkUser requires "networkId" to be passed as a string.');
+  }
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI unlinkUser requires "id" to be passed as a string.');
+      'IngestAPI unlinkUser requires "userId" to be passed as a string.');
   }
 
   data = {
@@ -70,7 +82,7 @@ Networks.prototype.unlinkUser = function (id) {
   };
 
   request = new Request({
-    url: this.config.host + '/' + this.config.resource,
+    url: this.config.host + '/' + networkId + '/' + this.config.resource,
     data: data,
     token: this._tokenSource(),
     method: 'UNLINK'
@@ -82,9 +94,9 @@ Networks.prototype.unlinkUser = function (id) {
 /**
  * Invite a user to the currently authorized network.
  *
- * @param {string} networkId - The ID of the network
- * @param {string} email - The email to send the invite to.
- * @param {string} name  - The name of the person to invite.
+ * @param {string} networkId - The unique ID of the network.
+ * @param {string} email     - The email to send the invite to.
+ * @param {string} name      - The name of the person to invite.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
