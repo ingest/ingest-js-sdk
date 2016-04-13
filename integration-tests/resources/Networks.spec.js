@@ -192,22 +192,24 @@ describe('Ingest API : Resource : Networks', function () {
 
       var email, name, request;
 
+      networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
       email = 'michael.cunningham@redspace.com';
       name = 'Michael Cunningham';
 
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('POST', api.config.host + '/networks/invite', function (request, response) {
+      mock.mock('POST', api.config.host + '/networks/fed6e925-dee4-41cc-be4a-479cabc149a5/invite',
+        function (request, response) {
 
-        // Restore the XHR object.
-        mock.teardown();
+          // Restore the XHR object.
+          mock.teardown();
 
-        return response.status(204);
+          return response.status(204);
 
-      });
+        });
 
-      request = networksResource.inviteUser(email, name).then(function (response) {
+      request = networksResource.inviteUser(networkId, email, name).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toBe(204);
@@ -229,11 +231,12 @@ describe('Ingest API : Resource : Networks', function () {
 
     it('Should fail if no "email" is passed in.', function (done) {
 
-      var request, name;
+      var request, name, networkId;
 
+      networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
       name = 'Michael Cunningham';
 
-      request = networksResource.inviteUser(null, name).then(function (response) {
+      request = networksResource.inviteUser(networkId, null, name).then(function (response) {
 
         expect(response).not.toBeDefined();
 
@@ -254,11 +257,38 @@ describe('Ingest API : Resource : Networks', function () {
 
     it('Should fail if no "name" is passed in.', function (done) {
 
-      var request, email;
+      var request, email, networkId;
 
+      networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
       email = 'michael.cunningham@redspace.com';
 
-      request = networksResource.inviteUser(email, null).then(function (response) {
+      request = networksResource.inviteUser(networkId, email, null).then(function (response) {
+
+        expect(response).not.toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if no "networkId" is passed in.', function (done) {
+
+      var request, email, name;
+
+      name = 'Michael Cunningham';
+      email = 'michael.cunningham@redspace.com';
+
+      request = networksResource.inviteUser(null, email, name).then(function (response) {
 
         expect(response).not.toBeDefined();
 
