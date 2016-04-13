@@ -19,14 +19,14 @@ describe('Ingest API : Resource : Networks', function () {
       resource: 'networks',
       tokenSource: api.getToken.bind(api),
       cache: api.cache,
-      invite: '/networks/invite'
+      invite: 'invite'
     });
 
     // Re-enable cache each time.
     networksResource.cache.enabled = true;
   });
 
-  describe('linkUser', function () {
+  fdescribe('linkUser', function () {
 
     it('Should successfully link a user to the authorized network.', function (done) {
 

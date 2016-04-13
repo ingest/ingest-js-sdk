@@ -37,17 +37,17 @@ Networks.prototype.linkUser = function (networkId, userId) {
       'IngestAPI linkUser requires "networkId" to be passed as a string.');
   }
 
-  if (typeof id !== 'string') {
+  if (typeof userId !== 'string') {
     return utils.promisify(false,
       'IngestAPI linkUser requires "userId" to be passed as a string.');
   }
 
   data = {
-    user_id: id
+    user_id: userId
   };
 
   request = new Request({
-    url: this.config.host + '/' + networkId + '/' + this.config.resource,
+    url: this.config.host + '/' + this.config.resource + '/' + networkId,
     data: data,
     token: this._tokenSource(),
     method: 'LINK'
@@ -72,17 +72,17 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
       'IngestAPI unlinkUser requires "networkId" to be passed as a string.');
   }
 
-  if (typeof id !== 'string') {
+  if (typeof userId !== 'string') {
     return utils.promisify(false,
       'IngestAPI unlinkUser requires "userId" to be passed as a string.');
   }
 
   data = {
-    user_id: id
+    user_id: userId
   };
 
   request = new Request({
-    url: this.config.host + '/' + networkId + '/' + this.config.resource,
+    url: this.config.host + '/' + this.config.resource + '/' + networkId,
     data: data,
     token: this._tokenSource(),
     method: 'UNLINK'
@@ -101,7 +101,7 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.inviteUser = function (networkId, email, name) {
-  var data, request;
+  var data, request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -123,8 +123,10 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
     name: name
   };
 
+  url = this.config.host + '/' + this.config.resource + '/' + networkId + '/' + this.config.invite;
+
   request = new Request({
-    url: this.config.host + '/' + networkId + '/' + this.config.invite,
+    url: url,
     data: data,
     token: this._tokenSource(),
     method: 'POST'
