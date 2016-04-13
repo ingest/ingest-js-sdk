@@ -60,8 +60,6 @@ PlaybackContent.prototype.addExternalThumbnails = function (id, images) {
 
   var imagesToAdd = [];
 
-  // TODO : Waiting on a PR in the REST api
-
   if (typeof id !== 'string') {
     return utils.promisify(false,
       'IngestAPI PlaybackContent addExternal requires an id to be passed as a string.');

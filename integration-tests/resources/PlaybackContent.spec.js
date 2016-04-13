@@ -110,18 +110,86 @@ describe('Ingest API : Resource : Videos', function () {
 
   });
 
-  xdescribe('addExternalThumbnails', function () {
+  describe('addExternalThumbnails', function () {
 
     it('Should add the provided thumbnail to the video item.', function (done) {
 
-      playbackContent.addExternalThumbnails('a0e28c29-8c66-4588-8353-e37d003d1065', image)
+      var url;
+
+      // Mock the XHR
+      mock.setup();
+
+      url = api.utils.parseTokens(api.config.host + playbackContent.config.thumbnails, {
+        resource: playbackContent.config.resource,
+        id: 'test-id'
+      });
+
+      mock.mock('POST', url, function (request, response) {
+        mock.teardown();
+        return response.status(201).body(thumbnail);
+      });
+
+      playbackContent.addExternalThumbnails('test-id', image)
         .then(function (response) {
-          console.log('Response : ', response);
+          expect(response).toBeDefined();
           done();
         }, function (error) {
-          console.log('Error : ', error);
+          expect(error).not.toBeDefined();
           done();
         });
+
+    });
+
+    it('Should add the provided thumbnails[array] to the video item.', function (done) {
+
+      var url;
+
+      // Mock the XHR
+      mock.setup();
+
+      url = api.utils.parseTokens(api.config.host + playbackContent.config.thumbnails, {
+        resource: playbackContent.config.resource,
+        id: 'test-id'
+      });
+
+      mock.mock('POST', url, function (request, response) {
+        mock.teardown();
+        return response.status(201).body([thumbnail, thumbnail]);
+      });
+
+      playbackContent.addExternalThumbnails('test-id', [image, image])
+        .then(function (response) {
+          expect(response).toBeDefined();
+          expect(response.data.length).toEqual(2);
+          done();
+        }, function (error) {
+          expect(error).not.toBeDefined();
+          done();
+        });
+
+    });
+
+    it('Should fail if an id is not provided as a string', function (done) {
+
+      playbackContent.addExternalThumbnails().then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+    });
+
+    it('Should fail if images are not provided as a string, or an array', function (done) {
+
+      playbackContent.addExternalThumbnails('test-id', 1).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
 
     });
 
