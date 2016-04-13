@@ -165,7 +165,7 @@ Utils._seriesCancel = function (all, state) {
 };
 
 /**
- * [isImage description]
+ * Return true if a file provided matches a support image type.
  * @param  {file}     file  A reference to an image file.
  * @return {Boolean}        True if the type matches a known image type.
  */
