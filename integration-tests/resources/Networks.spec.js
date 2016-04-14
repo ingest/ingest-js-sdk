@@ -1053,7 +1053,7 @@ describe('Ingest API : Resource : Networks', function () {
     });
   });
 
-  describe('deleteSecureKeyById', function () {
+  describe('deleteSecureKey', function () {
 
     it('Should fail if no networkId is given.', function (done) {
 
@@ -1061,7 +1061,7 @@ describe('Ingest API : Resource : Networks', function () {
 
       keyId = '801d46e7-8cc8-4b2c-b064-770a0a046bd8';
 
-      request = networksResource.deleteSecureKeyById(null, keyId).then(function (response) {
+      request = networksResource.deleteSecureKey(null, keyId).then(function (response) {
 
         expect(response).not.toBeDefined();
 
@@ -1086,7 +1086,7 @@ describe('Ingest API : Resource : Networks', function () {
 
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
 
-      request = networksResource.deleteSecureKeyById(networkId, null).then(function (response) {
+      request = networksResource.deleteSecureKey(networkId, null).then(function (response) {
 
         expect(response).not.toBeDefined();
 
@@ -1112,7 +1112,7 @@ describe('Ingest API : Resource : Networks', function () {
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
       keyId = ['Totally not a string.'];
 
-      request = networksResource.deleteSecureKeyById(networkId, keyId).then(function (response) {
+      request = networksResource.deleteSecureKey(networkId, keyId).then(function (response) {
 
         expect(response).not.toBeDefined();
 
@@ -1153,7 +1153,7 @@ describe('Ingest API : Resource : Networks', function () {
         });
 
       // Make the request.
-      request = networksResource.deleteSecureKeyById(networkId, keyId).then(function (response) {
+      request = networksResource.deleteSecureKey(networkId, keyId).then(function (response) {
 
         expect(response).toBeDefined();
 
