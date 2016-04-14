@@ -8,7 +8,6 @@ var extend = require('extend');
 function Networks (options) {
 
   var overrides = {
-    byId: '/<%=resource%>/<%=networkId%>',
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
     invite: '/<%=resource%>/<%=networkId%>/invite'
@@ -51,7 +50,7 @@ Networks.prototype.linkUser = function (networkId, userId) {
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
-    networkId: networkId
+    id: networkId
   });
 
   request = new Request({
@@ -91,7 +90,7 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
-    networkId: networkId
+    id: networkId
   });
 
   request = new Request({
@@ -317,7 +316,7 @@ Networks.prototype.updateSecureKey = function (networkId, data) {
  *
  * @return {Promise}  A promise which resolves when the request is complete.
  */
-Networks.prototype.deleteSecureKeyById = function (networkId, keyId) {
+Networks.prototype.deleteSecureKey = function (networkId, keyId) {
   var url, request;
 
   if (typeof networkId !== 'string') {
