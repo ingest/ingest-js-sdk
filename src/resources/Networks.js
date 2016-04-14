@@ -33,7 +33,7 @@ Networks.prototype.constructor = Networks;
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.linkUser = function (networkId, userId) {
-  var data, request, tokens, url;
+  var data, request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -49,12 +49,10 @@ Networks.prototype.linkUser = function (networkId, userId) {
     user_id: userId
   };
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     networkId: networkId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -75,7 +73,7 @@ Networks.prototype.linkUser = function (networkId, userId) {
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.unlinkUser = function (networkId, userId) {
-  var data, request, tokens, url;
+  var data, request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -91,12 +89,10 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
     user_id: userId
   };
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     networkId: networkId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -118,7 +114,7 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.inviteUser = function (networkId, email, name) {
-  var data, request, url, tokens;
+  var data, request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -140,12 +136,10 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
     name: name
   };
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.invite, {
     resource: this.config.resource,
     networkId: networkId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.invite, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -165,19 +159,17 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.getSecureKeys = function (networkId) {
-  var request, tokens, url;
+  var request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
       'IngestAPI getSecureKeys requires "networkId" to be passed as a string.');
   }
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.keys, {
     resource: this.config.resource,
     networkId: networkId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.keys, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -198,7 +190,7 @@ Networks.prototype.getSecureKeys = function (networkId) {
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.addSecureKey = function (networkId, data) {
-  var request, tokens, url;
+  var request, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -220,12 +212,10 @@ Networks.prototype.addSecureKey = function (networkId, data) {
     data.title = '';
   }
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.keys, {
     resource: this.config.resource,
     networkId: networkId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.keys, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -246,7 +236,7 @@ Networks.prototype.addSecureKey = function (networkId, data) {
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.getSecureKeyById = function (networkId, keyId) {
-  var tokens, url, request;
+  var url, request;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -258,13 +248,11 @@ Networks.prototype.getSecureKeyById = function (networkId, keyId) {
       'IngestAPI getSecureKeyById requires a "keyId" to be passed as a string.');
   }
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.keysById, {
     resource: this.config.resource,
     networkId: networkId,
     keyId: keyId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -284,7 +272,7 @@ Networks.prototype.getSecureKeyById = function (networkId, keyId) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.updateSecureKey = function (networkId, data) {
-  var tokens, url, request;
+  var url, request;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -305,13 +293,11 @@ Networks.prototype.updateSecureKey = function (networkId, data) {
     data.title = '';
   }
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.keysById, {
     resource: this.config.resource,
     networkId: networkId,
     keyId: data.id
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
+  });
 
   request = new Request({
     url: url,
@@ -332,7 +318,7 @@ Networks.prototype.updateSecureKey = function (networkId, data) {
  * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.deleteSecureKeyById = function (networkId, keyId) {
-  var tokens, url, request;
+  var url, request;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -344,13 +330,11 @@ Networks.prototype.deleteSecureKeyById = function (networkId, keyId) {
       'IngestAPI deleteSecureKeyById requires a "keyId" to be passed as a string.');
   }
 
-  tokens = {
+  url = utils.parseTokens(this.config.host + this.config.keysById, {
     resource: this.config.resource,
     networkId: networkId,
     keyId: keyId
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
+  });
 
   request = new Request({
     url: url,
