@@ -226,7 +226,7 @@ Networks.prototype.addSecureKey = function (networkId, data) {
 
   tokens = {
     networkId: networkId
-  }
+  };
 
   url = utils.parseTokens(
     this.config.host + '/' + this.config.resource + this.config.keys, tokens
