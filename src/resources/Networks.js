@@ -8,10 +8,10 @@ var extend = require('extend');
 function Networks (options) {
 
   var overrides = {
-    byId: '/<%=networkId%>',
-    keys: '/<%=networkId%>/keys',
-    keysById: '/<%=networkId%>/keys/<%=keyId%>',
-    invite: '/<%=networkId%>/invite'
+    byId: '/<%=resource%>/<%=networkId%>',
+    keys: '/<%=resource%>/<%=networkId%>/keys',
+    keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
+    invite: '/<%=resource%>/<%=networkId%>/invite'
   };
 
   options = extend(true, {}, overrides, options);
@@ -50,12 +50,11 @@ Networks.prototype.linkUser = function (networkId, userId) {
   };
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.byId, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
 
   request = new Request({
     url: url,
@@ -93,12 +92,11 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
   };
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.byId, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.byId, tokens);
 
   request = new Request({
     url: url,
@@ -143,12 +141,11 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
   };
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.invite, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.invite, tokens);
 
   request = new Request({
     url: url,
@@ -176,12 +173,11 @@ Networks.prototype.getSecureKeys = function (networkId) {
   }
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.keys, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.keys, tokens);
 
   request = new Request({
     url: url,
@@ -225,12 +221,11 @@ Networks.prototype.addSecureKey = function (networkId, data) {
   }
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.keys, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.keys, tokens);
 
   request = new Request({
     url: url,
@@ -264,13 +259,12 @@ Networks.prototype.getSecureKeyById = function (networkId, keyId) {
   }
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId,
     keyId: keyId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
 
   request = new Request({
     url: url,
@@ -312,13 +306,12 @@ Networks.prototype.updateSecureKey = function (networkId, data) {
   }
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId,
     keyId: data.id
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
 
   request = new Request({
     url: url,
@@ -352,13 +345,12 @@ Networks.prototype.deleteSecureKeyById = function (networkId, keyId) {
   }
 
   tokens = {
+    resource: this.config.resource,
     networkId: networkId,
     keyId: keyId
   };
 
-  url = utils.parseTokens(
-    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
-  );
+  url = utils.parseTokens(this.config.host + this.config.keysById, tokens);
 
   request = new Request({
     url: url,
