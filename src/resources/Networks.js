@@ -8,7 +8,10 @@ var extend = require('extend');
 function Networks (options) {
 
   var overrides = {
-    invite: '/networks/invite'
+    byId: '/<%=networkId%>',
+    keys: '/<%=networkId%>/keys',
+    keysById: '/<%=networkId%>/keys/<%=keyId%>',
+    invite: '/<%=networkId%>/invite'
   };
 
   options = extend(true, {}, overrides, options);
@@ -22,15 +25,15 @@ Networks.prototype = Object.create(Resource.prototype);
 Networks.prototype.constructor = Networks;
 
 /**
- * Link an existing user to the currently authorized network.
+ * Link an existing user to the specified network.
  *
- * @param {string} networkId - The unique ID of the network.
- * @param {string} userId    - The unique ID of the user to link.
+ * @param {string}  networkId  The unique ID of the network.
+ * @param {string}  userId     The unique ID of the user to link.
  *
- * @return {Promise} A promise which resolves when the request is complete.
+ * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.linkUser = function (networkId, userId) {
-  var data, request;
+  var data, request, tokens, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -46,8 +49,16 @@ Networks.prototype.linkUser = function (networkId, userId) {
     user_id: userId
   };
 
+  tokens = {
+    networkId: networkId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.byId, tokens
+  );
+
   request = new Request({
-    url: this.config.host + '/' + this.config.resource + '/' + networkId,
+    url: url,
     data: data,
     token: this._tokenSource(),
     method: 'LINK'
@@ -57,15 +68,15 @@ Networks.prototype.linkUser = function (networkId, userId) {
 };
 
 /**
- * Remove the specified user from the currently authorized network.
+ * Removes the specified user from the specified network.
  *
- * @param {string} networkId - The unique ID of the network.
- * @param {string} userId    - The unique ID of the user to unlink.
+ * @param {string}  networkId  The unique ID of the network.
+ * @param {string}  userId     The unique ID of the user to unlink.
  *
- * @return {Promise} A promise which resolves when the request is complete.
+ * @return {Promise}  A promise which resolves when the request is complete.
  */
 Networks.prototype.unlinkUser = function (networkId, userId) {
-  var data, request;
+  var data, request, tokens, url;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
@@ -81,8 +92,16 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
     user_id: userId
   };
 
+  tokens = {
+    networkId: networkId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.byId, tokens
+  );
+
   request = new Request({
-    url: this.config.host + '/' + this.config.resource + '/' + networkId,
+    url: url,
     data: data,
     token: this._tokenSource(),
     method: 'UNLINK'
@@ -92,20 +111,20 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
 };
 
 /**
- * Invite a user to the currently authorized network.
+ * Invites a user to the specified network.
  *
- * @param {string} networkId - The unique ID of the network.
- * @param {string} email     - The email to send the invite to.
- * @param {string} name      - The name of the person to invite.
+ * @param {string}  networkId  The unique ID of the network.
+ * @param {string}  email      The email to send the invite to.
+ * @param {string}  name       The name of the person to invite.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Networks.prototype.inviteUser = function (networkId, email, name) {
-  var data, request, url;
+  var data, request, url, tokens;
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI inviteUser required "networkId" to be passed as a string.');
+      'IngestAPI inviteUser requires "networkId" to be passed as a string.');
   }
 
   if (typeof email !== 'string') {
@@ -123,7 +142,13 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
     name: name
   };
 
-  url = this.config.host + '/' + this.config.resource + '/' + networkId + '/' + this.config.invite;
+  tokens = {
+    networkId: networkId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.invite, tokens
+  );
 
   request = new Request({
     url: url,
@@ -133,6 +158,216 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
   });
 
   return request.send();
+};
+
+/**
+ * Gets a list of all secure keys for the network given.
+ *
+ * @param {string}  networkId  The unique ID of the network.
+ *
+ * @return {Promise}  A promise which resolves when the request is complete.
+ */
+Networks.prototype.getSecureKeys = function (networkId) {
+  var request, tokens, url;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getSecureKeys requires "networkId" to be passed as a string.');
+  }
+
+  tokens = {
+    networkId: networkId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.keys, tokens
+  );
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
+ * Adds a new secure key to the specified network.
+ *
+ * @param {string}  networkId   The unique ID of the network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  Optional. The title of the secure key. Will default to "Default Key Title"
+ * @param {string}  data.key    The public key in RSA format.
+ *
+ * @return {Promise}  A promise which resolves when the request is complete.
+ */
+Networks.prototype.addSecureKey = function (networkId, data) {
+  var request, tokens, url;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI addSecureKey requires "networkId" to be passed as a string.');
+  }
+
+  if (typeof data !== 'object') {
+    return utils.promisify(false,
+      'IngestAPI addSecureKey requires "data" to be passed as an object.');
+  }
+
+  if (typeof data.key !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI addSecureKey requires that the key be a string in RSA public key format.');
+  }
+
+  // The title must be a string.
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  tokens = {
+    networkId: networkId
+  }
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.keys, tokens
+  );
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'POST',
+    data: data
+  });
+
+  return request.send();
+};
+
+/**
+ * Retrieves a single network secure key entry based on the unique ID given.
+ *
+ * @param {string}  networkId  The unique ID of the network.
+ * @param {string}  keyId      The unique ID of the secure key entry.
+ *
+ * @return {Promise}  A promise which resolves when the request is complete.
+ */
+Networks.prototype.getSecureKeyById = function (networkId, keyId) {
+  var tokens, url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getSecureKeyById requires a "networkId" to be passed as a string.');
+  }
+
+  if (typeof keyId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getSecureKeyById requires a "keyId" to be passed as a string.');
+  }
+
+  tokens = {
+    networkId: networkId,
+    keyId: keyId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
+  );
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
+ * Updates an individual secure key entry in the network specified.
+ *
+ * @param {string}  networkId   The unique ID of the network.
+ * @param {object}  data        The object containing data for the secure key entry.
+ * @param {string}  data.title  The title for the current network.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Networks.prototype.updateSecureKey = function (networkId, data) {
+  var tokens, url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI updateSecureKeyById requires "networkId" to be passed as a string.');
+  }
+
+  if (typeof data !== 'object') {
+    return utils.promisify(false,
+      'IngestAPI updateSecureKeyById requires "data" to be passed as an object.');
+  }
+
+  if (typeof data.id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI updateSecureKeyById requires param "data.id" to be a string.');
+  }
+
+  if (typeof data.title !== 'string') {
+    data.title = '';
+  }
+
+  tokens = {
+    networkId: networkId,
+    keyId: data.id
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
+  );
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'PATCH',
+    data: data
+  });
+
+  return request.send();
+};
+
+/**
+ * Deletes a single network secure key entry based on the unique ID given.
+ *
+ * @param {string}  networkId  The unique ID of the network.
+ * @param {string}  keyId      The unique ID of the secure key entry.
+ *
+ * @return {Promise}  A promise which resolves when the request is complete.
+ */
+Networks.prototype.deleteSecureKeyById = function (networkId, keyId) {
+  var tokens, url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI deleteSecureKeyById requires a "networkId" to be passed as a string.');
+  }
+
+  if (typeof keyId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI deleteSecureKeyById requires a "keyId" to be passed as a string.');
+  }
+
+  tokens = {
+    networkId: networkId,
+    keyId: keyId
+  };
+
+  url = utils.parseTokens(
+    this.config.host + '/' + this.config.resource + this.config.keysById, tokens
+  );
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'DELETE'
+  });
+
+  return request.send();
+
 };
 
 module.exports = Networks;
