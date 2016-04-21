@@ -338,6 +338,7 @@ Upload.prototype._sendUpload = function (upload, response) {
   headers['Content-Type'] = 'multipart/form-data';
   headers.authorization = response.data.authHeader;
   headers['x-amz-date'] = response.data.dateHeader;
+  headers['x-amz-security-token'] = response.data.securityToken;
 
   request = new Request({
     url: response.data.url,
