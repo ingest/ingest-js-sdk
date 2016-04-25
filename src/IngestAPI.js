@@ -58,6 +58,7 @@ function IngestAPI (options) {
   this.usersResource = Users;
   this.networksResource = Networks;
   this.videosResource = Videos;
+  this.playlistsResource = Playlists;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);

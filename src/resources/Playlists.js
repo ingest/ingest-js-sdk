@@ -5,9 +5,7 @@ var extend = require('extend');
 
 function Playlists (options) {
 
-  var overrides = {
-    invite: '/networks/invite'
-  };
+  var overrides = {};
 
   options = extend(true, {}, overrides, options);
 
