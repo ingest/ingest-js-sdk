@@ -20,5 +20,3 @@ node_modules
 
 dist/integration-coverage
 dist/unit-test-coverage
-
-authToken.js
