@@ -84,29 +84,25 @@ function IngestAPI (options) {
   this.users = new Users({
     host: this.config.host,
     resource: 'users',
-    tokenSource: this.getToken.bind(this),
-    cache: this.cache
+    tokenSource: this.getToken.bind(this)
   });
 
   this.networks = new Networks({
     host: this.config.host,
     resource: 'networks',
-    tokenSource: this.getToken.bind(this),
-    cache: this.cache
+    tokenSource: this.getToken.bind(this)
   });
 
   this.profiles = new Resource({
     host: this.config.host,
     resource: 'encoding/profiles',
-    tokenSource: this.getToken.bind(this),
-    cache: this.cache
+    tokenSource: this.getToken.bind(this)
   });
 
   this.jobs = new Resource({
     host: this.config.host,
     resource: 'encoding/jobs',
-    tokenSource: this.getToken.bind(this),
-    cache: this.cache
+    tokenSource: this.getToken.bind(this)
   });
 
 }
