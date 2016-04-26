@@ -82,7 +82,7 @@ var videos = [
   }
 ];
 
-describe('Ingest API : Resource : Videos', function () {
+describe('Ingest API : Resource : Playlists', function () {
 
   beforeEach(function () {
 
@@ -254,7 +254,20 @@ describe('Ingest API : Resource : Videos', function () {
         done();
       }, function (error) {
         expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid array of videos.');
+        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
+        done();
+      });
+
+    });
+
+    it('Should fail if an empty array of is provided.', function (done) {
+
+      playlistsResource._linkVideos(true, 'test-id', []).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        expect(error).toEqual('IngestAPI Playlists link requires at least one video to link.');
         done();
       });
 
