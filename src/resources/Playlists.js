@@ -59,7 +59,7 @@ Playlists.prototype._linkVideos = function (link, playlistId, video) {
       'IngestAPI Playlists link requires a valid playlistId passed as a string.');
   }
 
-  if (!Array.isArray(video) && typeof video !== 'object') {
+  if (!video || (!Array.isArray(video) && typeof video !== 'object')) {
     return utils.promisify(false,
       'IngestAPI Playlists link requires a valid video passed as a valid object or array.');
   }

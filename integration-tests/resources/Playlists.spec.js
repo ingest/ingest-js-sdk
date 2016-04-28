@@ -260,6 +260,32 @@ describe('Ingest API : Resource : Playlists', function () {
 
     });
 
+    it('Should fail if videos are null.', function (done) {
+
+      playlistsResource._linkVideos(true, 'test-id', null).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
+        done();
+      });
+
+    });
+
+    it('Should fail if videos are of the wrong type.', function (done) {
+
+      playlistsResource._linkVideos(true, 'test-id', 1).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
+        done();
+      });
+
+    });
+
     it('Should fail if an empty array of is provided.', function (done) {
 
       playlistsResource._linkVideos(true, 'test-id', []).then(function (response) {
