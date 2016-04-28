@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * A management layer for storing app cache in local storage.
+ * A management layer for storing app cache in session storage.
  */
 var Cache = function (cacheAge) {
   this.cacheAge = cacheAge;
@@ -9,17 +9,17 @@ var Cache = function (cacheAge) {
 };
 
 /**
- * Return true if localStorage is supported.
+ * Return true if sessionStorage is supported.
  * @private
- * @return {boolean} True if localStorage is supported.
+ * @return {boolean} True if sessionStorage is supported.
  */
 Cache.prototype._checkCacheSupport = function () {
 
   var support = 'support';
 
   try {
-    window.localStorage.setItem(support, support);
-    window.localStorage.removeItem(support);
+    window.sessionStorage.setItem(support, support);
+    window.sessionStorage.removeItem(support);
     return true;
   } catch (e) {
     return false;
@@ -39,7 +39,7 @@ Cache.prototype.retrieve = function (cacheKey) {
 
   try {
 
-    data = window.localStorage.getItem(cacheKey);
+    data = window.sessionStorage.getItem(cacheKey);
     data = JSON.parse(data);
 
     if (!data) {
@@ -50,7 +50,7 @@ Cache.prototype.retrieve = function (cacheKey) {
 
     if (data.expiry < Date.now()) {
       // Cache is expired;
-      window.localStorage.removeItem(cacheKey);
+      window.sessionStorage.removeItem(cacheKey);
       value = null;
     }
 
@@ -71,7 +71,7 @@ Cache.prototype.remove = function (cacheKey) {
   var result = true;
 
   try {
-    window.localStorage.removeItem(cacheKey);
+    window.sessionStorage.removeItem(cacheKey);
   } catch (error) {
     // Silent capture so that caching never gets in the way of returning a result.
     result = false;
@@ -99,7 +99,7 @@ Cache.prototype.save = function (cacheKey, value) {
 
     JSONResult = JSON.stringify(data);
 
-    window.localStorage.setItem(cacheKey, JSONResult);
+    window.sessionStorage.setItem(cacheKey, JSONResult);
 
   } catch (error) {
     // Silent capture so that caching never gets in the way of returning a result.

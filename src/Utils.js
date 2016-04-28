@@ -69,7 +69,7 @@ Utils.series = function (promises, paused) {
 
   all.pause = Utils._seriesPause.bind(undefined, all, state);
   all.resume = Utils._seriesResume.bind(undefined, all, state);
-  all.cancel = Utils._seriesCancel.bind(undefined, all, 'The Series has been canceled.');
+  all.cancel = Utils._seriesCancel.bind(undefined, all, state);
 
   if (!paused) {
     state.paused = false;

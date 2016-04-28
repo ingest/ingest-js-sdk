@@ -49,7 +49,7 @@ Playlists.prototype._linkVideos = function (link, playlistId, video) {
   var request;
   var videosToLink = [];
 
-  if (typeof link === 'undefined' || typeof link !== 'boolean') {
+  if (typeof link !== 'boolean') {
     return utils.promisify(false,
       'IngestAPI Playlists link requires a valid link flag passed as a boolean.');
   }
@@ -59,7 +59,7 @@ Playlists.prototype._linkVideos = function (link, playlistId, video) {
       'IngestAPI Playlists link requires a valid playlistId passed as a string.');
   }
 
-  if (typeof video === 'undefined') {
+  if (!Array.isArray(video) && typeof video !== 'object') {
     return utils.promisify(false,
       'IngestAPI Playlists link requires a valid video passed as a valid object or array.');
   }
