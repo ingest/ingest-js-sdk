@@ -12,6 +12,7 @@ var Media = require('./resources/PlaybackContent');
 var Users = require('./resources/Users');
 var Networks = require('./resources/Networks');
 var Videos = require('./resources/Videos');
+var Playlists = require('./resources/Playlists');
 
 /**
  * IngestAPI Object
@@ -57,6 +58,7 @@ function IngestAPI (options) {
   this.usersResource = Users;
   this.networksResource = Networks;
   this.videosResource = Videos;
+  this.playlistsResource = Playlists;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
@@ -68,7 +70,7 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
-  this.playlists = new Resource({
+  this.playlists = new Playlists({
     host: this.config.host,
     resource: 'playlists',
     tokenSource: this.getToken.bind(this)

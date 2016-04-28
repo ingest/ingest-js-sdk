@@ -39,13 +39,13 @@ describe('Ingest API : Cache', function () {
 
   describe('_checkCacheSupport', function () {
 
-    it('Should return true when localStorage is available.', function () {
+    it('Should return true when sessionStorage is available.', function () {
       expect(cache._checkCacheSupport()).toEqual(true);
     });
 
-    it('Should return false when localStorage is not available.', function () {
+    it('Should return false when sessionStorage is not available.', function () {
 
-      spyOn(localStorage, 'setItem').and.callFake(function () {
+      spyOn(sessionStorage, 'setItem').and.callFake(function () {
         throw new Error('Unsupported');
       });
 
@@ -65,7 +65,7 @@ describe('Ingest API : Cache', function () {
         value: 'test-data'
       };
 
-      localStorage.setItem('test-item', JSON.stringify(testItem));
+      sessionStorage.setItem('test-item', JSON.stringify(testItem));
 
       result = cache.retrieve('test-item');
 
@@ -81,7 +81,7 @@ describe('Ingest API : Cache', function () {
         value: 'test-data'
       };
 
-      localStorage.setItem('test-item', JSON.stringify(testItem));
+      sessionStorage.setItem('test-item', JSON.stringify(testItem));
 
       result = cache.retrieve('test-item');
 
@@ -90,7 +90,7 @@ describe('Ingest API : Cache', function () {
 
     it('Should fail silently.', function () {
 
-      spyOn(localStorage, 'getItem').and.throwError('error');
+      spyOn(sessionStorage, 'getItem').and.throwError('error');
 
       expect(cache.retrieve.bind(this, 'test-item')).not.toThrow();
 
@@ -107,7 +107,7 @@ describe('Ingest API : Cache', function () {
       };
 
       // Store it.
-      localStorage.setItem('test-item', JSON.stringify(testItem));
+      sessionStorage.setItem('test-item', JSON.stringify(testItem));
 
       // Retrieve it.
       result = cache.retrieve('test-item');
@@ -126,7 +126,7 @@ describe('Ingest API : Cache', function () {
 
     it('Should fail silently.', function () {
 
-      spyOn(localStorage, 'removeItem').and.throwError('error');
+      spyOn(sessionStorage, 'removeItem').and.throwError('error');
 
       expect(cache.remove.bind(this, 'test-item')).not.toThrow();
 
@@ -147,7 +147,7 @@ describe('Ingest API : Cache', function () {
 
     it('Should fail silently.', function () {
 
-      spyOn(localStorage, 'setItem').and.throwError('error');
+      spyOn(sessionStorage, 'setItem').and.throwError('error');
 
       expect(cache.save.bind(this, 'test-item', 'test')).not.toThrow();
 
@@ -258,7 +258,7 @@ describe('Ingest API : Cache', function () {
       ];
 
       // Mock the retrieve and return a different cached value for the first test object.
-      spyOn(cache, 'retrieve').and.callFake(function (key){
+      spyOn(cache, 'retrieve').and.callFake(function (key) {
         if (key === 1) {
           return {
             'id': 1,
