@@ -45,7 +45,7 @@ Networks.prototype.linkUser = function (networkId, userId) {
   }
 
   data = {
-    user_id: userId
+    id: userId
   };
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
@@ -85,7 +85,7 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
   }
 
   data = {
-    user_id: userId
+    id: userId
   };
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
