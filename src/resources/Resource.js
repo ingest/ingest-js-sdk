@@ -159,25 +159,16 @@ Resource.prototype.add = function (resource) {
  * @return {promise}                A promise which resolves when the request is complete.
  */
 Resource.prototype.update = function (resource) {
+  var request, data, url;
+
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Resource update requires a resource to be passed either as an object.');
+      'IngestAPI Resource update requires a resource to be passed as an object.');
   }
 
-  return this._updateResource(resource);
-};
+  data = resource;
 
-/**
- * Update a single resource.
- * @private
- * @param  {object}   resource  An object representing the resource to update.
- * @return {promise}            A promise which resolves when the request is complete.
- */
-Resource.prototype._updateResource = function (resource) {
-  var request;
-  var data = resource;
-
-  var url = utils.parseTokens(this.config.host + this.config.byId, {
+  url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource.id
   });
