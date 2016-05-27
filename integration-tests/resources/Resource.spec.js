@@ -668,58 +668,11 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should soft-delete all resources inside the passed in array.', function (done) {
+    it('Should soft-delete the resource and remove it from the cache.', function (done) {
 
-      resource.cache.enabled = false;
+      var data, request, id;
 
-      var data, request;
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/videos',
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(202);
-
-        });
-
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
-        }
-      ];
-
-      request = api.videos.delete(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBe(202);
-        expect(response.data).toBeFalsy();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should soft-delete all resources and remove them from cache.', function (done) {
-
-      var data, request;
+      id = '3fc358b0-630e-43f2-85f9-69195b346312';
 
       spyOn(resource.cache, 'remove').and.callThrough();
 
@@ -727,7 +680,7 @@ describe('Ingest API : Resource', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/videos',
+      mock.mock('DELETE', api.config.host + '/videos/' + id,
         function (request, response) {
 
           // Restore the XHR object.
@@ -737,14 +690,7 @@ describe('Ingest API : Resource', function () {
 
         });
 
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
-        }
-      ];
-
-      request = api.videos.delete(data).then(function (response) {
+      request = api.videos.delete(id).then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response.headers).toBe('function');
@@ -757,7 +703,7 @@ describe('Ingest API : Resource', function () {
 
       }, function (error) {
 
-        expect(error).toBeUndefined();
+        expect(error).not.toBeDefined();
 
         done();
 
@@ -800,7 +746,7 @@ describe('Ingest API : Resource', function () {
 
       }, function (error) {
 
-        expect(error).toBeUndefined();
+        expect(error).not.toBeDefined();
         done();
 
       });
@@ -1030,105 +976,6 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should send a request with an array of resource objects.', function (done) {
-
-      var data, request;
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PATCH', api.config.host + '/videos',
-        function (request, response) {
-
-          var data = {
-            'Body': [
-              {
-                'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-                'url': 'http://weasley.teamspace.ad:8080/videos/3fc358b0-630e-43f2-85f9-69195b346312',
-                'title': 'an-exampleMODIFIED.mkve.mkv',
-                'description': 'Test video.2',
-                'playback_url': null,
-                'status': 0,
-                'size': 0,
-                'created_at': '2015-12-08T17:54:48.437471Z',
-                'updated_at': '2015-12-16T17:29:48.108036Z',
-                'deleted_at': null,
-                'published_at': null,
-                'schedule_start': null,
-                'schedule_end': null,
-                'private': false,
-                'tags': null,
-                'poster': null,
-                'author': {
-                  'id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
-                  'url': 'http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
-                  'email': 'jamie.stackhouse@redspace.com',
-                  'profile': {
-                    'display_name': 'Jamie Stackhouse',
-                    'title': 'Super Geek'
-                  },
-                  'timezone': 'America/Halifax',
-                  'deleted_at': null,
-                  'first_time_user': true
-                },
-                'updater': {
-                  'id': '7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
-                  'url': 'http://weasley.teamspace.ad:8080/users/7e6a84ab-7f9e-470e-82e7-6dd3d9ec612c',
-                  'email': 'jamie.stackhouse@redspace.com',
-                  'profile': {
-                    'display_name': 'Jamie Stackhouse',
-                    'title': 'Super Geek'
-                  },
-                  'timezone': 'America/Halifax',
-                  'deleted_at': null,
-                  'first_time_user': true
-                }
-              }
-            ],
-            'Errors': null
-          };
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-          'title': 'an-exampleMODIFIED.mkve.mkv'
-        }
-      ];
-
-      request = resource.update(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data.Body).toBeDefined();
-        expect(response.data.Errors).toBeNull();
-        expect(response.data.Body[0].id).toBeDefined();
-        expect(response.data.Body[0].title).toBe('an-exampleMODIFIED.mkve.mkv');
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
     it('Should update a resource record.', function (done) {
 
       var video = {
@@ -1282,15 +1129,17 @@ describe('Ingest API : Resource', function () {
 
   describe('permanentDelete', function () {
 
-    it('Should permanently delete all resources inside the passed in array.', function (done) {
+    it('Should permanently delete the passed in resource.', function (done) {
 
-      var data, request;
+      var data, request, id;
+
+      id = '3fc358b0-630e-43f2-85f9-69195b346312';
 
       // Mock the XHR object.
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/videos?permanent=1',
+      mock.mock('DELETE', api.config.host + '/videos/' + id + '?permanent=1',
         function (request, response) {
 
           // Restore the XHR object.
@@ -1300,14 +1149,7 @@ describe('Ingest API : Resource', function () {
 
         });
 
-      // Mock request data.
-      data = [
-        {
-          'id': '3fc358b0-630e-43f2-85f9-69195b346312'
-        }
-      ];
-
-      request = resource.permanentDelete(data, true).then(function (response) {
+      request = resource.permanentDelete(id, true).then(function (response) {
 
         expect(response).toBeDefined();
         expect(typeof response.headers).toBe('function');
