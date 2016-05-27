@@ -159,30 +159,16 @@ Resource.prototype.add = function (resource) {
  * @return {promise}                A promise which resolves when the request is complete.
  */
 Resource.prototype.update = function (resource) {
+  var request, data, url;
+
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Resource update requires a resource to be passed either as an object or an array of objects.'); //eslint-disable-line
+      'IngestAPI Resource update requires a resource to be passed as an object.');
   }
 
-  // If they've passed an array fire the updateArray function.
-  if (Array.isArray(resource)) {
-    return this._updateResourceArray(resource);
-  } else {
-    return this._updateResource(resource);
-  }
-};
+  data = resource;
 
-/**
- * Update a single resource.
- * @private
- * @param  {object}   resource  An object representing the resource to update.
- * @return {promise}            A promise which resolves when the request is complete.
- */
-Resource.prototype._updateResource = function (resource) {
-  var request;
-  var data = resource;
-
-  var url = utils.parseTokens(this.config.host + this.config.byId, {
+  url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource.id
   });
@@ -211,47 +197,20 @@ Resource.prototype._updateResource = function (resource) {
 };
 
 /**
- * Update an array of resources.
- * @private
- * @param  {array} resources  An array of resource objects to be updated.
- * @return {promise}          A promise which resolves when the request is complete.
- */
-Resource.prototype._updateResourceArray = function (resources) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.all, {
-    resource: this.config.resource
-  });
-
-  request = new Request({
-    url: url,
-    token: this._tokenSource(),
-    method: 'PATCH',
-    data: resources
-  });
-
-  return request.send()
-          .then(this._updateCachedResources.bind(this));
-};
-
-/**
  * Delete an existing resource
- * @param  {object | array} resource The id, or an array of ids for the resource(s) to be deleted.
- * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
- * @return {promise}          A promise which resolves when the request is complete.
+ * @param  {string}   resource  The id for the resource to be deleted.
+ * @param  {boolean}  async     A flag to indicate if this should be an async request to delete.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype.delete = function (resource, async) {
-  if (typeof async === 'undefined') {
+  if (typeof async !== 'boolean') {
     async = true;
   }
 
   if (typeof resource !== 'string') {
-    // If they've passed an array fire the updateArray function.
-    if (Array.isArray(resource)) {
-      return this._deleteResourceArray(resource, false, async);
-    }
-
     return utils.promisify(false,
-      'IngestAPI Resource delete requires a resource to be passed either as a string or an array of strings.'); //eslint-disable-line
+      'IngestAPI Resource delete requires a resource to be passed as a string.');
   }
 
   return this._deleteResource(resource, false, async);
@@ -259,23 +218,19 @@ Resource.prototype.delete = function (resource, async) {
 
 /**
  * Permanently delete an existing resource.
- * @param  {object | array} resource The id, or an array of ids for the resource(s) to be deleted.
- * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
- * @return {promise}          A promise which resolves when the request is complete.
+ * @param  {string}   resource  The id for the resource to be deleted.
+ * @param  {boolean}  async     A flag to indicate if this should be an async request to delete.
+ *
+ * @return {Promise}            A promise which resolves when the request is complete.
  */
 Resource.prototype.permanentDelete = function (resource, async) {
-  if (typeof async === 'undefined') {
+  if (typeof async !== 'boolean') {
     async = true;
   }
 
   if (typeof resource !== 'string') {
-    // If they've passed an array fire the updateArray function.
-    if (Array.isArray(resource)) {
-      return this._deleteResourceArray(resource, true, async);
-    }
-
     return utils.promisify(false,
-      'IngestAPI Resource delete requires a resource to be passed either as a string or an array of strings.'); //eslint-disable-line
+      'IngestAPI Resource delete requires a resource to be passed as a string.');
   }
 
   return this._deleteResource(resource, true, async);
@@ -309,34 +264,6 @@ Resource.prototype._deleteResource = function (resource, permanent, async) {
 
   return request.send()
           .then(this._deleteCachedResource.bind(this, resource));
-};
-
-/**
- * Delete an array of resources
- * @private
- * @param  {array}  resources   An array of resource objects to be deleted.
- * @param {boolean}  permanent  A flag to permanently delete each video.
- * @return {promise}            A promise which resolves when the request is complete.
- */
-Resource.prototype._deleteResourceArray = function (resources, permanent) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.all, {
-    resource: this.config.resource
-  });
-
-  if (permanent === true) {
-    url += this.config.deleteMethods.permanent;
-  }
-
-  request = new Request({
-    url: url,
-    token: this._tokenSource(),
-    method: 'DELETE',
-    data: resources
-  });
-
-  return request.send()
-          .then(this._deleteCachedResources.bind(this, resources));
 };
 
 /**
@@ -459,27 +386,6 @@ Resource.prototype._updateCachedResources = function (response) {
 Resource.prototype._deleteCachedResource = function (id, response) {
   if (this.cache && this.cache.enabled) {
     this.cache.remove(id);
-  }
-
-  return response;
-};
-
-/**
- * Delete an array of cached resources
- * @param  {array}    ids         Array of resource id's to delete from cache.
- * @param  {object}   response    Response object from the getAll request.
- * @return {response}             Response object from the getAll request.
- */
-Resource.prototype._deleteCachedResources = function (ids, response) {
-  var dataLength = ids.length;
-  var i;
-
-  if (this.cache && this.cache.enabled) {
-
-    for (i = 0; i < dataLength; i++) {
-      this.cache.remove(ids[i]);
-    }
-
   }
 
   return response;
