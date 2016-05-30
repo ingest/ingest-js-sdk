@@ -121,10 +121,7 @@ describe('Ingest API : Uploader', function () {
     it('Should create an input', function (done) {
 
       spyOn(api.inputs, 'add').and.callFake(function (record) {
-        return utils.promisify(true, {
-          data: [
-            {id: 'test-id'}
-          ]});
+        return utils.promisify(true, {data: {id: 'test-id'}});
       });
 
       upload._create(upload.fileRecord).then(function (id) {

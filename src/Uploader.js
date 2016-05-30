@@ -126,9 +126,9 @@ Upload.prototype._createSuccess = function (response) {
   this._updateProgress(0, 0);
 
   // Store the input record.
-  this.input = response.data[0];
+  this.input = response.data;
 
-  this.fileRecord.id = response.data[0].id;
+  this.fileRecord.id = response.data.id;
 
   return this.fileRecord.id;
 };
