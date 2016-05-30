@@ -110,7 +110,7 @@ Upload.prototype._create = function (record) {
     return utils.promisify(false, 'upload aborted');
   }
 
-  return this.api.inputs.add([record]).then(this._createSuccess.bind(this));
+  return this.api.inputs.add(record).then(this._createSuccess.bind(this));
 };
 
 /**
