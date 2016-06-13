@@ -878,7 +878,7 @@ describe('Ingest API : Uploader', function () {
       upload.requestPromise = true;
       upload.singlePartPromise = true;
 
-      spyOn(upload, '_uploadFile');
+      spyOn(upload, '_uploadFile').and.callThrough();
 
       upload.requestPromise = true;
       upload.paused = true;

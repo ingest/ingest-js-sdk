@@ -268,11 +268,12 @@ Resource.prototype._deleteResource = function (resource, permanent, async) {
 
 /**
  * Return a subset of items that match the search terms.
- * @param  {string} input    The search terms to match against.
- * @param  {object} headers  The headers to be passed to the request.
+ * @param  {string}   input     The search terms to match against.
+ * @param  {object}   headers   The headers to be passed to the request.
+ * @param  {boolean}  trash     Should we be searching the trash.
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Resource.prototype.search = function (input, headers) {
+Resource.prototype.search = function (input, headers, trash) {
   var url, request;
 
   if (typeof input !== 'string') {
@@ -285,6 +286,10 @@ Resource.prototype.search = function (input, headers) {
     input: input
   });
 
+  if (trash) {
+    url = url + '&filter=trashed';
+  }
+
   request = new Request({
     url: url,
     token: this._tokenSource(),
@@ -292,6 +297,16 @@ Resource.prototype.search = function (input, headers) {
   });
 
   return request.send();
+};
+
+/**
+ * Return a subset of items that match the search terms in the trash.
+ * @param  {string} input    The search terms to match against.
+ * @param  {object} headers  The headers to be passed to the request.
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+Resource.prototype.searchTrash = function (input, headers) {
+  return this.search(input, headers, true);
 };
 
 /**

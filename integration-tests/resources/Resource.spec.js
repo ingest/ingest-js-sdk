@@ -777,6 +777,49 @@ describe('Ingest API : Resource', function () {
 
   });
 
+  describe('search', function () {
+    it('Should retrieve search results for the given input, from the trash.', function (done) {
+      // Mock the XHR Object.
+      mock.setup();
+
+      mock.mock('GET', api.config.host + '/videos?search=test&filter=trashed',
+        function (request, response) {
+
+          var data = {
+            called: true
+          };
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(data));
+        });
+
+      spyOn(resource, 'search').and.callThrough();
+
+      var request = resource.searchTrash('test').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data.called).toEqual(true);
+
+        expect(resource.search).toHaveBeenCalledWith('test', undefined, true);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+    })
+  });
+
   describe('count', function () {
 
     it('Should retrieve a count of all the resources', function (done) {
