@@ -7,7 +7,7 @@ var authServer = 'http://weasley.teamspace.ad:3500/authorize?response_type=token
 
 // TODO, move sensitive data to ENV vars.
 var formData = {
-  network: 'redspace',
+  network: 'fed6e925-dee4-41cc-be4a-479cabc149a5',  // UUID for `Redspace`
   login: 'jamie.stackhouse@redspace.com',
   password: 'password'
 };
