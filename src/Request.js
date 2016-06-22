@@ -219,7 +219,7 @@ Request.prototype.requestError = function (message) {
   this.promise(false, [{
     message: message,
     headers: this.request.getAllResponseHeaders(),
-    statusCode: this.request.statusCode
+    statusCode: this.request.status
   }]);
 };
 
