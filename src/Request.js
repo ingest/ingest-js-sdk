@@ -216,7 +216,11 @@ Request.prototype.processResponse = function (response) {
  */
 Request.prototype.requestError = function (message) {
   // Reject the promise.
-  this.promise(false, [message]);
+  this.promise(false, [{
+    message: message,
+    headers: this.request.getAllResponseHeaders(),
+    statusCode: this.request.statusCode
+  }]);
 };
 
 /**
@@ -240,7 +244,7 @@ Request.prototype.readyStateChange = function () {
 
 /**
  * Validate the current response code to see if the request was a success.
- * @param  {String}  responseCode Response Code.
+ * @param  {Number}  responseCode Response Code.
  * @return {Boolean}              Should this be treated as a successful response code.
  */
 Request.prototype.isValidResponseCode = function (responseCode) {

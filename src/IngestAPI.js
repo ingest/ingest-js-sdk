@@ -31,12 +31,7 @@ function IngestAPI (options) {
     'inputsUpload': '/encoding/inputs/<%=id%>/upload<%=method%>',
     'inputsUploadSign': '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
     'inputsUploadComplete': '/encoding/inputs/<%=id%>/upload/complete',
-    'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort',
-    'uploadMethods': {
-      'param': '?type=',
-      'singlePart': 'amazon',
-      'multiPart': 'amazonMP'
-    }
+    'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -63,48 +58,50 @@ function IngestAPI (options) {
 
   this.cache = new Cache(this.config.cacheAge);
 
+  this._getToken = this.getToken.bind(this);
+
   this.videos = new Videos({
     host: this.config.host,
     resource: 'videos',
-    tokenSource: this.getToken.bind(this),
+    tokenSource: this._getToken,
     cache: this.cache
   });
 
   this.playlists = new Playlists({
     host: this.config.host,
     resource: 'playlists',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this._getToken
   });
 
   this.inputs = new Resource({
     host: this.config.host,
     resource: 'encoding/inputs',
-    tokenSource: this.getToken.bind(this),
+    tokenSource: this._getToken,
     cache: this.cache
   });
 
   this.users = new Users({
     host: this.config.host,
     resource: 'users',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this._getToken
   });
 
   this.networks = new Networks({
     host: this.config.host,
     resource: 'networks',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this._getToken
   });
 
   this.profiles = new Resource({
     host: this.config.host,
     resource: 'encoding/profiles',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this._getToken
   });
 
   this.jobs = new Resource({
     host: this.config.host,
     resource: 'encoding/jobs',
-    tokenSource: this.getToken.bind(this)
+    tokenSource: this._getToken
   });
 
 }
