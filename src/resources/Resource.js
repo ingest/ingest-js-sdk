@@ -100,7 +100,8 @@ Resource.prototype.getById = function (id) {
       token: this._tokenSource()
     });
 
-    return request.send();
+    return request.send()
+      .then(this._updateCachedResource.bind(this));
 
   }
 };
