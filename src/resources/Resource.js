@@ -284,7 +284,7 @@ Resource.prototype.search = function (input, headers, trash) {
 
   url = utils.parseTokens(this.config.host + this.config.search, {
     resource: this.config.resource,
-    input: input
+    input: encodeURIComponent(input)
   });
 
   if (trash) {
