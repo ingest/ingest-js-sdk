@@ -1177,4 +1177,79 @@ describe('Ingest API : Resource : Networks', function () {
 
   });
 
+  describe('createCustomer', function () {
+
+    it('Should fail if the given parameters are not the correct types.', function (done) {
+
+      var networkId = null;   // Not a string.
+      var stripeToken = null; // Not a string.
+
+      networksResource.createCustomer(stripeToken, networkId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/createCustomer requires stripeToken and networkId to be strings/);
+        done();
+
+      });
+
+    });
+
+    it('Should successfully create a Stripe customer for the given network.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+
+      var requestData = {
+        "stripeToken": "tok_notarealtoken"
+      };
+
+      var responseData = {
+        "networkID": networkId,
+        "networkName": "Redspace",
+        "stripeCustomerID": "cus_abcdefghijklmnopqrstuvwxyz"
+      };
+
+      var request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST API.
+      mock.mock('POST', api.config.host + '/networks/fed6e925-dee4-41cc-be4a-479cabc149a5/customers', function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.createCustomer(requestData.stripeToken, networkId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(204);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
 });

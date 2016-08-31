@@ -14,7 +14,6 @@ var Networks = require('./resources/Networks');
 var Videos = require('./resources/Videos');
 var Playlists = require('./resources/Playlists');
 var Jobs = require('./resources/Jobs');
-var Billing = require('./resources/Billing');
 
 /**
  * IngestAPI Object
@@ -57,7 +56,6 @@ function IngestAPI (options) {
   this.videosResource = Videos;
   this.playlistsResource = Playlists;
   this.jobsResource = Jobs;
-  this.billingResource = Billing;
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
@@ -107,12 +105,6 @@ function IngestAPI (options) {
     resource: 'encoding/jobs',
     tokenSource: this._getToken,
     cache: this.cache
-  });
-
-  this.billing = new Billing({
-    host: this.config.host,
-    resource: 'billing',
-    tokenSource: this._getToken
   });
 
 }

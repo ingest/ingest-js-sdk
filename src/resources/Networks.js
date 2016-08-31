@@ -10,7 +10,9 @@ function Networks (options) {
   var overrides = {
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
-    invite: '/<%=resource%>/<%=networkId%>/invite'
+    invite: '/<%=resource%>/<%=networkId%>/invite',
+    customers: '/<%=resource%>/<%=networkId%>/customers',
+    customerById: '/%=resource%>/<%=networkId%>/customers/<%=cusId%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -343,6 +345,41 @@ Networks.prototype.deleteSecureKey = function (networkId, keyId) {
 
   return request.send();
 
+};
+
+/**
+ * Creates a Stripe customer for the given network ID.
+ *
+ * @param {string} stripeToken - The Stripe token to reference submitted payment details.
+ * @param {string} networkId   - The network UUID for this Stripe customer.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Networks.prototype.createCustomer = function (stripeToken, networkId) {
+  var url, request, data;
+
+  if (typeof stripeToken !== 'string' || typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Billing createCustomer requires stripeToken and networkId to be strings.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customers, {
+    networkId: networkId,
+    resource: this.config.resource
+  });
+
+  data = {
+    stripeToken: stripeToken
+  };
+
+  request = new Request({
+    url: url,
+    data: data,
+    token: this._tokenSource(),
+    method: 'POST'
+  });
+
+  return request.send();
 };
 
 module.exports = Networks;
