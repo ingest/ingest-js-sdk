@@ -267,4 +267,56 @@ describe('Ingest API : Resource : Videos', function () {
 
   });
 
+  describe('deleteThumbnail', function () {
+
+    it('Should fail if an ID is not passed as a string.', function (done) {
+      playbackContent.deleteThumbnail().then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+
+    it('Should fail if a thumbnailId is not passed as a string.', function (done) {
+      playbackContent.deleteThumbnail('test-id').then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+
+    it('Should call the api to delete the thumbnail', function (done) {
+
+      var url;
+
+      // Mock the XHR
+      mock.setup();
+
+      url = api.utils.parseTokens(api.config.host + playbackContent.config.deleteThumbnail, {
+        resource: playbackContent.config.resource,
+        id: 'test-id',
+        thumbnailId: 'test-thumbnail-id'
+      });
+
+      mock.mock('DELETE', url, function (request, response) {
+        mock.teardown();
+        return response.status(200).body([]);
+      });
+
+      playbackContent.deleteThumbnail('test-id', 'test-thumbnail-id').then(function (response) {
+        expect(response).toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+
+    });
+
+  });
+
 });

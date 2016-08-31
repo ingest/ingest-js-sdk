@@ -9,7 +9,8 @@ function PlaybackContent (options) {
 
   var overrides = {
     thumbnail: '/<%=resource%>/<%=id%>/thumbnail',
-    thumbnails: '/<%=resource%>/<%=id%>/thumbnails'
+    thumbnails: '/<%=resource%>/<%=id%>/thumbnails',
+    deleteThumbnail: '/<%=resource%>/<%=id%>/thumbnail/<%=thumbnailId%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -130,6 +131,43 @@ PlaybackContent.prototype.uploadThumbnail = function (id, image) {
     url: url,
     token: this._tokenSource(),
     data: formData
+  });
+
+  return request.send();
+
+};
+
+/**
+ * Remove an external thumbnail image.
+ *
+ * @param   {string}    id            ID of the resource to remove the thumbnail from.
+ * @param   {string}    thumbnailId   ID of the thumbnail to remove from the resource.
+ * @return  {promise}                 A promise which resolves when the request is complete.
+ */
+PlaybackContent.prototype.deleteThumbnail = function (id, thumbnailId) {
+
+  var request, url;
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI PlaybackContent deleteThumbnail requires an id to be passed as a string.');
+  }
+
+  if (typeof thumbnailId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI PlaybackContent deleteThumbanil requires a thumbnailId to be passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.deleteThumbnail, {
+    resource: this.config.resource,
+    id: id,
+    thumbnailId: thumbnailId
+  });
+
+  request = new Request({
+    method: 'DELETE',
+    url: url,
+    token: this._tokenSource()
   });
 
   return request.send();
