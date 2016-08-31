@@ -27,6 +27,58 @@ describe('Ingest API : Resource : Jobs', function () {
 
   describe('add', function () {
 
+    it('Should fail if a resource is not provided.', function (done) {
+      jobsResource.add().then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+
+    it('Should add a new job.', function (done) {
+      var jobRequest = {
+        "inputs": [
+          "4844c970-c1a9-4fd6-9948-031229ef7e68"
+        ],
+        "profile": "a5c71711-8c60-440a-9878-3cdf32ce3676"
+      };
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('POST', api.config.host + '/encoding/jobs' , function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .body([]);
+
+      });
+
+      spyOn(jobsResource, '_deleteCachedResource');
+
+      var request = jobsResource.add(jobRequest).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(jobsResource._deleteCachedResource).not.toHaveBeenCalled();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
     it('Should remove cached version of linked video and add a new job.', function (done) {
 
       var jobRequest = {

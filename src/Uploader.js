@@ -485,7 +485,7 @@ Upload.prototype.abort = function (async) {
   }
 
   if (this.singlePartPromise) {
-    this.singelPartPromise = null;
+    this.singlePartPromise = null;
     // return here because there is no need to abort a single part upload.
     return this._abortComplete(async);
   }
