@@ -1177,4 +1177,293 @@ describe('Ingest API : Resource : Networks', function () {
 
   });
 
+  describe('createCustomer', function () {
+
+    it('Should fail if the given parameters are not the correct types.', function (done) {
+
+      var networkId = null;   // Not a string.
+      var stripeToken = null; // Not a string.
+
+      networksResource.createCustomer(stripeToken, networkId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/createCustomer requires stripeToken and networkId to be strings/);
+        done();
+
+      });
+
+    });
+
+    it('Should successfully create a Stripe customer for the given network.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+
+      var requestData = {
+        "stripeToken": "tok_notarealtoken"
+      };
+
+      var responseData = {
+        "networkID": networkId,
+        "networkName": "Redspace",
+        "stripeCustomerID": "cus_abcdefghijklmnopqrstuvwxyz"
+      };
+
+      var request;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      // Mock the response from the REST API.
+      mock.mock('POST', api.config.host + '/networks/fed6e925-dee4-41cc-be4a-479cabc149a5/customers',
+        function (request, response) {
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(204)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(responseData));
+        });
+
+      request = networksResource.createCustomer(requestData.stripeToken, networkId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(204);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('updateCustomer', function () {
+
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var promise = networksResource.updateCustomer(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires `networkId` and `cusID` to be a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if cusId was not passed in.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = null;
+
+      var promise = networksResource.updateCustomer(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires `networkId` and `cusID` to be a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if networkName and stripeToken were not given.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var networkName = null;
+      var stripeToken = null;
+
+      var promise = networksResource.updateCustomer(networkId, cusId, networkName, stripeToken)
+        .then(function (response) {
+
+          expect(response).not.toBeDefined();
+          done();
+
+        }, function (error) {
+
+          expect(error).toMatch(/either networkName or stripeToken passed as a string./);
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully update the given customer network name and payment details.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+      var networkName = 'My re-named network';
+      var stripeToken = 'tok_notarealtoken';
+
+      var responseData = {
+        "networkID": networkId,
+        "networkName": networkName,
+        "stripeCustomerID": cusId
+      };
+
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/customers/' + cusId;
+
+      // Mock the response from the REST API.
+      mock.mock('PATCH', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.updateCustomer(networkId, cusId, networkName, stripeToken)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(200);
+
+          expect(response.data.networkName).toEqual(networkName);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('deleteCustomer', function () {
+
+    describe('Should fail if one of the parameters are missing', function () {
+
+      var testCases = [{
+        'name': 'missing networkId',
+        'args': [null, 'cus_abcdefghijklmnopqrstuvwxyz']
+      }, {
+        'name': 'missing cusId',
+        'args': ['fed6e925-dee4-41cc-be4a-479cabc149a5', null]
+      }];
+
+      var testCasesLength = testCases.length;
+      var i = 0;
+      var testCase = null;
+
+      for (i = 0; i < testCasesLength; i++) {
+        testCase = testCases[i];
+
+        it('Should fail if the function is ' + testCase.name, function (done) {
+          var promise = networksResource.deleteCustomer.apply(networksResource, testCase.args)
+            .then(function (response) {
+
+              expect(response).not.toBeDefined();
+              done();
+
+            }, function (error) {
+
+              expect(error).toMatch(/requires `networkId` and `cusId` to be strings./);
+              done();
+
+            });
+
+          // Ensure a promise was returned.
+          expect(promise.then).toBeDefined();
+        });
+      }
+    });
+
+    it('Should successfully delete the given customer for the given network.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/customers/' + cusId;
+
+      // Mock the response from the REST API.
+      mock.mock('DELETE', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(202)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(response));
+      });
+
+      request = networksResource.deleteCustomer(networkId, cusId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(202);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
+
 });

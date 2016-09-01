@@ -10,7 +10,9 @@ function Networks (options) {
   var overrides = {
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
-    invite: '/<%=resource%>/<%=networkId%>/invite'
+    invite: '/<%=resource%>/<%=networkId%>/invite',
+    customers: '/<%=resource%>/<%=networkId%>/customers',
+    customerById: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -333,6 +335,117 @@ Networks.prototype.deleteSecureKey = function (networkId, keyId) {
     resource: this.config.resource,
     networkId: networkId,
     keyId: keyId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'DELETE'
+  });
+
+  return request.send();
+
+};
+
+/**
+ * Creates a Stripe customer for the given network ID.
+ *
+ * @param {string} stripeToken - The Stripe token to reference submitted payment details.
+ * @param {string} networkId   - The network UUID for this Stripe customer.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Networks.prototype.createCustomer = function (stripeToken, networkId) {
+  var url, request, data;
+
+  if (typeof stripeToken !== 'string' || typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Networks createCustomer requires stripeToken and networkId to be strings.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customers, {
+    networkId: networkId,
+    resource: this.config.resource
+  });
+
+  data = {
+    stripeToken: stripeToken
+  };
+
+  request = new Request({
+    url: url,
+    data: data,
+    token: this._tokenSource(),
+    method: 'POST'
+  });
+
+  return request.send();
+};
+
+/**
+ * Updates an existing Stripe customer for the given network ID.
+ *
+ * @param {string} networkId   - The networkID that this Stripe customer belongs to.
+ * @param {string} cusId       - The Stripe customer ID you wish to update.
+ * @param {string} networkName - [Optional] Only provide if you wish to update the network name on the Stripe customer.
+ * @param {string} stripeToken - [Optional] Provide only if payment details have been updated.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
+ */
+Networks.prototype.updateCustomer = function (networkId, cusId, networkName, stripeToken) {
+  var url, request, data;
+
+  if (typeof networkId !== 'string' || typeof cusId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Networks updateCustomer requires `networkId` and `cusID` to be a string.');
+  }
+
+  if (typeof networkName !== 'string' && typeof stripeToken !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Networks updateCustomer requires either networkName or stripeToken passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customerById, {
+    resource: this.config.resource,
+    networkId: networkId,
+    cusId: cusId
+  });
+
+  data = {
+    networkName: networkName,
+    stripeToken: stripeToken
+  };
+
+  request = new Request({
+    url: url,
+    data: data,
+    token: this._tokenSource(),
+    method: 'PATCH'
+  });
+
+  return request.send();
+};
+
+/**
+ * Deletes an existing Stripe customer for the given network ID.
+ *
+ * @param {string} networkId - The network ID that the customer belongs to.
+ * @param {string} cusId     - The Stripe customer ID to be deleted.
+ */
+Networks.prototype.deleteCustomer = function (networkId, cusId) {
+
+  var url, request;
+
+  if (typeof networkId !== 'string' || typeof cusId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Networks deleteCustomer requires `networkId` and `cusId` to be strings.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customerById, {
+    resource: this.config.resource,
+    networkId: networkId,
+    cusId: cusId
   });
 
   request = new Request({
