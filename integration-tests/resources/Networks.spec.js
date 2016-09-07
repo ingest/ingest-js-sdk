@@ -250,11 +250,12 @@ describe('Ingest API : Resource : Networks', function () {
 
     it('Should invite the user.', function (done) {
 
-      var networkId, email, name, request;
+      var networkId, email, name, request, inviter;
 
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
       email = 'michael.cunningham@redspace.com';
       name = 'Michael Cunningham';
+      inviter = '123456';
 
       mock.setup();
 
@@ -269,7 +270,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         });
 
-      request = networksResource.inviteUser(networkId, email, name).then(function (response) {
+      request = networksResource.inviteUser(networkId, email, name, inviter).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toBe(204);
