@@ -111,10 +111,11 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
  * @param {string}  networkId  The unique ID of the network.
  * @param {string}  email      The email to send the invite to.
  * @param {string}  name       The name of the person to invite.
+ * @param {string}  inviter    The id of inviting user.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Networks.prototype.inviteUser = function (networkId, email, name) {
+Networks.prototype.inviteUser = function (networkId, email, name, inviter) {
   var data, request, url;
 
   if (typeof networkId !== 'string') {
@@ -132,9 +133,15 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
       'IngestAPI inviteUser requires "name" to be passed as a string.');
   }
 
+  if (typeof inviter !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI inviteUser requires "inviter" to be passed as a string.');
+  }
+
   data = {
     email: email,
-    name: name
+    name: name,
+    inviter: inviter
   };
 
   url = utils.parseTokens(this.config.host + this.config.invite, {

@@ -59,6 +59,7 @@ function IngestAPI (options) {
   this.uploader = Uploader;
 
   this.cache = new Cache(this.config.cacheAge);
+  this.cache.enabled = false;
 
   this._getToken = this.getToken.bind(this);
 
