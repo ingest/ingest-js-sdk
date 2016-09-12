@@ -95,206 +95,377 @@ describe('Ingest API : Resource : Playlists', function () {
 
   });
 
-  describe('link', function () {
+  describe('addVideo', function () {
 
-    it('Should link a single video to a playlist.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
-      var url = api.utils.parseTokens(api.config.host + playlistsResource.config.byId, {
-        resource: playlistsResource.config.resource,
-        id: playlists[0].id
-      });
+      var playlistId, videoId;
 
-      mock.setup();
+      playlistId = null;
+      videoId = videos[0].id;
 
-      mock.mock('LINK', url, function (request, response) {
+      playlistsResource.addVideo(playlistId, videoId).then(function (response) {
 
-        mock.teardown();
-
-        return response
-          .status(200)
-          .body("");
-
-      });
-
-      playlistsResource.link(playlists[0].id, videos[0]).then(function (response) {
-        expect(response).toBeDefined();
+        expect(response).not.toBeDefined();
         done();
+
       }, function (error) {
-        expect(error).not.toBeDefined();
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings./);
         done();
+
       });
 
     });
 
-    it('Should link an array of videos to a playlist.', function (done) {
+    it('Should fail if "videoId" is not supplied as a string.', function (done) {
 
-      var url = api.utils.parseTokens(api.config.host + playlistsResource.config.byId, {
+      var playlistId, videoId;
+
+      playlistId = playlists[0].id;
+      videoId = null;
+
+      playlistsResource.addVideo(playlistId, videoId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings/);
+        done();
+
+      });
+
+    });
+
+    it('Should add the given video if the optional "position" parameter is not supplied as a number.', function (done) {
+
+      var playlistId, videoId, requestURL;
+
+      playlistId = playlists[0].id;
+      videoId = videos[0].id;
+      position = null;
+
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
         resource: playlistsResource.config.resource,
-        id: playlists[0].id
+        playlistId: playlistId,
+        videoId: videoId
       });
 
       mock.setup();
 
-      mock.mock('LINK', url, function (request, response) {
+      mock.mock('POST', requestURL, function (request, response) {
+        var body;
 
         mock.teardown();
 
+        // A position value should *not* have been sent.
+        body = JSON.parse(request._body);
+        expect(body.position).not.toBeDefined();
+
         return response
-          .status(200)
-          .body(JSON.stringify(""));
+          .status(201)
+          .body(playlists[0]);
 
       });
 
-      playlistsResource.link(playlists[0].id, videos).then(function (response) {
+      playlistsResource.addVideo(playlistId, videoId, position).then(function (response) {
+
         expect(response).toBeDefined();
+        expect(response.statusCode).toEqual(201);
         done();
+
       }, function (error) {
+
         expect(error).not.toBeDefined();
         done();
+
+      });
+
+    });
+
+    it('Should add the given video to the given playlist at the given position.', function (done) {
+
+      var playlistId, videoId, requestURL;
+
+      playlistId = playlists[0].id;
+      videoId = videos[0].id;
+      position = 3;
+
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
+        resource: playlistsResource.config.resource,
+        playlistId: playlistId,
+        videoId: videoId
+      });
+
+      mock.setup();
+
+      mock.mock('POST', requestURL, function (request, response) {
+        var body;
+
+        mock.teardown();
+
+        // A position value should have been sent in the request body.
+        body = JSON.parse(request._body);
+        expect(body.position).toEqual(position);
+
+        return response
+          .status(201)
+          .body(playlists[0]);
+
+      });
+
+      playlistsResource.addVideo(playlistId, videoId, position).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.statusCode).toEqual(201);
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
       });
 
     });
 
   });
 
-  describe('unlink', function () {
+  describe('removeVideo', function () {
 
-    it('Should unlink a single video from a playlist.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
-      var url = api.utils.parseTokens(api.config.host + playlistsResource.config.byId, {
-        resource: playlistsResource.config.resource,
-        id: playlists[0].id
-      });
+      var playlistId, videoId, position;
 
-      mock.setup();
+      playlistId = null;
+      videoId = videos[0].id;
+      position = 3;
 
-      mock.mock('UNLINK', url, function (request, response) {
+      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
 
-        mock.teardown();
-
-        return response
-          .status(200)
-          .body("");
-
-      });
-
-      playlistsResource.unlink(playlists[0].id, videos[0]).then(function (response) {
-        expect(response).toBeDefined();
+        expect(response).not.toBeDefined();
         done();
+
       }, function (error) {
-        expect(error).not.toBeDefined();
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
         done();
+
       });
 
     });
 
-    it('Should unlink an array of videos from a playlist.', function (done) {
+    it('Should fail if "videoId" is not supplied as a string.', function (done) {
 
-      var url = api.utils.parseTokens(api.config.host + playlistsResource.config.byId, {
+      var playlistId, videoId, position;
+
+      playlistId = playlists[0].id;
+      videoId = null;
+      position = 3;
+
+      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
+        done();
+
+      });
+
+    });
+
+    it('Should fail if "position" is not supplied as a number.', function (done) {
+
+      var playlistId, videoId, position;
+
+      playlistId = playlists[0].id;
+      videoId = videos[0].id;
+      position = null;
+
+      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/removeVideo requires "position" to be a number/);
+        done();
+
+      });
+
+    });
+
+    it('Should successfully remove the given video from the given playlist at the given position.', function (done) {
+
+      var playlistId, videoId, position, requestURL;
+
+      playlistId = playlists[0].id;
+      videoId = videos[0].id;
+      position = 3;
+
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
         resource: playlistsResource.config.resource,
-        id: playlists[0].id
+        playlistId: playlistId,
+        videoId: videoId
       });
 
       mock.setup();
 
-      mock.mock('UNLINK', url, function (request, response) {
+      mock.mock('DELETE', requestURL, function (request, response) {
+        var body;
 
         mock.teardown();
 
-        return response
-          .status(200)
-          .body(JSON.stringify(""));
+        // Expect a position value to have been sent as it is required.
+        body = JSON.parse(request._body);
+        expect(body.position).toEqual(position);
+
+        return response.status(200);
 
       });
 
-      playlistsResource.unlink(playlists[0].id, videos).then(function (response) {
+      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+
         expect(response).toBeDefined();
+        expect(response.statusCode).toEqual(200);
         done();
+
       }, function (error) {
+
         expect(error).not.toBeDefined();
         done();
+
       });
 
     });
 
   });
 
-  describe('_linkVideos', function () {
+  describe('reorderVideo', function () {
 
-    it('Should fail if a link value is not provided.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
-      playlistsResource._linkVideos().then(function (response) {
+      var playlistId, oldPosition, newPosition;
+
+      playlistId = null;
+      oldPosition = 3;
+      newPosition = 4;
+
+      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+
         expect(response).not.toBeDefined();
         done();
+
       }, function (error) {
+
         expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid link flag passed as a boolean.'); // eslint-disable-line
+        expect(error).toMatch(/reorderVideo requires "playlistId" to be a string/);
         done();
+
       });
 
     });
 
-    it('Should fail if a playlistId is not provided.', function (done) {
+    it('Should fail if "oldPosition" is not supplied as a number.', function (done) {
 
-      playlistsResource._linkVideos(true).then(function (response) {
+      var playlistId, oldPosition, newPosition;
+
+      playlistId = playlists[0].id;
+      oldPosition = null;
+      newPosition = 4;
+
+      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+
         expect(response).not.toBeDefined();
         done();
+
       }, function (error) {
+
         expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid playlistId passed as a string.'); // eslint-disable-line
+        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
         done();
+
       });
 
     });
 
-    it('Should fail if videos are not provided.', function (done) {
+    it('Should fail if "newPosition" is not supplied as a number.', function (done) {
 
-      playlistsResource._linkVideos(true, 'test-id').then(function (response) {
+      var playlistId, oldPosition, newPosition;
+
+      playlistId = playlists[0].id;
+      oldPosition = 3;
+      newPosition = null;
+
+      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+
         expect(response).not.toBeDefined();
         done();
+
       }, function (error) {
+
         expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
+        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
         done();
+
       });
 
     });
 
-    it('Should fail if videos are null.', function (done) {
+    it('Should successfully re-order the given playlist based on the given positions.', function (done) {
 
-      playlistsResource._linkVideos(true, 'test-id', null).then(function (response) {
-        expect(response).not.toBeDefined();
-        done();
-      }, function (error) {
-        expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
-        done();
+      var playlistId, oldPosition, newPosition, requestURL;
+
+      playlistId = playlists[0].id;
+      oldPosition = 3;
+      newPosition = 4;
+
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistReorder, {
+        resource: playlistsResource.config.resource,
+        playlistId: playlistId
       });
 
-    });
+      mock.setup();
 
-    it('Should fail if videos are of the wrong type.', function (done) {
+      mock.mock('PUT', requestURL, function (request, response) {
+        var body;
 
-      playlistsResource._linkVideos(true, 'test-id', 1).then(function (response) {
-        expect(response).not.toBeDefined();
-        done();
-      }, function (error) {
-        expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires a valid video passed as a valid object or array.'); // eslint-disable-line
-        done();
+        mock.teardown();
+
+        // Expect new and old positions in the request body.
+        body = JSON.parse(request._body);
+
+        expect(body).toEqual({
+          old_position: oldPosition,
+          new_position: newPosition
+        });
+
+        return response.status(200);
+
       });
 
-    });
+      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
 
-    it('Should fail if an empty array of is provided.', function (done) {
-
-      playlistsResource._linkVideos(true, 'test-id', []).then(function (response) {
-        expect(response).not.toBeDefined();
+        expect(response).toBeDefined();
+        expect(response.statusCode).toEqual(200);
         done();
+
       }, function (error) {
-        expect(error).toBeDefined();
-        expect(error).toEqual('IngestAPI Playlists link requires at least one video to link.');
+
+        expect(error).not.toBeDefined();
         done();
+
       });
 
     });
