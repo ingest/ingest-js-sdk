@@ -97,7 +97,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('addVideo', function () {
 
-    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
       var playlistId, videoId;
 
@@ -112,14 +112,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires `playlistId` and `videoId` to both be strings./);
+        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings./);
         done();
 
       });
 
     });
 
-    it('Should fail if `videoId` is not supplied as a string.', function (done) {
+    it('Should fail if "videoId" is not supplied as a string.', function (done) {
 
       var playlistId, videoId;
 
@@ -134,14 +134,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires `playlistId` and `videoId` to both be strings/);
+        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings/);
         done();
 
       });
 
     });
 
-    it('Should add the given video if the optional `position` parameter is not supplied as a number.', function (done) {
+    it('Should add the given video if the optional "position" parameter is not supplied as a number.', function (done) {
 
       var playlistId, videoId, requestURL;
 
@@ -237,7 +237,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('removeVideo', function () {
 
-    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -253,14 +253,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires `playlistId` and `videoId` to both be strings/);
+        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
         done();
 
       });
 
     });
 
-    it('Should fail if `videoId` is not supplied as a string.', function (done) {
+    it('Should fail if "videoId" is not supplied as a string.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -276,14 +276,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires `playlistId` and `videoId` to both be strings/);
+        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
         done();
 
       });
 
     });
 
-    it('Should fail if `position` is not supplied as a number.', function (done) {
+    it('Should fail if "position" is not supplied as a number.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -299,7 +299,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires `position` to be a number/);
+        expect(error).toMatch(/removeVideo requires "position" to be a number/);
         done();
 
       });
@@ -354,7 +354,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('reorderVideo', function () {
 
-    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
+    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
       var playlistId, oldPosition, newPosition;
 
@@ -370,14 +370,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires `playlistId` to be a string/);
+        expect(error).toMatch(/reorderVideo requires "playlistId" to be a string/);
         done();
 
       });
 
     });
 
-    it('Should fail if `oldPosition` is not supplied as a number.', function (done) {
+    it('Should fail if "oldPosition" is not supplied as a number.', function (done) {
 
       var playlistId, oldPosition, newPosition;
 
@@ -393,14 +393,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires `oldPosition` and `newPosition` to be numbers/);
+        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
         done();
 
       });
 
     });
 
-    it('Should fail if `newPosition` is not supplied as a number.', function (done) {
+    it('Should fail if "newPosition" is not supplied as a number.', function (done) {
 
       var playlistId, oldPosition, newPosition;
 
@@ -416,7 +416,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires `oldPosition` and `newPosition` to be numbers/);
+        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
         done();
 
       });

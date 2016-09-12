@@ -33,7 +33,7 @@ Playlists.prototype.addVideo = function (playlistId, videoId, position) {
 
   if (typeof playlistId !== 'string' || typeof videoId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists addVideo requires `playlistId` and `videoId` to both be strings.');
+      'IngestAPI Playlists addVideo requires "playlistId" and "videoId" to both be strings.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlistVideoById, {
@@ -70,12 +70,12 @@ Playlists.prototype.removeVideo = function (playlistId, videoId, position) {
 
   if (typeof playlistId !== 'string' || typeof videoId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires `playlistId` and `videoId` to both be strings.');
+      'IngestAPI Playlists removeVideo requires "playlistId" and "videoId" to both be strings.');
   }
 
   if (typeof position !== 'number') {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires `position` to be a number');
+      'IngestAPI Playlists removeVideo requires "position" to be a number');
   }
 
   data = {
@@ -110,12 +110,12 @@ Playlists.prototype.reorderVideo = function (playlistId, oldPosition, newPositio
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists reorderVideo requires `playlistId` to be a string');
+      'IngestAPI Playlists reorderVideo requires "playlistId" to be a string');
   }
 
   if (typeof oldPosition !== 'number' || typeof newPosition !== 'number') {
     return utils.promisify(false,
-      'IngestAPI Playlists reorderVideo requires `oldPosition` and `newPosition` to be numbers.');
+      'IngestAPI Playlists reorderVideo requires "oldPosition" and "newPosition" to be numbers.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlistReorder, {
