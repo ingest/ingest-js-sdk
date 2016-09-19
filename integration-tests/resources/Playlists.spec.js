@@ -6,7 +6,7 @@ var api = new IngestAPI({
 });
 
 var mock = require('xhr-mock');
-var videosResource;
+var playlistsResource;
 
 var playlists = [
   {

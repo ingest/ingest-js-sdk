@@ -20,7 +20,7 @@ function Videos (options) {
 
 };
 
-// This extends the base class of 'Resource'.
+// This extends the base class of 'PlaybackContent'.
 Videos.prototype = Object.create(PlaybackContent.prototype);
 Videos.prototype.constructor = Videos;
 
