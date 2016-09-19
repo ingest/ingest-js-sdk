@@ -1,4 +1,4 @@
-var Resource = require('./Resource');
+var PlaybackContent = require('./PlaybackContent');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
@@ -12,12 +12,12 @@ function Playlists (options) {
 
   options = extend(true, {}, overrides, options);
 
-  Resource.call(this, options);
+  PlaybackContent.call(this, options);
 
 };
 
-// This extends the base class of 'Resource'.
-Playlists.prototype = Object.create(Resource.prototype);
+// This extends the base class of 'PlaybackContent'.
+Playlists.prototype = Object.create(PlaybackContent.prototype);
 Playlists.prototype.constructor = Playlists;
 
 /**
