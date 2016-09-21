@@ -356,13 +356,14 @@ describe('Ingest API : Resource : Playlists', function () {
 
     it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
-      var playlistId, oldPosition, newPosition;
+      var playlistId, videoId, oldPosition, newPosition;
 
       playlistId = null;
+      videoId = 'test';
       oldPosition = 3;
       newPosition = 4;
 
-      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+      playlistsResource.reorderVideo(playlistId, videoId, oldPosition, newPosition).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -377,15 +378,40 @@ describe('Ingest API : Resource : Playlists', function () {
 
     });
 
-    it('Should fail if "oldPosition" is not supplied as a number.', function (done) {
+    it('Should fail if "videoId" is not supplied as a string.', function (done) {
 
-      var playlistId, oldPosition, newPosition;
+      var playlistId, videoId, oldPosition, newPosition;
 
       playlistId = playlists[0].id;
+      videoId = null;
+      oldPosition = 3;
+      newPosition = 4;
+
+      playlistsResource.reorderVideo(playlistId, videoId, oldPosition, newPosition).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        expect(error).toMatch(/reorderVideo requires "videoId" to be a string/);
+        done();
+
+      });
+
+    });
+
+    it('Should fail if "oldPosition" is not supplied as a number.', function (done) {
+
+      var playlistId, videoId, oldPosition, newPosition;
+
+      playlistId = playlists[0].id;
+      videoId = 'test';
       oldPosition = null;
       newPosition = 4;
 
-      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+      playlistsResource.reorderVideo(playlistId, videoId, oldPosition, newPosition).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -402,13 +428,14 @@ describe('Ingest API : Resource : Playlists', function () {
 
     it('Should fail if "newPosition" is not supplied as a number.', function (done) {
 
-      var playlistId, oldPosition, newPosition;
+      var playlistId, videoId, oldPosition, newPosition;
 
       playlistId = playlists[0].id;
+      videoId = 'test';
       oldPosition = 3;
       newPosition = null;
 
-      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+      playlistsResource.reorderVideo(playlistId, videoId, oldPosition, newPosition).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -425,15 +452,17 @@ describe('Ingest API : Resource : Playlists', function () {
 
     it('Should successfully re-order the given playlist based on the given positions.', function (done) {
 
-      var playlistId, oldPosition, newPosition, requestURL;
+      var playlistId, videoId, oldPosition, newPosition, requestURL;
 
       playlistId = playlists[0].id;
+      videoId = 'test';
       oldPosition = 3;
       newPosition = 4;
 
       requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistReorder, {
         resource: playlistsResource.config.resource,
-        playlistId: playlistId
+        playlistId: playlistId,
+        videoId: videoId
       });
 
       mock.setup();
@@ -455,7 +484,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
       });
 
-      playlistsResource.reorderVideo(playlistId, oldPosition, newPosition).then(function (response) {
+      playlistsResource.reorderVideo(playlistId, videoId, oldPosition, newPosition).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toEqual(200);

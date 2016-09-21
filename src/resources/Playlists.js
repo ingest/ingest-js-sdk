@@ -7,7 +7,7 @@ function Playlists (options) {
 
   var overrides = {
     'playlistVideoById': '/<%=resource%>/<%=playlistId%>/video/<%=videoId%>',
-    'playlistReorder': '/<%=resource%>/<%=playlistId%>/reorder'
+    'playlistReorder': '/<%=resource%>/<%=playlistId%>/reorder/<%=videoId%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -101,16 +101,22 @@ Playlists.prototype.removeVideo = function (playlistId, videoId, position) {
 
 /**
  * Re-orders a supplied playlist based on the given old and new positions.
- * @param  {string}  playlistId   The UUID of the playlist to re-order.
- * @param  {number}  oldPosition  The old position to move to the given new position.
- * @param  {number}  newPosition  The new position to move to.
+ * @param  {string}   playlistId   The UUID of the playlist to re-order.
+ * @param  {string}   videoId      The UUID of the video to re-order.
+ * @param  {number}   oldPosition  The old position to move to the given new position.
+ * @param  {number}   newPosition  The new position to move to.
  */
-Playlists.prototype.reorderVideo = function (playlistId, oldPosition, newPosition) {
+Playlists.prototype.reorderVideo = function (playlistId, videoId, oldPosition, newPosition) {
   var request, url, data;
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,
       'IngestAPI Playlists reorderVideo requires "playlistId" to be a string');
+  }
+
+  if (typeof videoId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Playlists reorderVideo requires "videoId" to be a string');
   }
 
   if (typeof oldPosition !== 'number' || typeof newPosition !== 'number') {
@@ -120,7 +126,8 @@ Playlists.prototype.reorderVideo = function (playlistId, oldPosition, newPositio
 
   url = utils.parseTokens(this.config.host + this.config.playlistReorder, {
     resource: this.config.resource,
-    playlistId: playlistId
+    playlistId: playlistId,
+    videoId: videoId
   });
 
   data = {
