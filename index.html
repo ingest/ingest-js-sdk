@@ -50,6 +50,11 @@
           <input type="text" placeholder="Playlist ID" class="in-link-playlist-id"/>
           <button class="link-video">Link Video</button>
         </p>
+        <hr />
+        <p>
+          <textarea placeholder="Key Text" class="in-create-network-key"></textarea>
+          <button class="create-key">Create Network Key</button>
+        </p>
       </div>
 
       <div class="debug">
@@ -62,6 +67,7 @@
         });
 
         ingest.setToken('Bearer ' + window.token);
+        var networkID = JSON.parse(window.atob(window.token.split('.')[1])).ntw
 
         var filePicker = document.getElementsByClassName('file-picker')[0];
         var submitbtn =  document.getElementsByClassName('btn-submit')[0];
@@ -78,6 +84,8 @@
         var getPlaylistById = document.getElementsByClassName('get-playlist-by-id')[0];
 
         var linkVideo = document.getElementsByClassName('link-video')[0];
+        var createNetworkKey = document.querySelector('.create-key');
+
         var debugOutput = document.getElementsByClassName('debug')[0];
 
         getAllVideos.addEventListener('click', function () {
@@ -133,6 +141,15 @@
           });
 
         });
+
+        createNetworkKey.addEventListener('click', function () {
+          var text = document.querySelector('.in-create-network-key');
+          ingest.networks.addSecureKey(networkID, {key: text.value}).then(function (response) {
+            debugOutput.innerHTML = JSON.stringify(response.data);
+          }, function (error) {
+            debugOutput.innerHTML = JSON.stringify(error);
+          })
+        })
 
         var upload;
 

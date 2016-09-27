@@ -227,19 +227,22 @@ Request.prototype.requestError = function (message) {
  * Handle ready state change events.
  */
 Request.prototype.readyStateChange = function () {
-
-  // Request is complete.
-  if (this.request.readyState === 4) {
-
-    // Check if the final response code is valid.
+  switch (this.request.readyState) {
+  case 4:
+    // Check if the final response code is valid
     if (this.isValidResponseCode(this.request.status)) {
-      this.requestComplete(this.request.responseText);
-    } else {
-      this.requestError('Invalid response code.');
+      return this.requestComplete(this.request.responseText);
+    } else if (this.request.getResponseHeader('Content-Length') === '0') {
+      return this.requestError('Invalid response code');
     }
 
+    // Special case error handling with response body
+    var resp = this.processResponse(this.request.response);
+    this.requestError(resp.data.error);
+    break;
+  default:
+    // silence is golden
   }
-
 };
 
 /**
