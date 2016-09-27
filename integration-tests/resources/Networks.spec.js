@@ -1466,4 +1466,266 @@ describe('Ingest API : Resource : Networks', function () {
 
   });
 
+  describe('getCustomerCardInformation', function () {
+
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var promise = networksResource.getCustomerCardInformation(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and customerId to be strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if cusId was not passed in.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = null;
+
+      var promise = networksResource.getCustomerCardInformation(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and customerId to be strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully return the customers payment details.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var responseData = {
+        "brand": "Visa",
+        "last4": "1234",
+        "type": "card"
+      };
+
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/customers/' + cusId + '/card';
+
+      // Mock the response from the REST API.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.getCustomerCardInformation(networkId, cusId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(200);
+
+          expect(response.data.brand).toEqual('Visa');
+          expect(response.data.last4).toEqual('1234')
+          expect(response.data.type).toEqual('card');
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
+  describe('getInvoices', function () {
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+
+      var promise = networksResource.getInvoices(networkId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId to be a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully return the networks invoices.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var responseData = {}
+
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/invoices';
+
+      // Mock the response from the REST API.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.getInvoices(networkId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(200);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
+  describe('getInvoiceById', function () {
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+      var invoiceId = 'abcdefghijklmnopqrstuvwxyz';
+
+      var promise = networksResource.getInvoiceById(networkId, invoiceId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId to be passed as a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if invoiceId was not passed in as a string.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var invoiceId = null;
+
+      var promise = networksResource.getInvoiceById(networkId, invoiceId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires invoiceId to be passed as a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully return the invoice requested.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var invoiceId = 'abcdefghijklmnopqrstuvwxyz';
+
+      var responseData = {}
+
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/invoices/' + invoiceId;
+
+      // Mock the response from the REST API.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.getInvoiceById(networkId, invoiceId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(200);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
 });
