@@ -477,7 +477,8 @@ Networks.prototype.getCustomerCardInformation = function (networkId, customerId)
   var url, request;
 
   if (typeof customerId !== 'string' || typeof networkId !== 'string') {
-    return utils.promisify(false, 'IngestAPI Networks getCustomer requires networkId and customerId to be strings');
+    return utils.promisify(false,
+      'IngestAPI Networks getCustomerCardInformation requires networkId and customerId to be strings');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customerCardInformation, {
@@ -538,12 +539,12 @@ Networks.prototype.getInvoiceById = function (networkId, invoiceId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getSecureKeyById requires networkId to be passed as a string.');
+      'IngestAPI getInvoiceById requires networkId to be passed as a string.');
   }
 
   if (typeof invoiceId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getSecureKeyById requires invoiceId to be passed as a string.');
+      'IngestAPI getInvoiceById requires invoiceId to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.invoicesById, {
