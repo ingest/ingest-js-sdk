@@ -11,8 +11,11 @@ function Networks (options) {
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
     invite: '/<%=resource%>/<%=networkId%>/invite',
+    invoices: '/<%=resource%>/<%=networkId%>/invoices',
+    invoicesById: '/<%=resource%>/<%=networkId%>/invoices/<%=invoiceId%>',
     customers: '/<%=resource%>/<%=networkId%>/customers',
-    customerById: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>'
+    customerById: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>',
+    customerCardInformation: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>/card',
   };
 
   options = extend(true, {}, overrides, options);
@@ -432,6 +435,9 @@ Networks.prototype.updateCustomer = function (networkId, cusId, networkName, str
  *
  * @param {string} networkId - The network ID that the customer belongs to.
  * @param {string} cusId     - The Stripe customer ID to be deleted.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
  */
 Networks.prototype.deleteCustomer = function (networkId, cusId) {
 
@@ -456,6 +462,102 @@ Networks.prototype.deleteCustomer = function (networkId, cusId) {
 
   return request.send();
 
+};
+
+/**
+ * Gets a customers card information on file
+ *
+ * @param {string} customerId - The customer ID you wish to get the information for.
+ * @param {string} networkId  - The network ID the customer belongs to.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
+ */
+Networks.prototype.getCustomerCardInformation = function (networkId, customerId) {
+  var url, request;
+
+  if (typeof customerId !== 'string' || typeof networkId !== 'string') {
+    return utils.promisify(false, 'IngestAPI Networks getCustomer requires networkId and customerId to be strings');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customerCardInformation, {
+    resource: this.config.resource,
+    networkId: networkId,
+    cusId: customerId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'GET'
+  });
+
+  return request.send();
+};
+
+/**
+ * Gets a networks invoices
+ *
+ * @param {string} networkId  - The network ID that you wish to get the invoices for.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
+ */
+Networks.prototype.getInvoices = function (networkId) {
+  var url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false, 'IngestAPI Networks getInvoices requires networkId to be a string');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.invoices, {
+    resource: this.config.resource,
+    networkId: networkId,
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'GET'
+  });
+
+  return request.send();
+};
+
+/**
+ * Gets a specific invoice for a network
+ *
+ * @param {string} networkId  - The network ID the customer belongs to.
+ * @param {string} invoiceId  - The invoice ID you wish to get the information for.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
+ */
+Networks.prototype.getInvoiceById = function (networkId, invoiceId) {
+  var url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getSecureKeyById requires networkId to be passed as a string.');
+  }
+
+  if (typeof invoiceId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getSecureKeyById requires invoiceId to be passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.invoicesById, {
+    resource: this.config.resource,
+    networkId: networkId,
+    invoiceId: invoiceId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
 };
 
 module.exports = Networks;
