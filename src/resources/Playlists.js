@@ -7,7 +7,8 @@ function Playlists (options) {
 
   var overrides = {
     'playlistVideoById': '/<%=resource%>/<%=playlistId%>/video/<%=videoId%>',
-    'playlistReorder': '/<%=resource%>/<%=playlistId%>/reorder/<%=videoId%>'
+    'playlistReorder': '/<%=resource%>/<%=playlistId%>/reorder/<%=videoId%>',
+    'playlistAddRemove': '/<%=resource%>/<%=playlistId%>/videos'
   };
 
   options = extend(true, {}, overrides, options);
@@ -23,26 +24,32 @@ Playlists.prototype.constructor = Playlists;
 /**
  * Add the supplied video to the supplied playlist.
  * @param   {string}   playlistId  The UUID of the playlist to add the videoId to.
- * @param   {string}   videoId     The UUID of the video to add to the playlist.
+ * @param   {array}    videoIds    The UUID of the video to add to the playlist.
  * @param   {number}   position    [Optional] Position of the new video in the playlist.
  *                                 If omitted, the video in question will be added to the end of the given playlist.
  * @return  {promise}              A promise which resolves when the request is complete.
  */
-Playlists.prototype.addVideo = function (playlistId, videoId, position) {
+Playlists.prototype.addVideos = function (playlistId, videoIds, position) {
   var request, url, data;
 
-  if (typeof playlistId !== 'string' || typeof videoId !== 'string') {
+  if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists addVideo requires "playlistId" and "videoId" to both be strings.');
+      'IngestAPI Playlists addVideo requires "playlistId" be a string.');
   }
 
-  url = utils.parseTokens(this.config.host + this.config.playlistVideoById, {
+  if (!Array.isArray(videoIds)) {
+    return utils.promisify(false,
+      'IngestAPI Playlists addVideo requires "videoId" be an array of videoIds.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.playlistAddRemove, {
     resource: this.config.resource,
-    playlistId: playlistId,
-    videoId: videoId
+    playlistId: playlistId
   });
 
-  data = {};
+  data = {
+    videos: videoIds
+  };
 
   if (typeof position === 'number') {
     data.position = position;
@@ -59,40 +66,34 @@ Playlists.prototype.addVideo = function (playlistId, videoId, position) {
 };
 
 /**
- * Remove the supplied video to the supplied playlist.
- * @param   {string}   playlistId  The UUID of the playlist to add the videoId to.
- * @param   {string}   videoId     The UUID of the video to add to the playlist.
- * @param   {number}   position    Must be supplied as there can be multiple instances of the same video within a playlist.
- * @return  {promise}              A promise which resolves when the request is complete.
+ * Remove the supplied videos from the supplied playlist.
+ * @param   {string}   playlistId    The UUID of the playlist to remove the videoId from.
+ * @param   {array}    videos        An array of objects containing both the id and position of the video to remove.
+ * @return  {promise}                A promise which resolves when the request is complete.
  */
-Playlists.prototype.removeVideo = function (playlistId, videoId, position) {
+Playlists.prototype.removeVideos = function (playlistId, videos) {
   var request, url, data;
 
-  if (typeof playlistId !== 'string' || typeof videoId !== 'string') {
+  if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires "playlistId" and "videoId" to both be strings.');
+      'IngestAPI Playlists removeVideo requires "playlistId" to be a string.');
   }
 
-  if (typeof position !== 'number') {
+  if (!Array.isArray(videos)) {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires "position" to be a number');
+      'IngestAPI Playlists removeVideo requires "videos" be an array of video objects.');
   }
 
-  data = {
-    position: position
-  };
-
-  url = utils.parseTokens(this.config.host + this.config.playlistVideoById, {
+  url = utils.parseTokens(this.config.host + this.config.playlistAddRemove, {
     resource: this.config.resource,
-    playlistId: playlistId,
-    videoId: videoId
+    playlistId: playlistId
   });
 
   request = new Request({
     method: 'DELETE',
     url: url,
     token: this._tokenSource(),
-    data: data
+    data: videos
   });
 
   return request.send().then(this._updateCachedResources.bind(this));

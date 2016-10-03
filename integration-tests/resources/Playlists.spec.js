@@ -95,16 +95,16 @@ describe('Ingest API : Resource : Playlists', function () {
 
   });
 
-  describe('addVideo', function () {
+  describe('addVideos', function () {
 
     it('Should fail if "playlistId" is not supplied as a string.', function (done) {
 
       var playlistId, videoId;
 
       playlistId = null;
-      videoId = videos[0].id;
+      videoId = [videos[0].id];
 
-      playlistsResource.addVideo(playlistId, videoId).then(function (response) {
+      playlistsResource.addVideos(playlistId, videoId).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -112,21 +112,21 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings./);
+        expect(error).toMatch(/addVideo requires "playlistId" be a string./);
         done();
 
       });
 
     });
 
-    it('Should fail if "videoId" is not supplied as a string.', function (done) {
+    it('Should fail if "videoId" is not supplied as an array.', function (done) {
 
       var playlistId, videoId;
 
       playlistId = playlists[0].id;
       videoId = null;
 
-      playlistsResource.addVideo(playlistId, videoId).then(function (response) {
+      playlistsResource.addVideos(playlistId, videoId).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -134,7 +134,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires "playlistId" and "videoId" to both be strings/);
+        expect(error).toMatch(/addVideo requires "videoId" be an array of videoIds./);
         done();
 
       });
@@ -146,13 +146,12 @@ describe('Ingest API : Resource : Playlists', function () {
       var playlistId, videoId, requestURL;
 
       playlistId = playlists[0].id;
-      videoId = videos[0].id;
+      videoId = [videos[0].id];
       position = null;
 
-      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistAddRemove, {
         resource: playlistsResource.config.resource,
-        playlistId: playlistId,
-        videoId: videoId
+        playlistId: playlistId
       });
 
       mock.setup();
@@ -172,7 +171,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
       });
 
-      playlistsResource.addVideo(playlistId, videoId, position).then(function (response) {
+      playlistsResource.addVideos(playlistId, videoId, position).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toEqual(201);
@@ -192,13 +191,12 @@ describe('Ingest API : Resource : Playlists', function () {
       var playlistId, videoId, requestURL;
 
       playlistId = playlists[0].id;
-      videoId = videos[0].id;
+      videoId = [videos[0].id];
       position = 3;
 
-      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistAddRemove, {
         resource: playlistsResource.config.resource,
-        playlistId: playlistId,
-        videoId: videoId
+        playlistId: playlistId
       });
 
       mock.setup();
@@ -218,7 +216,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
       });
 
-      playlistsResource.addVideo(playlistId, videoId, position).then(function (response) {
+      playlistsResource.addVideos(playlistId, videoId, position).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toEqual(201);
@@ -245,7 +243,7 @@ describe('Ingest API : Resource : Playlists', function () {
       videoId = videos[0].id;
       position = 3;
 
-      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+      playlistsResource.removeVideos(playlistId, videoId, position).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -253,14 +251,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
+        expect(error).toMatch(/removeVideo requires "playlistId" to be a string./);
         done();
 
       });
 
     });
 
-    it('Should fail if "videoId" is not supplied as a string.', function (done) {
+    it('Should fail if "videoId" is not supplied as an array.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -268,7 +266,7 @@ describe('Ingest API : Resource : Playlists', function () {
       videoId = null;
       position = 3;
 
-      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+      playlistsResource.removeVideos(playlistId, videoId, position).then(function (response) {
 
         expect(response).not.toBeDefined();
         done();
@@ -276,30 +274,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires "playlistId" and "videoId" to both be strings/);
-        done();
-
-      });
-
-    });
-
-    it('Should fail if "position" is not supplied as a number.', function (done) {
-
-      var playlistId, videoId, position;
-
-      playlistId = playlists[0].id;
-      videoId = videos[0].id;
-      position = null;
-
-      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
-
-        expect(response).not.toBeDefined();
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires "position" to be a number/);
+        expect(error).toMatch(/removeVideo requires "videos" be an array of video objects./);
         done();
 
       });
@@ -311,13 +286,12 @@ describe('Ingest API : Resource : Playlists', function () {
       var playlistId, videoId, position, requestURL;
 
       playlistId = playlists[0].id;
-      videoId = videos[0].id;
+      videoId = [videos[0].id];
       position = 3;
 
-      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistVideoById, {
+      requestURL = api.utils.parseTokens(api.config.host + playlistsResource.config.playlistAddRemove, {
         resource: playlistsResource.config.resource,
-        playlistId: playlistId,
-        videoId: videoId
+        playlistId: playlistId
       });
 
       mock.setup();
@@ -327,15 +301,11 @@ describe('Ingest API : Resource : Playlists', function () {
 
         mock.teardown();
 
-        // Expect a position value to have been sent as it is required.
-        body = JSON.parse(request._body);
-        expect(body.position).toEqual(position);
-
         return response.status(200);
 
       });
 
-      playlistsResource.removeVideo(playlistId, videoId, position).then(function (response) {
+      playlistsResource.removeVideos(playlistId, videoId).then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.statusCode).toEqual(200);
