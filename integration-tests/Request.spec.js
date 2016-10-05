@@ -237,6 +237,37 @@ describe('Ingest API : Request', function () {
       done();
     });
 
-  })
+  });
+
+  it('Should fail if an invalid response code is returned with no content length.', function (done) {
+
+    var url, request;
+
+    mock.setup();
+
+    // Mock the response from the REST api.
+    mock.mock('GET', '/test', function (request, response) {
+      // Restore the XHR object.
+      mock.teardown();
+
+      return response.status(401)
+        .header('Content-Type', 'application/json')
+        .header('Content-Length', '0');
+
+    });
+
+    request = new Request({
+      url: '/test'
+    });
+
+    request.send().then(function (response) {
+      expect(response).not.toBeDefined();
+      done();
+    }, function (error) {
+      expect(error).toBeDefined();
+      done();
+    });
+
+  });
 
 });
