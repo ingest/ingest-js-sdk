@@ -13,6 +13,7 @@ function Networks (options) {
     invite: '/<%=resource%>/<%=networkId%>/invite',
     invoices: '/<%=resource%>/<%=networkId%>/invoices',
     invoicesById: '/<%=resource%>/<%=networkId%>/invoices/<%=invoiceId%>',
+    currentUsage: '/<%=resource%>/<%=networkId%>/invoices?currentUsage=true',
     customers: '/<%=resource%>/<%=networkId%>/customers',
     customerById: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>',
     customerCardInformation: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>/card',
@@ -551,6 +552,36 @@ Networks.prototype.getInvoiceById = function (networkId, invoiceId) {
     resource: this.config.resource,
     networkId: networkId,
     invoiceId: invoiceId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
+ * Gets current usage for a network
+ *
+ * @param {string} networkId  - The network ID the customer belongs to.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ *
+ */
+Networks.prototype.getCurrentUsage = function (networkId) {
+  var url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getCurrentUsage requires networkId to be passed as a string.');
+  }
+
+
+  url = utils.parseTokens(this.config.host + this.config.currentUsage, {
+    resource: this.config.resource,
+    networkId: networkId
   });
 
   request = new Request({

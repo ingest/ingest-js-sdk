@@ -1728,4 +1728,70 @@ describe('Ingest API : Resource : Networks', function () {
     });
   });
 
+  describe('getCurrentUsage', function () {
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+      var promise = networksResource.getCurrentUsage(networkId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId to be passed as a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully return the current usage requested.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var responseData = {}
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/invoices?currentUsage=true';
+
+      // Mock the response from the REST API.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(responseData));
+      });
+
+      request = networksResource.getCurrentUsage(networkId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.data).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(200);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+          done();
+
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
+
 });
