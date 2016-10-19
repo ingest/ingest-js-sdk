@@ -1,6 +1,6 @@
 {
   "name": "ingest-js-sdk",
-  "version": "0.0.61",
+  "version": "0.0.62",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "index.js",
   "repository": {
@@ -8,9 +8,13 @@
     "url": "ssh://git@stash.redspace.com/ing/ingest-js-sdk.git"
   },
   "license": "ISC",
+  "dependencies": {
+    "extend": "^3.0.0",
+    "pinkyswear": "^2.2.2",
+    "request": "^2.65.0"
+  },
   "devDependencies": {
     "eslint": "^1.5.1",
-    "extend": "^3.0.0",
     "gulp": "^3.9.0",
     "gulp-clean": "^0.3.1",
     "gulp-coverage": "^0.3.36",
@@ -29,9 +33,7 @@
     "karma-spec-reporter": "0.0.20",
     "karma-webpack": "^1.7.0",
     "lodash": "^3.10.1",
-    "pinkyswear": "^2.2.2",
     "pre-commit": "^1.1.2",
-    "request": "^2.65.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.1.4",
     "webpack": "^1.12.2",
