@@ -51,7 +51,7 @@ Request.prototype.send = function () {
 
   // Return the promise. Once complete send of the next request if necessary
   return this.promise
-    .then(RequestManager.sendNextRequest.bind(RequestManager));
+    .then(RequestManager._sendNextRequest);
 };
 
 /**

@@ -9,6 +9,9 @@ var RequestManager = function () {
   this.currentSetRequests = 0;
   this.lastRequestSetStart = null;
   this.resetTimer = null;
+
+  this._sendNextRequest = this.sendNextRequest.bind(this);
+  this._resetCurrentSet = this.resetCurrentSet.bind(this);
 };
 
 /**
@@ -97,7 +100,7 @@ RequestManager.prototype.sendNextRequest = function (response) {
     // If i don't have a timer already and have no active requests
     if (!this.resetTimer && this.activeRequests === 0) {
       // set the reset timer so new calls are in sync
-      this.resetTimer = setTimeout(this.resetCurrentSet.bind(this), this.XRatelimitLimit * 1000);
+      this.resetTimer = setTimeout(this._resetCurrentSet, this.XRatelimitLimit * 1000);
     }
 
     // Return response
