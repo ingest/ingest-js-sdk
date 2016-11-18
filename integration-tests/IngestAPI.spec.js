@@ -7,6 +7,7 @@ var access_token = 'Bearer ' + window.token;
 var validVideoId;
 var createdVideo;
 var nextRange;
+var RequestManager;
 
 var mock = require('xhr-mock');
 
@@ -18,6 +19,8 @@ describe('Ingest API', function () {
       host: 'http://weasley.teamspace.ad:8080',
       token: access_token
     });
+
+    RequestManager = api.requestManager;
   });
 
   it('Should exist on the window object.', function () {
@@ -104,6 +107,20 @@ describe('Ingest API', function () {
 
   it('Should fail if there is no token set.', function () {
     expect(api.setToken).toThrow();
+  });
+
+  it('Should set the max requests for the request manager', function () {
+    api.setMaxRequests(10);
+
+    expect(RequestManager.maxRequests).toEqual(10);
+  });
+
+  it('Should throw an error if an invalid max is passed in', function () {
+    try {
+      api.setMaxRequests(-1);
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
   });
 
   describe('upload', function () {

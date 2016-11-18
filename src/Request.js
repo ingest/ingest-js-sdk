@@ -4,6 +4,7 @@ var Promise = require('pinkyswear');
 var extend = require('extend');
 
 var JWTUtils = require('./JWTUtils');
+var RequestManager = require('./RequestManager');
 
 var VALID_RESPONSE_CODES = [200, 201, 202, 204];
 
@@ -38,19 +39,19 @@ var Request = function (options) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Request.prototype.send = function () {
-
   this.promise = Promise();
 
   // Make sure a url is passed before attempting to make the request.
   if (this.options.url) {
-    // Make the actual request.
+    // Add the request to the queue and send it
     this.makeRequest();
   } else {
     this.requestError('Request Error : a url is required to make the request.');
   }
 
-  return this.promise;
-
+  // Return the promise. Once complete send of the next request if necessary
+  return this.promise
+    .then(RequestManager.sendNextRequest.bind(RequestManager));
 };
 
 /**
@@ -61,10 +62,9 @@ Request.prototype.setupListeners = function () {
 };
 
 /**
- * Execute the open and send of the XMLHttpRequest
+ * Execute the open and construction of the XMLHttpRequest and its data
  */
 Request.prototype.makeRequest = function () {
-
   var postData = this.preparePostData(this.options.data);
   var headers = this.options.headers;
   var hasContentType = headers && headers.hasOwnProperty('Content-Type');
@@ -103,13 +103,8 @@ Request.prototype.makeRequest = function () {
     this.request.setRequestHeader('Content-Type', 'application/vnd.ingest.v1+json');
   }
 
-  // If there is data then we need to pass that along with the request.
-  if (postData.data) {
-    this.request.send(postData.data);
-  } else {
-    this.request.send();
-  }
-
+  // If everything is good lets add it to the queue
+  RequestManager.addRequest([this.request, postData.data]);
 };
 
 /**
@@ -147,7 +142,6 @@ Request.prototype.preparePostData = function (data) {
   }
 
   return result;
-
 };
 
 /**
