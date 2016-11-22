@@ -76,14 +76,14 @@ describe('Ingest API : RequestManager', function () {
       method: 'POST'
     });
 
-    request.send();
+    RequestManager.addRequest([request, null]);
 
     expect(RequestManager.addRequest).toHaveBeenCalled();
     expect(RequestManager.sendRequest).not.toHaveBeenCalled();
     expect(RequestManager.pending.length).toEqual(1);
   });
 
-  it('Should reset the timer if it exists and send the request', function () {
+  it('Should reset the timer if it exists and send the request', function (done) {
     var request;
 
     // Mock the XHR object
@@ -114,6 +114,9 @@ describe('Ingest API : RequestManager', function () {
 
     RequestManager.sendRequest(request, null);
 
+    done();
+
+    RequestManager.resetTimer = null;
     expect(clearTimeout).toHaveBeenCalled();
     expect(request.send).toHaveBeenCalled();
   });
@@ -344,7 +347,7 @@ describe('Ingest API : RequestManager', function () {
   });
 
   it('Should delay the request and send it', function (done) {
-    var result, response, request;
+    var response, request;
 
     // Mock the XHR object
     mock.setup();
@@ -380,9 +383,9 @@ describe('Ingest API : RequestManager', function () {
     RequestManager.pending[0] = [request, null];
 
     spyOn(request, 'send');
-    spyOn(RequestManager, 'sendRequest').and.callThrough();
+    spyOn(RequestManager, 'sendRequest');
 
-    result = RequestManager.sendNextRequest(response);
+    RequestManager.sendNextRequest(response);
 
     expect(RequestManager.XRatelimitReset).not.toEqual(null);
     expect(RequestManager.XRatelimitLimit).not.toEqual(null);
