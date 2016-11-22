@@ -6,6 +6,7 @@ var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
 var Uploader = require('./Uploader');
 var Cache = require('./Cache');
+var RequestManager = require('./RequestManager');
 
 var Resource = require('./resources/Resource');
 var Media = require('./resources/PlaybackContent');
@@ -26,6 +27,7 @@ var Profiles = require('./resources/Profiles');
 function IngestAPI (options) {
 
   this.defaults = {
+    'maxRequests': 6, // Active Requests
     'host': 'https://api.ingest.io',
     'cacheAge': 300000, // 5 minutes
     'inputs': '/encoding/inputs',
@@ -60,8 +62,13 @@ function IngestAPI (options) {
   this.profilesResource = Profiles;
   this.uploader = Uploader;
 
+  // Construct my cache
   this.cache = new Cache(this.config.cacheAge);
   this.cache.enabled = false;
+
+  // Set my max requests
+  this.requestManager = RequestManager;
+  this.setMaxRequests(this.config.maxRequests);
 
   this._getToken = this.getToken.bind(this);
 
@@ -125,6 +132,19 @@ IngestAPI.prototype.setToken = function (token) {
   }
 
   this.token = token;
+};
+
+/**
+ * Sets the maxrequests in the Request Manager
+ * @param {number} max - The max amount of requests at once
+ */
+IngestAPI.prototype.setMaxRequests = function (max) {
+  // Make sure we have a valid number.
+  if (typeof max !== 'number' || max < 1) {
+    throw new Error('IngestAPI requires a maxRequest count to be passed as a positive number.');
+  }
+
+  RequestManager.setMaxRequests(max);
 };
 
 /**

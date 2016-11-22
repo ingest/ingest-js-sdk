@@ -6,7 +6,7 @@ var api;
 var access_token = 'Bearer ' + window.token;
 
 var mock = require('xhr-mock');
-var Request;
+var Request, RequestManager;
 
 describe('Ingest API : Request', function () {
 
@@ -18,6 +18,7 @@ describe('Ingest API : Request', function () {
     });
 
     Request = api.request;
+    RequestManager = api.requestManager;
   });
 
   it('Should reject the promise if the response is not valid JSON.', function (done) {
@@ -136,13 +137,14 @@ describe('Ingest API : Request', function () {
   });
 
   it('Should fail if bad data is passed to makeRequest', function (done) {
-
     var request = new Request({
       url: api.config.host + '/videos',
       token: api.getToken(),
       method: 'POST',
       data: {test: true}
     });
+
+    api.request = request;
 
     spyOn(request, 'preparePostData').and.callFake(function () {
       return {
@@ -157,7 +159,6 @@ describe('Ingest API : Request', function () {
       done();
 
     }, function (error) {
-
       expect(error).toBeDefined();
       expect(request.preparePostData).toHaveBeenCalled();
 
