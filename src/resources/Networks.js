@@ -498,6 +498,36 @@ Networks.prototype.getCustomerCardInformation = function (networkId, customerId)
 };
 
 /**
+ * Remove the credit card currently associated with the proviced customer.
+ * @param {string} networkId  - The network ID the customer belongs to.
+ * @param {string} networkId  - The customer ID.
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Networks.prototype.deleteCustomerCard = function (networkId, customerId) {
+  var url, request;
+
+  if (typeof customerId !== 'string' || typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI Networks deleteCustomerCard requires networkId and customerId to be strings');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.customerCardInformation, {
+    resource: this.config.resource,
+    networkId: networkId,
+    cusId: customerId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'DELETE'
+  });
+
+  return request.send();
+};
+
+/**
  * Gets a networks invoices
  *
  * @param {string} networkId  - The network ID that you wish to get the invoices for.
@@ -577,7 +607,6 @@ Networks.prototype.getCurrentUsage = function (networkId) {
     return utils.promisify(false,
       'IngestAPI getCurrentUsage requires networkId to be passed as a string.');
   }
-
 
   url = utils.parseTokens(this.config.host + this.config.currentUsage, {
     resource: this.config.resource,

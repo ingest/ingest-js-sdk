@@ -1567,6 +1567,92 @@ describe('Ingest API : Resource : Networks', function () {
     });
   });
 
+  describe('deleteCustomerCard', function () {
+
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId = null;
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+
+      var promise = networksResource.deleteCustomerCard(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and customerId to be strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if cusId was not passed in.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = null;
+
+      var promise = networksResource.deleteCustomerCard(networkId, cusId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and customerId to be strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully remove the customers payment method.', function (done) {
+
+      var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
+      var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
+      var request, url;
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/customers/' + cusId + '/card';
+
+      // Mock the response from the REST API.
+      mock.mock('DELETE', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify({}));
+      });
+
+      request = networksResource.deleteCustomerCard(networkId, cusId)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(typeof response.headers).toBe('function');
+          expect(response.statusCode).toEqual(204);
+          done();
+
+        }, function (error) {
+          expect(error).not.toBeDefined();
+          done();
+        });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
   describe('getInvoices', function () {
     it('Should fail if networkId was not passed in as a string.', function (done) {
 
