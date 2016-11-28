@@ -34,6 +34,7 @@ describe('Ingest API : Request', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', data.length)
           .body(data);
       });
 

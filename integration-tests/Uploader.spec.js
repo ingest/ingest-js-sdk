@@ -187,6 +187,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(201)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', data.length)
           .body(data);
 
       });
@@ -235,6 +236,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(201)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', data.length)
           .body(data);
 
       });
@@ -436,6 +438,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 6)
           .body(JSON.stringify('signed'));
 
       });
@@ -472,6 +475,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 6)
           .body(JSON.stringify('signed'));
 
       });
@@ -510,6 +514,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 8)
           .body(JSON.stringify('uploaded'));
 
       });
@@ -571,6 +576,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 8)
           .body(JSON.stringify('complete'));
 
       });
@@ -630,6 +636,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 7)
           .body(JSON.stringify('aborted'));
 
       });
@@ -638,6 +645,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 7)
           .body(JSON.stringify('deleted'));
 
       });
@@ -685,6 +693,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 7)
           .body(JSON.stringify('aborted'));
 
       });
@@ -693,6 +702,7 @@ describe('Ingest API : Uploader', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 7)
           .body(JSON.stringify('deleted'));
 
       });

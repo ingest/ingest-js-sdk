@@ -151,6 +151,7 @@ describe('Ingest API : Resource : Videos', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(playlists));
 
         });
@@ -200,6 +201,7 @@ describe('Ingest API : Resource : Videos', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(variants));
 
         });
@@ -247,6 +249,7 @@ describe('Ingest API : Resource : Videos', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(videosWithVariants));
 
         });
@@ -282,6 +285,7 @@ describe('Ingest API : Resource : Videos', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(videosMissingVariants));
 
         });
