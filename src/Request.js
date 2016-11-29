@@ -185,8 +185,11 @@ Request.prototype.processResponse = function (response) {
   var responseType = this.request.getResponseHeader('Content-Type');
   var result = response;
 
+  var hasLength = parseInt(this.request.getResponseHeader('Content-Length'), 10);
+  hasLength = hasLength > 0;
+
   // Parse JSON if the result is JSON.
-  if (responseType && responseType.indexOf('json') !== -1) {
+  if (hasLength && responseType && responseType.indexOf('json') !== -1) {
     try {
       result = JSON.parse(response);
     } catch (error) {

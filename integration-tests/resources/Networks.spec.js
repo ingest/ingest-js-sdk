@@ -63,6 +63,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(network));
 
       });
@@ -168,6 +169,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(network));
 
         });
@@ -421,6 +423,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -555,6 +558,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(201)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -646,6 +650,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(201)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -787,6 +792,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -952,6 +958,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -1016,6 +1023,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -1226,6 +1234,7 @@ describe('Ingest API : Resource : Networks', function () {
 
           return response.status(204)
             .header('Content-Type', 'application/json')
+            .header('Content-Length', 1)
             .body(JSON.stringify(responseData));
         });
 
@@ -1352,6 +1361,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(responseData));
       });
 
@@ -1439,6 +1449,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(202)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(response));
       });
 
@@ -1537,6 +1548,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(responseData));
       });
 
@@ -1631,6 +1643,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(204)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify({}));
       });
 
@@ -1696,6 +1709,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(responseData));
       });
 
@@ -1788,6 +1802,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(responseData));
       });
 
@@ -1838,7 +1853,7 @@ describe('Ingest API : Resource : Networks', function () {
     it('Should successfully return the current usage requested.', function (done) {
 
       var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
-      var responseData = {}
+      var responseData = {};
       var request, url;
 
       // Mock the XHR object.
@@ -1853,6 +1868,7 @@ describe('Ingest API : Resource : Networks', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
+          .header('Content-Length', 1)
           .body(JSON.stringify(responseData));
       });
 
