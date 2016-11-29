@@ -114,7 +114,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify([video]));
 
       });
@@ -156,7 +155,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify([video]));
 
       });
@@ -236,7 +234,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify({data: video}));
 
       });
@@ -312,7 +309,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify({data: video}));
 
       });
@@ -366,7 +362,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify(video));
 
       });
@@ -414,7 +409,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .body(JSON.stringify(video));
 
       });
@@ -495,7 +489,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -568,7 +561,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -636,7 +628,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -744,7 +735,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
         });
 
@@ -804,7 +794,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
         });
 
@@ -850,7 +839,6 @@ describe('Ingest API : Resource', function () {
 
         return response.status(200)
           .header('Content-Type', 'application/json')
-          .header('Content-Length', 1)
           .header('Resource-Count', 5)
           .body('{}');
 
@@ -892,7 +880,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -933,7 +920,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -985,7 +971,6 @@ describe('Ingest API : Resource', function () {
         return response.status(200)
           .header('Content-Type', 'application/json')
           .header('Resource-Count', 5)
-          .header('Content-Length', 1)
           .body('{}');
 
       });
@@ -1055,7 +1040,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(_video);
 
         });
@@ -1124,7 +1108,6 @@ describe('Ingest API : Resource', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
 
         });
@@ -1168,7 +1151,6 @@ describe('Ingest API : Resource', function () {
           called = true;
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(data));
         });
 
