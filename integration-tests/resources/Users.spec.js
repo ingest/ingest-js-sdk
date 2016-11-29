@@ -55,7 +55,6 @@ describe('Ingest API : Resource : Users', function () {
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
             .body(JSON.stringify(user));
 
         });
