@@ -240,13 +240,13 @@ Resource.prototype.permanentDelete = function (resource, async) {
 /**
  * Delete a single resource
  * @private
- * @param  {object}   resource  The id of the resource to be deleted.
- * @param {boolean}   permanent  A flag to permanently delete each video.
- * @param {boolean}   async       A flag to indicate if this should be an async request to delete.
- * @return {promise}            A promise which resolves when the request is complete.
+ * @param   {object}    resource    The id of the resource to be deleted.
+ * @param   {boolean}   permanent   A flag to permanently delete each video.
+ * @return  {promise}               A promise which resolves when the request is complete.
  */
-Resource.prototype._deleteResource = function (resource, permanent, async) {
+Resource.prototype._deleteResource = function (resource, permanent) {
   var request;
+
   var url = utils.parseTokens(this.config.host + this.config.byId, {
     resource: this.config.resource,
     id: resource
@@ -258,13 +258,74 @@ Resource.prototype._deleteResource = function (resource, permanent, async) {
 
   request = new Request({
     url: url,
-    async: async,
     token: this._tokenSource(),
-    method: 'DELETE',
+    method: 'DELETE'
   });
 
   return request.send()
-          .then(this._deleteCachedResource.bind(this, resource));
+    .then(this._deleteCachedResource.bind(this, resource));
+};
+
+/**
+ * Delete an existing resource
+ * @param  {string}     resource    The id for the resource to be deleted.
+ * @param  {function}   callback    A Synchronous callback for handling any errors, or working with the http response.
+ */
+Resource.prototype.deleteSync = function (resource, callback) {
+
+  if (typeof resource !== 'string') {
+    callback(new Error('IngestAPI Resource delete requires a resource to be passed as a string.'));
+    return;
+  }
+
+  this._deleteResourceSync(resource, false, callback);
+
+};
+
+/**
+ * Permanently delete an existing resource.
+ * @param   {string}    resource    The id for the resource to be deleted.
+ * @param   {function}  callback    A Synchronous callback for handling any errors, or working with the http response.
+ */
+Resource.prototype.permanentDeleteSync = function (resource, callback) {
+
+  if (typeof resource !== 'string') {
+    callback(new Error('IngestAPI Resource delete requires a resource to be passed as a string.'));
+    return;
+  }
+
+  this._deleteResourceSync(resource, true, callback);
+
+};
+
+/**
+ * Delete a single resource synchronously
+ * @private
+ * @param   {object}    resource    The id of the resource to be deleted.
+ * @param   {boolean}   permanent   A flag to permanently delete each video.
+ * @param   {function}  callback    A Synchronous callback for handling any errors, or working with the http response.
+ */
+Resource.prototype._deleteResourceSync = function (resource, permanent, callback) {
+  var request;
+
+  var url = utils.parseTokens(this.config.host + this.config.byId, {
+    resource: this.config.resource,
+    id: resource
+  });
+
+  if (permanent === true) {
+    url += this.config.deleteMethods.permanent;
+  }
+
+  request = new Request({
+    url: url,
+    async: false,
+    token: this._tokenSource(),
+    method: 'DELETE'
+  });
+
+  request.sendSync(callback);
+
 };
 
 /**

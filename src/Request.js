@@ -55,6 +55,22 @@ Request.prototype.send = function () {
 };
 
 /**
+ * Send the request synchronously
+ * @return {object} The result of the request.
+ */
+Request.prototype.sendSync = function (callback) {
+  this.callback = callback;
+
+  // Make sure a url is passed before attempting to make the request.
+  if (this.options.url) {
+    // Add the request to the queue and send it
+    return this.makeRequest();
+  } else {
+    this.requestError('Request Error : a url is required to make the request.');
+  }
+};
+
+/**
  * Add event listeners to the XMLHttpRequest object.
  */
 Request.prototype.setupListeners = function () {
@@ -103,8 +119,23 @@ Request.prototype.makeRequest = function () {
     this.request.setRequestHeader('Content-Type', 'application/vnd.ingest.v1+json');
   }
 
-  // If everything is good lets add it to the queue
-  RequestManager.addRequest([this.request, postData.data]);
+  // If the request should be made synchronously then we don't want to add it to the RequestManager.
+  if (!this.options.async) {
+
+    if (postData.data) {
+      this.request.send(postData.data);
+    } else {
+      this.request.send();
+    }
+
+    if (!this.isValidResponseCode(this.request.status)) {
+      this.requestError('Request Error : invalid response code : ' + this.request.status);
+    }
+
+  } else {
+    // If everything is good lets add it to the queue
+    RequestManager.addRequest([this.request, postData.data]);
+  }
 };
 
 /**
@@ -171,6 +202,15 @@ Request.prototype.requestComplete = function (response) {
   // Process the result.
   this.response = this.processResponse(response);
 
+  if (!this.promise) {
+
+    if (typeof this.callback === 'function') {
+      this.callback(null, this.response);
+    }
+
+    return;
+  }
+
   // Either resolve or reject the promise.
   this.promise(!this.response.data.error, [this.response]);
 
@@ -210,6 +250,21 @@ Request.prototype.processResponse = function (response) {
  * @param  {String} message   Error message.
  */
 Request.prototype.requestError = function (message) {
+  var error;
+  // If there isn't a promise, in the case of a synchronous request, handle the error.
+  if (!this.promise) {
+
+    error = new Error(message);
+
+    if (typeof this.callback === 'function') {
+      this.callback(error);
+      return;
+    } else {
+      throw error;
+    }
+
+  }
+
   // Reject the promise.
   this.promise(false, [{
     message: message,
@@ -228,7 +283,7 @@ Request.prototype.readyStateChange = function () {
     if (this.isValidResponseCode(this.request.status)) {
       return this.requestComplete(this.request.responseText);
     } else if (this.request.getResponseHeader('Content-Length') === '0') {
-      return this.requestError('Invalid response code');
+      return this.requestError('Request Error: Invalid response code : ' + this.request.status);
     }
 
     // Special case error handling with response body

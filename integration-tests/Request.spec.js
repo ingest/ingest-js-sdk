@@ -5,6 +5,8 @@ var api;
 // Token will need to be re-generated every 24 hours.
 var access_token = 'Bearer ' + window.token;
 
+require('jasmine-ajax');
+
 var mock = require('xhr-mock');
 var Request, RequestManager;
 
@@ -270,5 +272,149 @@ describe('Ingest API : Request', function () {
     });
 
   });
+
+  it('Make the POST request synchronously', function () {
+    var result, request;
+    var sync = false;
+    jasmine.Ajax.install();
+    jasmine.Ajax.stubRequest(api.config.host + '/videos', null, 'POST').andReturn({
+      status: 200,
+      responseText: '{"test": true}'
+    });
+
+    request = new Request({
+      url: api.config.host + '/videos',
+      async: false,
+      token: api.getToken(),
+      method: 'POST',
+      data: {test: true}
+    });
+
+    request.sendSync(function (error, response) {
+      expect(error).toEqual(null);
+      expect(response.data.test).toEqual(true);
+      sync = true;
+    });
+
+    expect(sync).toEqual(true);
+
+    jasmine.Ajax.uninstall();
+
+  });
+
+  it('Make the GET request synchronously', function () {
+    var result, request;
+    var sync = false;
+    jasmine.Ajax.install();
+    jasmine.Ajax.stubRequest(api.config.host + '/videos', null, 'GET').andReturn({
+      status: 200,
+      responseText: '{"test": true}'
+    });
+
+    request = new Request({
+      url: api.config.host + '/videos',
+      async: false,
+      token: api.getToken(),
+      method: 'GET'
+    });
+
+    request.sendSync(function (error, response) {
+      expect(error).toEqual(null);
+      expect(response.data.test).toEqual(true);
+      sync = true;
+    });
+
+    expect(sync).toEqual(true);
+
+    jasmine.Ajax.uninstall();
+
+  });
+
+  it('Should still make the request if a callback is not provided.', function () {
+    var result, request;
+    var sync = false;
+    jasmine.Ajax.install();
+    jasmine.Ajax.stubRequest(api.config.host + '/videos', null, 'GET').andReturn({
+      status: 200,
+      responseText: '{"test": true}'
+    });
+
+    request = new Request({
+      url: api.config.host + '/videos',
+      async: false,
+      token: api.getToken(),
+      method: 'GET'
+    });
+
+    expect(function () {
+      request.sendSync()
+    }).not.toThrow();
+
+    jasmine.Ajax.uninstall();
+
+  });
+
+  it('Should call the callback with an error if invalid response code is returned.', function () {
+    var result, request;
+    var sync = false;
+    jasmine.Ajax.install();
+    jasmine.Ajax.stubRequest(api.config.host + '/videos', null, 'GET').andReturn({
+      status: 404,
+      responseText: '{"test": true}'
+    });
+
+    request = new Request({
+      url: api.config.host + '/videos',
+      async: false,
+      token: api.getToken(),
+      method: 'GET'
+    });
+
+    request.sendSync(function (error, response) {
+      expect(error).not.toEqual(null);
+      expect(response).not.toBeDefined();
+      sync = true;
+    });
+
+    expect(sync).toEqual(true);
+
+    jasmine.Ajax.uninstall();
+
+  });
+
+  it('Should fail if sendSync is called with no url set.', function () {
+    var sync = false;
+    var request = new Request({
+      url: null,
+      async: false,
+      token: api.getToken(),
+      method: 'POST',
+      data: {test: true}
+    });
+
+    request.sendSync(function (error, response) {
+      expect(error).toBeDefined();
+      sync = true;
+    });
+
+    expect(sync).toEqual(true);
+
+  });
+
+  it('Should fail and throw if no callback is provided.', function () {
+    var request = new Request({
+      url: null,
+      async: false,
+      token: api.getToken(),
+      method: 'POST',
+      data: {test: true}
+    });
+
+    expect(function () {
+      request.sendSync()
+    }).toThrow();
+
+  });
+
 
 });

@@ -5,6 +5,8 @@ var api;
 // Token will need to be re-generated every 24 hours.
 var access_token = 'Bearer ' + window.token;
 
+require('jasmine-ajax');
+
 var mock = require('xhr-mock');
 var utils;
 var Request;
@@ -729,28 +731,6 @@ describe('Ingest API : Uploader', function () {
 
     });
 
-    it('Should attempt to abort the upload synchronously', function (done) {
-      upload.created = true;
-      upload.initialized = false;
-      upload.fileRecord.id = 'test-id';
-      upload.fileRecord.method = false;
-
-      spyOn(upload.api.inputs, 'delete').and.callFake(function (fileid, async) {
-        expect(async).toEqual(false);
-        return api.utils.promisify(true, 'deleted');
-      });
-
-      upload.abort(false).then(function (response) {
-        expect(upload.api.inputs.delete).toHaveBeenCalled();
-        expect(response).toEqual('deleted');
-        done();
-      }, function (error) {
-        expect(error).not.toBeDefined();
-        done();
-      });
-
-    });
-
     it('Should silently resolve the promise if there is nothing to be done.', function (done) {
       upload.created = false;
       upload.initialized = false;
@@ -769,6 +749,229 @@ describe('Ingest API : Uploader', function () {
     });
 
   });
+
+  describe('abortSync', function () {
+
+    it('Should abort a single part upload.', function () {
+      var sync = false;
+
+      upload.created = true;
+      upload.initialized = true;
+      upload.singlePartPromise = true;
+
+      upload.requestPromise = {
+        cancel: function () {}
+      };
+
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
+        id: 'test-id',
+        method: '?type=amazon'
+      });
+
+      var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
+        id: 'test-id',
+        resource: api.inputs.config.resource
+      });
+
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(url, null, 'POST').andReturn({
+        status: 200,
+        contentType: 'application/json',
+        responseText: JSON.stringify('aborted')
+      });
+
+      jasmine.Ajax.stubRequest(deleteUrl, null, 'DELETE').andReturn({
+        status: 200,
+        contentType: 'application/json',
+        responseText: JSON.stringify('deleted')
+      });
+
+      upload.abortSync(function (error, response) {
+        expect(error).toEqual(null);
+        expect(response.data).toEqual('deleted');
+        sync = true;
+      });
+
+      expect(sync).toEqual(true);
+
+      jasmine.Ajax.uninstall();
+
+    });
+
+    it('Should abort a multi part upload.', function () {
+      var sync = false;
+
+      upload.created = true;
+      upload.initialized = true;
+
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = true;
+
+      upload.singlePartPromise = false;
+
+      upload.multiPartPromise = {
+        cancel: function () {}
+      };
+
+      var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
+        id: 'test-id',
+        method: ''
+      });
+
+      var deleteUrl = utils.parseTokens(api.config.host + api.inputs.config.byId, {
+        id: 'test-id',
+        resource: api.inputs.config.resource
+      });
+
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(url, null, 'POST').andReturn({
+        status: 200,
+        contentType: 'application/json',
+        responseText: JSON.stringify('aborted')
+      });
+
+      jasmine.Ajax.stubRequest(deleteUrl, null, 'DELETE').andReturn({
+        status: 200,
+        contentType: 'application/json',
+        responseText: JSON.stringify('deleted')
+      });
+
+      upload.abortSync(function (error, response) {
+        expect(response.data).toEqual('deleted');
+        sync = true;
+      });
+
+      expect(sync).toEqual(true);
+
+      jasmine.Ajax.uninstall();
+
+    });
+
+    it('Should call the callback if the abort fails.', function () {
+      var sync = false;
+
+      upload.created = true;
+      upload.initialized = true;
+
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = true;
+
+      upload.singlePartPromise = false;
+
+      upload.multiPartPromise = {
+        cancel: function () {}
+      };
+
+      var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
+        id: 'test-id',
+        method: ''
+      });
+
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(url, null, 'POST').andReturn({
+        status: 500,
+        contentType: 'application/json',
+        responseText: JSON.stringify('aborted')
+      });
+
+      upload.abortSync(function (error, response) {
+        expect(error).not.toEqual(null);
+        sync = true;
+      });
+
+      expect(sync).toEqual(true);
+
+      jasmine.Ajax.uninstall();
+
+    });
+
+    it('Should throw if the abort fails and a callback isn\'t provided.', function () {
+
+      upload.created = true;
+      upload.initialized = true;
+
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = true;
+
+      upload.singlePartPromise = false;
+
+      upload.multiPartPromise = {
+        cancel: function () {}
+      };
+
+      var url = utils.parseTokens(api.config.host + upload.config.uploadAbort, {
+        id: 'test-id',
+        method: ''
+      });
+
+      jasmine.Ajax.install();
+
+      jasmine.Ajax.stubRequest(url, null, 'POST').andReturn({
+        status: 500,
+        contentType: 'application/json',
+        responseText: JSON.stringify('aborted')
+      });
+
+      expect(function () {
+        upload.abortSync();
+      }).toThrow();
+
+      jasmine.Ajax.uninstall();
+
+    });
+
+    it('Should attempt to delete the input when the upload isn\'t initialized', function () {
+      var sync = false;
+
+      upload.created = true;
+      upload.initialized = false;
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      spyOn(upload.api.inputs, 'deleteSync').and.callFake(function (id, callback) {
+        callback(null, 'deleted');
+      });
+
+      upload.abortSync(function (error, response) {
+        expect(error).toEqual(null);
+        expect(response).toEqual('deleted');
+        sync = true;
+      });
+
+      expect(sync).toEqual(true);
+
+    });
+
+    it('Should call the callback with a null response if there is nothing to be done.', function () {
+      var sync = false;
+
+      upload.created = false;
+      upload.initialized = false;
+      upload.fileRecord.id = 'test-id';
+      upload.fileRecord.method = false;
+
+      spyOn(upload.api.inputs, 'delete').and.returnValue();
+
+      upload.abortSync(function (error, response) {
+
+        expect(error).toEqual(null);
+        expect(upload.api.inputs.delete).not.toHaveBeenCalled();
+
+        sync = true;
+
+      });
+
+      expect(sync).toEqual(true);
+    });
+
+  });
+
 
   describe('pause', function () {
     it('Should pause the current upload.', function () {
