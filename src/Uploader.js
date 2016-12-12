@@ -447,18 +447,12 @@ Upload.prototype._onCompleteUpload = function () {
 /**
  * Aborts an input upload
  *
- * @param {boolean} async A flag to indicate whether or not the request to delete the input should be async.
- *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype.abort = function (async) {
+Upload.prototype.abort = function () {
   var url;
   var tokens;
   var request;
-
-  if (typeof async === 'undefined') {
-    async = true;
-  }
 
   this.aborted = true;
 
@@ -469,7 +463,7 @@ Upload.prototype.abort = function (async) {
     if (this.created) {
       // If the input has been created simply return early with a
       // promise to delete the created input record.
-      return this.api.inputs.delete(this.fileRecord.id, async);
+      return this.api.inputs.delete(this.fileRecord.id);
     } else {
       // Resolve as a successful promise. This case would be fulfilled when an upload
       // has been created but save() hasn't yet been called.
@@ -487,7 +481,7 @@ Upload.prototype.abort = function (async) {
   if (this.singlePartPromise) {
     this.singlePartPromise = null;
     // return here because there is no need to abort a single part upload.
-    return this._abortComplete(async);
+    return this._abortComplete();
   }
 
   this.multiPartPromise.cancel();
@@ -502,14 +496,94 @@ Upload.prototype.abort = function (async) {
 
   request = new Request({
     url: url,
-    async: async,
     token: this.api.getToken(),
     method: 'POST',
     data: this.fileRecord
   });
 
   return request.send()
-          .then(this._abortComplete.bind(this, async));
+    .then(this._abortComplete.bind(this));
+
+};
+
+/**
+ * Aborts an input upload
+ * @param {function} callback Callback executed when the request is complete, or an error occurs.
+ */
+Upload.prototype.abortSync = function (callback) {
+  var url;
+  var tokens;
+  var request;
+
+  this.aborted = true;
+
+  // If initialize hasn't been called yet there is no need to abort the upload as it doesn't
+  // exist yet.
+  if (!this.initialized) {
+
+    if (this.created) {
+      // If the input has been created simply return early and delete the input.
+      this.api.inputs.deleteSync(this.fileRecord.id, callback);
+      return;
+    } else {
+      // Resolve as a successful promise. This case would be fulfilled when an upload
+      // has been created but save() hasn't yet been called.
+      callback(null);
+      return;
+    }
+
+  }
+
+  // Cancel the current request.
+  if (this.requestPromise) {
+    this.requestPromise.cancel();
+    this.requestPromise = null;
+  }
+
+  if (this.singlePartPromise) {
+    this.singlePartPromise = null;
+    // return here because there is no need to abort a single part upload.
+    this.api.inputs.deleteSync(this.fileRecord.id, callback);
+    return;
+  }
+
+  this.multiPartPromise.cancel();
+  this.multiPartPromise = null;
+
+  tokens = {
+    id: this.fileRecord.id,
+    method: ''
+  };
+
+  url = utils.parseTokens(this.api.config.host + this.config.uploadAbort, tokens);
+
+  request = new Request({
+    url: url,
+    async: false,
+    token: this.api.getToken(),
+    method: 'POST',
+    data: this.fileRecord
+  });
+
+  request.sendSync(this.abortSyncComplete.bind(this, callback));
+};
+
+/**
+ * Delete the input when the abort call completes and then execute the callback.
+ * @param  {Function} callback Synchronous callback
+ * @param  {object}   error    Error from abort call.
+ * @param  {object}   response Response from abort call.
+ */
+Upload.prototype.abortSyncComplete = function (callback, error, response) {
+
+  if (!error) {
+    this.api.inputs.deleteSync(this.fileRecord.id, callback);
+  } else if (typeof callback === 'function') {
+    callback(error);
+  } else {
+    throw error;
+  }
+
 };
 
 /**
@@ -517,8 +591,8 @@ Upload.prototype.abort = function (async) {
  * @private
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Upload.prototype._abortComplete = function (async) {
-  return this.api.inputs.delete(this.fileRecord.id, async);
+Upload.prototype._abortComplete = function () {
+  return this.api.inputs.delete(this.fileRecord.id);
 };
 
 /**

@@ -23,6 +23,7 @@
     "gulp-jasmine": "^2.1.0",
     "isparta-instrumenter-loader": "^0.2.1",
     "istanbul": "^0.3.21",
+    "jasmine-ajax": "^3.2.0",
     "jasmine-core": "^2.3.4",
     "jasmine-spec-reporter": "^2.4.0",
     "karma": "^0.13.10",
