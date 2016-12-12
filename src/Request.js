@@ -56,10 +56,14 @@ Request.prototype.send = function () {
 
 /**
  * Send the request synchronously
+ * @param {function} callback Function to call when the request is completed.
  * @return {object} The result of the request.
  */
 Request.prototype.sendSync = function (callback) {
-  this.callback = callback;
+
+  if (typeof callback === 'function') {
+    this.callback = callback;
+  }
 
   // Make sure a url is passed before attempting to make the request.
   if (this.options.url) {
