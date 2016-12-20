@@ -57,7 +57,8 @@ function Upload (options) {
     filename: this.file.name,
     type: this.file.type,
     size: this.file.size,
-    method: this._checkMultipart(this.file)
+    method: this._checkMultipart(this.file),
+    contentType: 'application/octet-stream'
   };
 
 };
@@ -139,7 +140,6 @@ Upload.prototype._createSuccess = function (response) {
  * @return {Promise} A promise which resolves when the request is complete.
  */
 Upload.prototype._initialize = function () {
-
   var url;
   var tokens;
   var signing = '';
@@ -339,7 +339,8 @@ Upload.prototype._sendUpload = function (upload, response) {
   var request;
 
   // Set the proper headers to send with the file.
-  headers['Content-Type'] = 'multipart/form-data';
+  headers['Content-Type'] = this.fileRecord.contentType;
+
   headers.authorization = response.data.authHeader;
   headers['x-amz-date'] = response.data.dateHeader;
   headers['x-amz-security-token'] = response.data.securityToken;
