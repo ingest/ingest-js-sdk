@@ -299,4 +299,80 @@ describe('Ingest API : Resource : Videos', function () {
 
   });
 
+  describe('publish', function () {
+
+    it('Should fail if no ids are passed in.', function (done) {
+
+      var request = videosResource.publish().then(function (response) {
+
+        expect(response).toBeUndefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should publish a video record.', function (done) {
+      var url, videoIDs;
+
+      // Mock the XHR object
+      mock.setup();
+
+      videoIDs = ['1234','2345','3456','4567'];
+
+      url = api.utils.parseTokens(api.config.host + videosResource.config.publish, {
+        resource: videosResource.config.resource
+      });
+
+      mock.mock('POST', url, function (request, response) {
+        // Restore the XHR Object
+        mock.teardown();
+
+        return response.status(200)
+      });
+
+      var request = videosResource.publish(videoIDs).then(function (response) {
+        expect(response.statusCode).toEqual(200);
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail to publish a video if something other than an array is passed in', function (done) {
+      var request = videosResource.publish('test-string').then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
 });

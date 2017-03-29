@@ -11,7 +11,8 @@ function Videos (options) {
     playlists: '/<%=resource%>/<%=id%>/playlists',
     variants: '/<%=resource%>/<%=id%>/variants',
     withVariants: '/<%=resource%>?filter=variants',
-    missingVariants: '/<%=resource%>?filter=missing_variants'
+    missingVariants: '/<%=resource%>?filter=missing_variants',
+    publish: '/<%=resource%>/publish'
   };
 
   options = extend(true, {}, overrides, options);
@@ -117,6 +118,35 @@ Videos.prototype.getVideosMissingVariants = function (headers) {
 
   return request.send()
           .then(this._updateCachedResources.bind(this));
+};
+
+/**
+ * Publishes a video based on the server time
+ *
+ * @param  {array}   ids   An array of video ids to publish
+ * @return {promise}       A promise which resolves when the request is complete
+ */
+Videos.prototype.publish = function (ids) {
+  var request, url;
+
+  // Check to make sure the ids are in an array
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return utils.promisify(false,
+      'IngestAPI Videos publish requires an array of ids to be passed in.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.publish, {
+    resource: this.config.resource,
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'POST',
+    data: ids
+  });
+
+  return request.send();
 };
 
 module.exports = Videos;
