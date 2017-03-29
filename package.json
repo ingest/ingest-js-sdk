@@ -1,6 +1,6 @@
 {
   "name": "ingest-js-sdk",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "index.js",
   "repository": {
@@ -37,7 +37,7 @@
     "pre-commit": "^1.1.2",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.1.4",
-    "webpack": "^1.12.2",
+    "webpack": "1.12.13",
     "xhr-mock": "^1.4.1"
   },
   "scripts": {
