@@ -37,7 +37,7 @@
     "pre-commit": "^1.1.2",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.1.4",
-    "webpack": "^1.12.2",
+    "webpack": "1.12.13",
     "xhr-mock": "^1.4.1"
   },
   "scripts": {
