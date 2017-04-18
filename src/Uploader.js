@@ -485,8 +485,10 @@ Upload.prototype.abort = function () {
     return this._abortComplete();
   }
 
-  this.multiPartPromise.cancel();
-  this.multiPartPromise = null;
+  if (this.multiPartPromise) {
+    this.multiPartPromise.cancel();
+    this.multiPartPromise = null;
+  }
 
   tokens = {
     id: this.fileRecord.id,
@@ -548,8 +550,11 @@ Upload.prototype.abortSync = function (callback) {
     return;
   }
 
-  this.multiPartPromise.cancel();
-  this.multiPartPromise = null;
+  // If we have a multi part promise we need to cancel it
+  if (this.multiPartPromise) {
+    this.multiPartPromise.cancel();
+    this.multiPartPromise = null;
+  }
 
   tokens = {
     id: this.fileRecord.id,
@@ -609,20 +614,16 @@ Upload.prototype.pause = function () {
 
   this.paused = true;
 
-  // Is there an upload
+  // Is there a multipart upload
   if (this.multiPartPromise) {
-
     // Pause the series if its a multipart upload.
     this.multiPartPromise.pause();
-
-    // Cancel the http request for this chunk.
-    this.requestPromise.cancel();
-
-  } else if (this.requestPromise) {
-    // Abort the upload if its a singlepart upload.
-    this.requestPromise.cancel();
   }
 
+  // Abort the upload if its a singlepart upload and cancel the request if it is a multipart promise
+  if (this.requestPromise) {
+    this.requestPromise.cancel();
+  }
 };
 
 /**
