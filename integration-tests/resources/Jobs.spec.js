@@ -155,4 +155,59 @@ describe('Ingest API : Resource : Jobs', function () {
 
   });
 
+  describe('progress', function () {
+    it('Should fail if a job id is not provided.', function (done) {
+      jobsResource.progress().then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+
+    it('Should get a progress update', function (done) {
+      var progressResponse, url;
+
+      progressResponse = {
+        "job_id": "6a928bac-d108-41f9-a0ee-e34181ac6119",
+        "status": "CREATED",
+        "progress": 58
+      }
+
+      mock.setup();
+
+      url = api.utils.parseTokens(api.config.host + jobsResource.config.progress, {
+        resource: jobsResource.config.resource,
+        id: '6a928bac-d108-41f9-a0ee-e34181ac6119'
+      });
+
+      // Mock the response from the REST api.
+      mock.mock('GET', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .body(progressResponse);
+
+      });
+
+      var request = jobsResource.progress("6a928bac-d108-41f9-a0ee-e34181ac6119").then(function (response) {
+
+        expect(response).toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
 });
