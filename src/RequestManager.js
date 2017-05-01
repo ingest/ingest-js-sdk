@@ -133,7 +133,7 @@ RequestManager.prototype.sendNextRequest = function (response) {
     // Otherwise lets delay so these get sent in the next tick
     delay = (Date.now() - this.lastRequestSetStart) < 100 ? 100 : (Date.now() - this.lastRequestSetStart);
 
-    // Delay the call of the next send request3
+    // Delay the call of the next send request
     setTimeout(this.sendRequest.bind(this, requestData[0], requestData[1]), delay);
   }
 
