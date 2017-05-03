@@ -289,6 +289,50 @@ describe('Ingest API : Resource : Networks', function () {
 
     });
 
+    it('Should re-send an invite to the user.', function (done) {
+
+      var networkId, email, name, resend, promise, requestPayload;
+
+      networkId = 'network-uuid';
+      email = 'user@domain.com';
+      name = 'Network User';
+      resend = true;
+
+      mock.setup();
+
+      // Mock the response from the REST API.
+      mock.mock('POST', api.config.host + '/networks/network-uuid/invite', function (request, response) {
+
+        // Set the request payload for future evaluation.
+        requestPayload = JSON.parse(request._xhr.data);
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204);
+
+      });
+
+      promise = networksResource.inviteUser(networkId, email, name, resend).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.statusCode).toBe(204);
+        expect(requestPayload.resend).toEqual(true);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise is returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
     it('Should fail if no "email" is passed in.', function (done) {
 
       var request, name, networkId;
@@ -1877,6 +1921,175 @@ describe('Ingest API : Resource : Networks', function () {
       expect(request.then).toBeDefined();
 
     });
+  });
+
+  describe('getPendingUsers', function () {
+
+    it('Should fail if networkId was not passed as a string.', function (done) {
+
+      var networkId, promise;
+
+      networkId = null;
+
+      promise = networksResource.getPendingUsers(networkId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId to be passed as a string/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully retrieve a list of pending users.', function (done) {
+
+      var network, promise, url;
+
+      network = {
+        network_id: 'network-uuid',
+        pending_members: []
+      };
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + network.network_id + '?filter=pending';
+
+      // Mock the response from the REST API.
+      mock.mock('GET', url, function (request, response) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response
+          .status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(network));
+      });
+
+      promise = networksResource.getPendingUsers(network.network_id).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(network);
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(200);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+  });
+
+  describe('deletePendingUser', function () {
+
+    it('Should fail if networkId was not passed in as a string.', function (done) {
+
+      var networkId, pendingUserId, promise;
+
+      networkId = null;
+      pendingUserId = 'pending-user-uuid';
+
+      promise = networksResource.deletePendingUser(networkId, pendingUserId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and pendingUserId to be passed as strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should fail if pendingUserId was not passed in as a string.', function (done) {
+
+      var networkId, pendingUserId, promise;
+
+      networkId = 'network-uuid';
+      pendingUserId = null;
+
+      promise = networksResource.deletePendingUser(networkId, pendingUserId).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toMatch(/requires networkId and pendingUserId to be passed as strings/);
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
+    it('Should successfully delete the pending user.', function (done) {
+
+      var networkId, pendingUserId, promise, url;
+
+      networkId = 'network-uuid';
+      pendingUserId = 'pending-user-uuid';
+
+      // Mock the XHR object.
+      mock.setup();
+
+      url = api.config.host + '/networks/' + networkId + '/pending-users/' + pendingUserId;
+
+      // Mock the response from the REST API.
+      mock.mock('DELETE', url, function (request, response) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response
+          .status(204)
+          .header('Content-Type', 'application/json');
+      });
+
+      promise = networksResource.deletePendingUser(networkId, pendingUserId).then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBe(204);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(promise.then).toBeDefined();
+
+    });
+
   });
 
 

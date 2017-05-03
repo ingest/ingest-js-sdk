@@ -17,6 +17,8 @@ function Networks (options) {
     customers: '/<%=resource%>/<%=networkId%>/customers',
     customerById: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>',
     customerCardInformation: '/<%=resource%>/<%=networkId%>/customers/<%=cusId%>/card',
+    getPendingUsers: '/<%=resource%>/<%=networkId%>?filter=pending',
+    deletePendingUser: '/<%=resource%>/<%=networkId%>/pending-users/<%=pendingUserId%>',
   };
 
   options = extend(true, {}, overrides, options);
@@ -115,10 +117,11 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
  * @param {string}  networkId  The unique ID of the network.
  * @param {string}  email      The email to send the invite to.
  * @param {string}  name       The name of the person to invite.
+ * @param {boolean} resend     [Optional] True: Resend an invite. False for first time invite. Default value is false.
  *
  * @return {Promise} A promise which resolves when the request is complete.
  */
-Networks.prototype.inviteUser = function (networkId, email, name) {
+Networks.prototype.inviteUser = function (networkId, email, name, resend) {
   var data, request, url;
 
   if (typeof networkId !== 'string') {
@@ -140,6 +143,10 @@ Networks.prototype.inviteUser = function (networkId, email, name) {
     email: email,
     name: name
   };
+
+  if (typeof resend === 'boolean') {
+    data.resend = resend;
+  }
 
   url = utils.parseTokens(this.config.host + this.config.invite, {
     resource: this.config.resource,
@@ -490,8 +497,7 @@ Networks.prototype.getCustomerCardInformation = function (networkId, customerId)
 
   request = new Request({
     url: url,
-    token: this._tokenSource(),
-    method: 'GET'
+    token: this._tokenSource()
   });
 
   return request.send();
@@ -549,8 +555,7 @@ Networks.prototype.getInvoices = function (networkId) {
 
   request = new Request({
     url: url,
-    token: this._tokenSource(),
-    method: 'GET'
+    token: this._tokenSource()
   });
 
   return request.send();
@@ -614,6 +619,65 @@ Networks.prototype.getCurrentUsage = function (networkId) {
   });
 
   request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
+ * Gets all pending users for the specified network.
+ *
+ * @param {string} networkId - The network ID.
+ *
+ * @return {Promise} - A promise which resolves when the request is complete.
+ */
+Networks.prototype.getPendingUsers = function (networkId) {
+  var url, request;
+
+  if (typeof networkId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI getPendingUsers requires networkId to be passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.getPendingUsers, {
+    resource:  this.config.resource,
+    networkId: networkId
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
+ * Deletes a pending user from the specified network.
+ *
+ * @param {string} networkId     - The network ID that the pending user belongs to.
+ * @param {string} pendingUserId - The pending user to delete from the network.
+ *
+ * @return {Promise} - A promise which resolves when the request is complete.
+ */
+Networks.prototype.deletePendingUser = function (networkId, pendingUserId) {
+  var url, request;
+
+  if (typeof networkId !== 'string' || typeof pendingUserId !== 'string') {
+    return utils.promisify(false,
+      'IngestAPI deletePendingUser requires networkId and pendingUserId to be passed as strings.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.deletePendingUser, {
+    resource: this.config.resource,
+    networkId: networkId,
+    pendingUserId: pendingUserId
+  });
+
+  request = new Request({
+    method: 'DELETE',
     url: url,
     token: this._tokenSource()
   });
