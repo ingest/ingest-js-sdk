@@ -346,29 +346,10 @@ describe('Ingest API : RequestManager', function () {
     expect(RequestManager.maxRequests).toEqual(10);
   });
 
-  it('Should delay the request and send it', function () {
+  it('Should delay the request.', function () {
     var response, request;
 
-    // Mock the XHR object
-    mock.setup();
-
-    // Mock the response from the REST api.
-    mock.get(api.config.host + '/videos',
-      function (request, response) {
-
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200);
-
-      });
-
-    request = new Request({
-      url: api.config.host + '/videos',
-      token: api.getToken(),
-      method: 'POST'
-    });
-
+    request = {}
     response = {
       status: 200,
       headers: function () {
