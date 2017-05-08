@@ -346,29 +346,10 @@ describe('Ingest API : RequestManager', function () {
     expect(RequestManager.maxRequests).toEqual(10);
   });
 
-  it('Should delay the request and send it', function (done) {
+  it('Should delay the request.', function () {
     var response, request;
 
-    // Mock the XHR object
-    mock.setup();
-
-    // Mock the response from the REST api.
-    mock.get(api.config.host + '/videos',
-      function (request, response) {
-
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200);
-
-      });
-
-    request = new Request({
-      url: api.config.host + '/videos',
-      token: api.getToken(),
-      method: 'POST'
-    });
-
+    request = {}
     response = {
       status: 200,
       headers: function () {
@@ -382,8 +363,8 @@ describe('Ingest API : RequestManager', function () {
 
     RequestManager.pending[0] = [request, null];
 
-    spyOn(request, 'send');
-    spyOn(RequestManager, 'sendRequest');
+    // Spy on setTimeout to test if the request will be scheduled
+    spyOn(window, 'setTimeout');
 
     RequestManager.sendNextRequest(response);
 
@@ -391,9 +372,7 @@ describe('Ingest API : RequestManager', function () {
     expect(RequestManager.XRatelimitLimit).not.toEqual(null);
     expect(RequestManager.maxRequests).toEqual(10);
 
-    done();
+    expect(window.setTimeout).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Number));
 
-    expect(RequestManager.sendRequest).toHaveBeenCalled();
-    expect(request.send).toHaveBeenCalled();
   });
 });
