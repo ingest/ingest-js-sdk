@@ -113,7 +113,7 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
-  this.events = new Resource({
+  this.events = new Events({
     host: this.config.host,
     resource: 'events',
     tokenSource: this._getToken,
