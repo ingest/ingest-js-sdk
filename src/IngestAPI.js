@@ -31,12 +31,6 @@ function IngestAPI (options) {
     'maxRequests': 6, // Active Requests
     'host': 'https://api.ingest.io',
     'cacheAge': 300000, // 5 minutes
-    'inputs': '/encoding/inputs',
-    'inputsById' : '/encoding/inputs/<%=id%>',
-    'inputsUpload': '/encoding/inputs/<%=id%>/upload<%=method%>',
-    'inputsUploadSign': '/encoding/inputs/<%=id%>/upload/sign<%=method%>',
-    'inputsUploadComplete': '/encoding/inputs/<%=id%>/upload/complete',
-    'inputsUploadAbort': '/encoding/inputs/<%=id%>/upload/abort'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -115,6 +109,13 @@ function IngestAPI (options) {
   this.jobs = new Jobs({
     host: this.config.host,
     resource: 'encoding/jobs',
+    tokenSource: this._getToken,
+    cache: this.cache
+  });
+
+  this.events = new Resource({
+    host: this.config.host,
+    resource: 'events',
     tokenSource: this._getToken,
     cache: this.cache
   });
