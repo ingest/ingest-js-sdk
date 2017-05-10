@@ -17,6 +17,7 @@ var Playlists = require('./resources/Playlists');
 var Jobs = require('./resources/Jobs');
 var Profiles = require('./resources/Profiles');
 var Inputs = require('./resources/Inputs');
+var Events = require('./resources/Events');
 
 /**
  * IngestAPI Object
