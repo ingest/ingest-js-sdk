@@ -9,7 +9,7 @@ function Events (options) {
 
   var overrides = {
     //?/events?filter=new,error,important,notifications&resource=videos,playlists,users,inputs,jobs
-    byType: '/<%=resource%>?filter=<%=input%>',
+    filter: '/<%=resource%>?filter=<%=input%>',
   };
 
   options = extend(true, {}, overrides, options);
@@ -25,10 +25,10 @@ Events.prototype.constructor = Events;
 /**
  * Return a subset of items that match the filter terms.
  * @param  {string}   input     The filter terms to match against.
- * @param  {object}   headers   The headers to be passed to the request.
+ *
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Event.prototype.filter = function (input, headers) {
+Event.prototype.filter = function (input) {
   var url, request;
 
   if (typeof input !== 'string') {
