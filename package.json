@@ -11,7 +11,8 @@
   "dependencies": {
     "extend": "^3.0.0",
     "pinkyswear": "^2.2.2",
-    "request": "^2.65.0"
+    "request": "^2.65.0",
+    "run-sequence": "^1.2.2"
   },
   "devDependencies": {
     "eslint": "^1.5.1",

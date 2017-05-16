@@ -58,6 +58,7 @@ function IngestAPI (options) {
   this.profilesResource = Profiles;
   this.inputsResource = Inputs;
   this.uploader = Uploader;
+  this.eventsResource = Events;
 
   // Construct my cache
   this.cache = new Cache(this.config.cacheAge);

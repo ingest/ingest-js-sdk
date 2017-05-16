@@ -8,8 +8,7 @@ var extend = require('extend');
 function Events (options) {
 
   var overrides = {
-    //?/events?filter=new,error,important,notifications&resource=videos,playlists,users,inputs,jobs
-    filter: '/<%=resource%>?filter=<%=input%>',
+    filter: '/<%=resource%>?filter=<%=input%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -28,13 +27,8 @@ Events.prototype.constructor = Events;
  *
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Event.prototype.filter = function (input) {
+Events.prototype.filter = function (input) {
   var url, request;
-
-  if (typeof input !== 'string') {
-    return utils.promisify(false,
-      'IngestAPI Event filtering requires input to be passed as a string.');
-  }
 
   url = utils.parseTokens(this.config.host + this.config.filter, {
     resource: this.config.resource,
@@ -42,9 +36,9 @@ Event.prototype.filter = function (input) {
   });
 
   request = new Request({
+    method: 'GET',
     url: url,
-    token: this._tokenSource(),
-    headers: headers
+    token: this._tokenSource()
   });
 
   return request.send();
