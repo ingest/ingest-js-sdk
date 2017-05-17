@@ -24,7 +24,7 @@ describe('Ingest API : Resource : Events', function () {
     eventsResource.cache.enabled = true;
   });
 
-  describe('filter', function () {
+  describe('getFilteredEvents', function () {
     it('Should retrieve filtered results for the given params', function (done) {
       var request;
 

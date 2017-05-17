@@ -27,7 +27,7 @@ Events.prototype.constructor = Events;
  *
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Events.prototype.filter = function (input) {
+Events.prototype.filter = function (input, headers) {
   var url, request;
 
   url = utils.parseTokens(this.config.host + this.config.filter, {
@@ -36,9 +36,10 @@ Events.prototype.filter = function (input) {
   });
 
   request = new Request({
-    method: 'GET',
+    //method: 'GET',
     url: url,
-    token: this._tokenSource()
+    token: this._tokenSource(),
+    headers: headers
   });
 
   return request.send();
