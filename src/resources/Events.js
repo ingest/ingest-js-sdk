@@ -36,7 +36,6 @@ Events.prototype.filter = function (input, headers) {
   });
 
   request = new Request({
-    //method: 'GET',
     url: url,
     token: this._tokenSource(),
     headers: headers
