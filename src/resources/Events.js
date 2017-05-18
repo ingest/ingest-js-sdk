@@ -8,7 +8,8 @@ var extend = require('extend');
 function Events (options) {
 
   var overrides = {
-    filter: '/<%=resource%>?filter=<%=input%>'
+    filter: '/<%=resource%>?filter=<%=input%>',
+    filterByType: '/<%=resource%>?resource=<%=input%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -31,6 +32,23 @@ Events.prototype.filter = function (input, headers) {
   var url, request;
 
   url = utils.parseTokens(this.config.host + this.config.filter, {
+    resource: this.config.resource,
+    input: encodeURIComponent(input)
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    headers: headers
+  });
+
+  return request.send();
+};
+
+Events.prototype.filterByType = function (input, headers) {
+  var url, request;
+
+  url = utils.parseTokens(this.config.host + this.config.filterByType, {
     resource: this.config.resource,
     input: encodeURIComponent(input)
   });
