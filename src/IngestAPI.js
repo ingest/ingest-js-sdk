@@ -17,6 +17,7 @@ var Playlists = require('./resources/Playlists');
 var Jobs = require('./resources/Jobs');
 var Profiles = require('./resources/Profiles');
 var Inputs = require('./resources/Inputs');
+var Events = require('./resources/Events');
 
 /**
  * IngestAPI Object
@@ -57,6 +58,7 @@ function IngestAPI (options) {
   this.profilesResource = Profiles;
   this.inputsResource = Inputs;
   this.uploader = Uploader;
+  this.eventsResource = Events;
 
   // Construct my cache
   this.cache = new Cache(this.config.cacheAge);
@@ -113,7 +115,7 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
-  this.events = new Resource({
+  this.events = new Events({
     host: this.config.host,
     resource: 'events',
     tokenSource: this._getToken,
