@@ -23,7 +23,7 @@ Events.prototype = Object.create(Resource.prototype);
 Events.prototype.constructor = Events;
 
 /**
- * Return a subset of items that match the filter terms.
+ * Return a subset of items that match the filter by status terms.
  * @param  {string}   input     The filter terms to match against.
  *
  * @return {Promise}          A promise which resolves when the request is complete.
@@ -45,6 +45,13 @@ Events.prototype.filter = function (input, headers) {
   return request.send();
 };
 
+
+/**
+ * Return a subset of items that match the filter by type terms.
+ * @param  {string}   input     The filter terms to match against.
+ *
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
 Events.prototype.filterByType = function (input, headers) {
   var url, request;
 
