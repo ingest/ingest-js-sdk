@@ -775,6 +775,19 @@ describe('Ingest API : Resource', function () {
 
     });
 
+    it('Should error if it has a status that is not a string', function () {
+      var request = resource.search('12345', null, true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
   });
 
   describe('search', function () {
@@ -782,7 +795,7 @@ describe('Ingest API : Resource', function () {
       // Mock the XHR Object.
       mock.setup();
 
-      mock.mock('GET', api.config.host + '/videos?search=test&filter=trashed',
+      mock.mock('GET', api.config.host + '/videos?search=test&status=trashed',
         function (request, response) {
 
           var data = {
@@ -804,7 +817,7 @@ describe('Ingest API : Resource', function () {
         expect(response).toBeDefined();
         expect(response.data.called).toEqual(true);
 
-        expect(resource.search).toHaveBeenCalledWith('test', undefined, true);
+        expect(resource.search).toHaveBeenCalledWith('test', undefined, 'trashed');
 
         done();
 
@@ -863,6 +876,54 @@ describe('Ingest API : Resource', function () {
 
     });
 
+    it('Should retrieve a count of all the resources with the specified status', function (done) {
+      var request;
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('HEAD', api.config.host + '/videos?status=all', function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 5)
+          .body('{}');
+
+      });
+
+      request = resource.count('all').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response).toBe('number');
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should error if it has a status that is not a string', function () {
+      var request = resource.count(true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
   });
 
   describe('getTrashed', function () {
@@ -873,7 +934,7 @@ describe('Ingest API : Resource', function () {
 
       mock.setup();
 
-      mock.mock('GET', api.config.host + '/videos?filter=trashed',
+      mock.mock('GET', api.config.host + '/videos?status=trashed',
         function (request, response) {
 
           mock.teardown();
@@ -911,7 +972,7 @@ describe('Ingest API : Resource', function () {
 
       mock.setup();
 
-      mock.mock('GET', api.config.host + '/videos?filter=trashed',
+      mock.mock('GET', api.config.host + '/videos?status=trashed',
         function (request, response) {
 
           mock.teardown();

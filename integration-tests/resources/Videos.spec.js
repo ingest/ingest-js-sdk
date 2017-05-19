@@ -8,6 +8,43 @@ var api = new IngestAPI({
 var mock = require('xhr-mock');
 var videosResource;
 
+var video = {
+  author: {
+    deleted_at: null,
+    email: "shawn.gillam-wright@redspace.com",
+    first_time_user: true,
+    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    profile: {},
+    timezone: "UTC",
+    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+  },
+  created_at: "2015-12-18T15:54:53.085423Z",
+  deleted_at: null,
+  description: "sdf",
+  id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+  playback_url: null,
+  poster: null,
+  private: null,
+  published_at: null,
+  schedule_end: null,
+  schedule_start: null,
+  size: 0,
+  status: 0,
+  tags: ["sdf"],
+  title: "ad",
+  updated_at: "2015-12-18T15:54:53.085423Z",
+  updater: {
+    deleted_at: null,
+    email: "shawn.gillam-wright@redspace.com",
+    first_time_user: true,
+    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    profile: {},
+    timezone: "UTC",
+    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+  },
+  url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+};
+
 var playlists = [
   {
     'id': '08628e63-5b49-4870-9daa-9cd87366350f',
@@ -50,74 +87,6 @@ var variants = [
   }
 ];
 
-var videosWithVariants = [
-  {
-    'id': 'a0e28c29-8c66-4588-8353-e37d003d1065',
-    'poster': {},
-    'author': {},
-    'updater': {},
-    'variants': [
-      {
-        'id': 'ee5fe60d-bf11-4e21-9bbc-52ffb6c20826',
-        'name': 'low',
-        'duration': 734.167,
-        'type': 'hls',
-        'video_id': 'a0e28c29-8c66-4588-8353-e37d003d1065',
-        'profile_id': '403c508c-b556-48dc-89e5-d234a4e1e383'
-      },
-      {
-        'id': 'df44105c-16e9-4557-8ff4-0fdf5ce3d194',
-        'name': 'medium',
-        'duration': 734.167,
-        'type': 'hls',
-        'video_id': 'a0e28c29-8c66-4588-8353-e37d003d1065',
-        'profile_id': '403c508c-b556-48dc-89e5-d234a4e1e383'
-      }
-    ]
-  },
-  {
-    'id': 'cd74a0df-3177-4a3e-9eb5-c890a90bd3e3',
-    'poster': {},
-    'author': {},
-    'updater': {},
-    'variants': [
-      {
-        'id': 'b1ede429-c623-4713-8442-d73c66a963a4',
-        'name': 'low',
-        'duration': 734.167,
-        'type': 'hls',
-        'video_id': 'cd74a0df-3177-4a3e-9eb5-c890a90bd3e3',
-        'profile_id': '0519d89d-ac2e-4cd7-938a-89c32e764c8a'
-      },
-      {
-        'id': '626abeac-5389-4c91-9b7b-1c39b16e3ada',
-        'name': 'medium',
-        'duration': 734.167,
-        'type': 'hls',
-        'video_id': 'cd74a0df-3177-4a3e-9eb5-c890a90bd3e3',
-        'profile_id': '0519d89d-ac2e-4cd7-938a-89c32e764c8a'
-      }
-    ]
-  }
-];
-
-var videosMissingVariants = [
-  {
-    'id': 'a0e28c29-8c66-4588-8353-e37d003d1065',
-    'poster': {},
-    'author': {},
-    'updater': {},
-    'variants': []
-  },
-  {
-    'id': 'cd74a0df-3177-4a3e-9eb5-c890a90bd3e3',
-    'poster': {},
-    'author': {},
-    'updater': {},
-    'variants': []
-  }
-];
-
 describe('Ingest API : Resource : Videos', function () {
 
   beforeEach(function () {
@@ -127,6 +96,93 @@ describe('Ingest API : Resource : Videos', function () {
       resource: 'videos',
       tokenSource: api.getToken.bind(api),
       cache: api.cache
+    });
+
+  });
+
+  describe('getAll', function () {
+
+    it('Should retrieve all videos.', function (done) {
+
+      var url, request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/videos',
+        function (request, response) {
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify([video]));
+        });
+
+      request = videosResource.getAll().then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve all videos with a specific status', function (done) {
+
+      var url, request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/videos?status=all',
+        function (request, response) {
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify([video]));
+        });
+
+      request = videosResource.getAll(null, 'all').then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should error if it has a status that is not a string', function () {
+      var request = videosResource.getAll(null, true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
     });
 
   });
@@ -222,76 +278,6 @@ describe('Ingest API : Resource : Videos', function () {
         done();
       }, function (error) {
         expect(error).toBeDefined();
-        done();
-      });
-
-    });
-
-  });
-
-  describe('getVideosWithVariants', function () {
-    it('Should retrieve a list of videos with variants', function (done) {
-      var url;
-
-      mock.setup();
-
-      url = api.utils.parseTokens(api.config.host + videosResource.config.withVariants, {
-        resource: videosResource.config.resource
-      });
-
-      mock.mock('GET', url,
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(videosWithVariants));
-
-        });
-
-      videosResource.getVideosWithVariants().then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data).toEqual(videosWithVariants);
-        done();
-      }, function (error) {
-        expect(error).not.toBeDefined();
-        done();
-      });
-
-    });
-
-  });
-
-  describe('getVideosMissingVariants', function () {
-    it('Should retrieve a list of videos with that do not have variants', function (done) {
-      var url;
-
-      mock.setup();
-
-      url = api.utils.parseTokens(api.config.host + videosResource.config.missingVariants, {
-        resource: videosResource.config.resource
-      });
-
-      mock.mock('GET', url,
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(videosMissingVariants));
-
-        });
-
-      videosResource.getVideosMissingVariants().then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data).toEqual(videosMissingVariants);
-        done();
-      }, function (error) {
-        expect(error).not.toBeDefined();
         done();
       });
 

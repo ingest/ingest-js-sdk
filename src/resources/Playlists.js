@@ -22,6 +22,41 @@ Playlists.prototype = Object.create(PlaybackContent.prototype);
 Playlists.prototype.constructor = Playlists;
 
 /**
+ * Return a resource that matches the supplied id.
+ * @param  {string}   id    Resource id.
+ * @return {promise}        A promise which resolves when the request is complete.
+ */
+Playlists.prototype.getById = function (id, status) {
+  var url, cachedResult, request;
+
+  if (typeof id !== 'string' || id.length <= 0) {
+    return utils.promisify(false,
+      'IngestAPI Playlist getById requires a valid id passed as a string.');
+  }
+
+  url = utils.parseTokens(this.config.host + this.config.byId, {
+    resource: this.config.resource,
+    id: id
+  });
+
+  if (status) {
+    if (typeof status !== 'string') {
+      return utils.promisify(false,
+        'IngestAPI Videos.getAll requires a valid status to be passed as a string.');
+    }
+
+    url = url + '?video.status=' + status;
+  }
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send();
+};
+
+/**
  * Add the supplied video to the supplied playlist.
  * @param   {string}   playlistId  The UUID of the playlist to add the videoId to.
  * @param   {array}    videoIds    The UUID of the video to add to the playlist.

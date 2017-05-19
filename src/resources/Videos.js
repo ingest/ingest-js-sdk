@@ -10,8 +10,6 @@ function Videos (options) {
   var overrides = {
     playlists: '/<%=resource%>/<%=id%>/playlists',
     variants: '/<%=resource%>/<%=id%>/variants',
-    withVariants: '/<%=resource%>?filter=variants',
-    missingVariants: '/<%=resource%>?filter=missing_variants',
     publish: '/<%=resource%>/publish'
   };
 
@@ -24,6 +22,36 @@ function Videos (options) {
 // This extends the base class of 'PlaybackContent'.
 Videos.prototype = Object.create(PlaybackContent.prototype);
 Videos.prototype.constructor = Videos;
+
+/**
+ * Return a list of the requested videos for the current user and network.
+ * @param  {object}   headers   Object representing headers to apply to the request.
+ * @return {promise}            A promise which resolves when the request is complete.
+ */
+Videos.prototype.getAll = function (headers, status) {
+  var request;
+  var url = utils.parseTokens(this.config.host + this.config.all, {
+    resource: this.config.resource
+  });
+
+  // If there is a status
+  if (status) {
+    if (typeof status !== 'string') {
+      return utils.promisify(false,
+        'IngestAPI Videos.getAll requires a valid status to be passed as a string.');
+    }
+
+    url = url + '?status=' + status;
+  }
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    headers: headers
+  });
+
+  return request.send();
+};
 
 /**
  * Return any playlists that contains the provided video.
@@ -76,48 +104,6 @@ Videos.prototype.getVariants = function (id) {
   });
 
   return request.send();
-};
-
-/**
- * Return a list of the videos for the current user and network that contain variants.
- * @param  {object}   headers   Object representing headers to apply to the request.
- * @return {promise}            A promise which resolves when the request is complete.
- */
-Videos.prototype.getVideosWithVariants = function (headers) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.withVariants, {
-    resource: this.config.resource
-  });
-
-  request = new Request({
-    url: url,
-    token: this._tokenSource(),
-    headers: headers
-  });
-
-  return request.send()
-          .then(this._updateCachedResources.bind(this));
-};
-
-/**
- * Return a list of the videos for the current user and network that are missing variants.
- * @param  {object}   headers   Object representing headers to apply to the request.
- * @return {promise}            A promise which resolves when the request is complete.
- */
-Videos.prototype.getVideosMissingVariants = function (headers) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.missingVariants, {
-    resource: this.config.resource
-  });
-
-  request = new Request({
-    url: url,
-    token: this._tokenSource(),
-    headers: headers
-  });
-
-  return request.send()
-          .then(this._updateCachedResources.bind(this));
 };
 
 /**

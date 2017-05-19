@@ -95,6 +95,127 @@ describe('Ingest API : Resource : Playlists', function () {
 
   });
 
+  describe('getById', function () {
+
+    it('Should return a single playlist.', function (done) {
+      var request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/playlists/12345', function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify({data: playlists[0]}));
+
+      });
+
+      request = playlistsResource.getById('12345').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeUndefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if no ID is provided.', function (done) {
+      var request = playlistsResource.getById('').then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('should fail if the passed in ID is not a string', function (done) {
+      var request = playlistsResource.getById(1234).then(function (response) {
+
+        expect(response).toBeUndefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should retrieve all playlists with a specific video status', function (done) {
+
+      var url, request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/playlists/12345?video.status=all',
+        function (request, response) {
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify(playlists[0]));
+        });
+
+      request = playlistsResource.getById('12345', 'all').then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should error if it has a status that is not a string', function () {
+      var request = playlistsResource.getById('12345', true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+  });
+
   describe('addVideos', function () {
 
     it('Should fail if "playlistId" is not supplied as a string.', function (done) {
