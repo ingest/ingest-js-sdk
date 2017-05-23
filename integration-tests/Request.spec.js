@@ -24,10 +24,9 @@ describe('Ingest API : Request', function () {
   });
 
   it('Should reject the promise if the response is not valid JSON.', function (done) {
+    var data = '"1';
 
     mock.setup();
-
-    var data = '"1';
 
     mock.get(api.config.host + '/videos',
       function (request, response) {

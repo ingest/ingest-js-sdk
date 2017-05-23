@@ -610,7 +610,6 @@ describe('Ingest API : Resource : Networks', function () {
       };
 
       request = networksResource.addSecureKey(networkId, data).then(function (response) {
-
         expect(response).toBeDefined();
         expect(response.data.id).toBeDefined();
         expect(response.data.title).toBe('Default Key Title');

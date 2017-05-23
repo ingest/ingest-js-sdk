@@ -216,7 +216,7 @@ Request.prototype.requestComplete = function (response) {
   }
 
   // Either resolve or reject the promise.
-  this.promise(!this.response.data.error, [this.response]);
+  this.promise(!this.response.data.errors, [this.response]);
 
 };
 
@@ -236,7 +236,7 @@ Request.prototype.processResponse = function (response) {
       result = JSON.parse(response);
     } catch (error) {
       result = {
-        error: 'JSON parsing failed. ' + error.stack
+        errors: 'JSON parsing failed. ' + error.stack
       };
     }
   }
@@ -251,7 +251,7 @@ Request.prototype.processResponse = function (response) {
 
 /**
  * Resolve the promise.
- * @param  {String} message   Error message.
+ * @param  {Object | String} message   Error object or error message.
  */
 Request.prototype.requestError = function (message) {
   var error;
@@ -292,7 +292,7 @@ Request.prototype.readyStateChange = function () {
 
     // Special case error handling with response body
     var resp = this.processResponse(this.request.response);
-    this.requestError(resp.data.error);
+    this.requestError(resp.data);
     break;
   default:
     // silence is golden

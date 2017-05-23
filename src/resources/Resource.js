@@ -14,7 +14,7 @@ function Resource (options) {
     host: 'https://api.ingest.io',
     all: '/<%=resource%>',
     byId: '/<%=resource%>/<%=id%>',
-    trash: '/<%=resource%>?filter=trashed',
+    trash: '/<%=resource%>?status=trashed',
     deleteMethods: {
       'permanent': '?permanent=1'
     },
@@ -335,7 +335,7 @@ Resource.prototype._deleteResourceSync = function (resource, permanent, callback
  * @param  {boolean}  trash     Should we be searching the trash.
  * @return {Promise}          A promise which resolves when the request is complete.
  */
-Resource.prototype.search = function (input, headers, trash) {
+Resource.prototype.search = function (input, headers, status) {
   var url, request;
 
   if (typeof input !== 'string') {
@@ -348,8 +348,14 @@ Resource.prototype.search = function (input, headers, trash) {
     input: encodeURIComponent(input)
   });
 
-  if (trash) {
-    url = url + '&filter=trashed';
+  // If there is a status and it
+  if (status) {
+    if (typeof status !== 'string') {
+      return utils.promisify(false,
+        'IngestAPI Resource search requires a valid status to be passed as a string.');
+    }
+
+    url = url + '&status=' + status;
   }
 
   request = new Request({
@@ -368,18 +374,28 @@ Resource.prototype.search = function (input, headers, trash) {
  * @return {Promise}          A promise which resolves when the request is complete.
  */
 Resource.prototype.searchTrash = function (input, headers) {
-  return this.search(input, headers, true);
+  return this.search(input, headers, 'trashed');
 };
 
 /**
  * Get the total count of resources.
  * @return {promise} A promise which resolves when the request is complete.
  */
-Resource.prototype.count = function () {
+Resource.prototype.count = function (status) {
   var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
+
+  // If there is a status and it
+  if (status) {
+    if (typeof status !== 'string') {
+      return utils.promisify(false,
+        'IngestAPI Resource count requires a valid status to be passed as a string.');
+    }
+
+    url = url + '?status=' + status;
+  }
 
   request = new Request({
     url: url,
