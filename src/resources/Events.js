@@ -30,7 +30,7 @@ Events.prototype.getAll = function (headers, filters) {
   });
 
   // If there is a filter type
-  if (filter) {
+  if (filters) {
     if (typeof filters !== 'string') {
       return utils.promisify(false,
         'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
