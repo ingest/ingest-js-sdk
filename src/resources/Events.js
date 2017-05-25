@@ -23,7 +23,7 @@ function Events (options) {
 Events.prototype = Object.create(Resource.prototype);
 Events.prototype.constructor = Events;
 
-Events.prototype.getAll = function (headers, filter, resource) {
+Events.prototype.getAll = function (headers, filters) {
   var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
@@ -31,12 +31,12 @@ Events.prototype.getAll = function (headers, filter, resource) {
 
   // If there is a filter type
   if (filter) {
-    if (typeof filter !== 'string') {
+    if (typeof filters !== 'string') {
       return utils.promisify(false,
         'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
     }
 
-    url = url + '?filter=' + filter;
+    url = url + '?filter=' + filters;
   }
 
   request = new Request({
