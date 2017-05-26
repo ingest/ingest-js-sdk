@@ -35,6 +35,9 @@ describe('Ingest API : RequestManager', function () {
     spyOn(RequestManager, 'addRequest').and.callThrough();
     spyOn(RequestManager, 'sendRequest');
 
+    RequestManager.pending = [];
+    RequestManager.activeRequests = 0;
+
     // Mock the XHR object
     mock.setup();
 
