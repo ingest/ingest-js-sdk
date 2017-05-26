@@ -49,6 +49,8 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
     url = url + '?resource=' + filterType;
   }
 
+  console.log(url);
+
   request = new Request({
     url: url,
     token: this._tokenSource(),
