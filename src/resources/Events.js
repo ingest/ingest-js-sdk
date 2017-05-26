@@ -46,10 +46,8 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
         'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
     }
 
-    url = url + '?resource=' + filterType;
+    url = url + '&resource=' + filterType;
   }
-
-  console.log(url);
 
   request = new Request({
     url: url,
