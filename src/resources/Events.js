@@ -7,6 +7,13 @@ var extend = require('extend');
 
 function Events (options) {
 
+  var overrides = {
+    filter: '/<%=resource%>?filter=<%=input%>',
+    filterByType: '/<%=resource%>?resource=<%=input%>'
+  };
+
+  options = extend(true, {}, overrides, options);
+
   Resource.call(this, options);
 
 };
@@ -15,38 +22,43 @@ function Events (options) {
 Events.prototype = Object.create(Resource.prototype);
 Events.prototype.constructor = Events;
 
-Events.prototype.getAll = function (headers, filterStatus, filterType) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.all, {
-    resource: this.config.resource
+/**
+ * Return a subset of items that match the filter by status terms.
+ * @param  {string}   input     The filter terms to match against.
+ *
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+Events.prototype.filter = function (input, headers) {
+  var url, request;
+
+  url = utils.parseTokens(this.config.host + this.config.filter, {
+    resource: this.config.resource,
+    input: encodeURIComponent(input)
   });
 
-  // If there is a status filter
-  if (filterStatus) {
-    if (typeof filterStatus !== 'string') {
-      return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
-    }
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    headers: headers
+  });
 
-    url = url + '?filter=' + filterStatus;
+  return request.send();
+};
 
-    if (filterType) {
-      if (typeof filterType !== 'string') {
-        return utils.promisify(false,
-          'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
-      }
 
-      url = url + '&resource=' + filterType;
-    }
-  // If there is a type filter
-  } else if (filterType) {
-    if (typeof filterType !== 'string') {
-      return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
-    }
+/**
+ * Return a subset of items that match the filter by type terms.
+ * @param  {string}   input     The filter terms to match against.
+ *
+ * @return {Promise}          A promise which resolves when the request is complete.
+ */
+Events.prototype.filterByType = function (input, headers) {
+  var url, request;
 
-    url = url + '?resource=' + filterType;
-  }
+  url = utils.parseTokens(this.config.host + this.config.filterByType, {
+    resource: this.config.resource,
+    input: encodeURIComponent(input)
+  });
 
   request = new Request({
     url: url,
