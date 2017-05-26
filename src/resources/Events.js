@@ -7,14 +7,6 @@ var extend = require('extend');
 
 function Events (options) {
 
-//make only one override
-  /*var overrides = {
-    filter: '/<%=resource%>?filter=<%=input%>',
-    filterByType: '/<%=resource%>?resource=<%=input%>'
-  };*/
-
-  options = extend(true, {}, overrides, options);
-
   Resource.call(this, options);
 
 };
@@ -37,16 +29,23 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
     }
 
     url = url + '?filter=' + filterStatus;
-  }
 
+    if (filterType) {
+      if (typeof filterType !== 'string') {
+        return utils.promisify(false,
+          'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
+      }
+
+      url = url + '&resource=' + filterType;
+    }
   // If there is a type filter
-  if (filterType) {
+  } else if (filterType) {
     if (typeof filterType !== 'string') {
       return utils.promisify(false,
         'IngestAPI Events.getAll requires a valid filter to be passed as a string.');
     }
 
-    url = url + '&resource=' + filterType;
+    url = url + '?resource=' + filterType;
   }
 
   request = new Request({
