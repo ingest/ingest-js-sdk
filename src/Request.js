@@ -282,14 +282,17 @@ Request.prototype.requestError = function (message) {
  * Handle ready state change events.
  */
 Request.prototype.readyStateChange = function () {
-  var retryAfterTime;
+  var retryAfterTime = 1000;
 
   switch (this.request.readyState) {
   case 4:
 
     // If we get a rate limit error, lets just retry the request
     if (this.request.status === 429 && (this.retrys < this.maxRetrys)) {
-      retryAfterTime = this.request.getResponseHeader('Retry-After') * 1000;
+      if (this.request.getResponseHeader('Retry-After')) {
+        retryAfterTime = this.request.getResponseHeader('Retry-After') * 1000;
+      }
+
       this.retrys++;
       setTimeout(this.makeRequest.bind(this), retryAfterTime);
       return;
