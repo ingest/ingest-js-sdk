@@ -31,7 +31,8 @@ var Request = function (options) {
 
   // Todo, merge some defaults with this.
   this.options = extend(true, this.defaults, options);
-
+  this.maxRetrys = 3;
+  this.retrys = 0;
 };
 
 /**
@@ -281,8 +282,22 @@ Request.prototype.requestError = function (message) {
  * Handle ready state change events.
  */
 Request.prototype.readyStateChange = function () {
+  var retryAfterTime = 1000;
+
   switch (this.request.readyState) {
   case 4:
+
+    // If we get a rate limit error, lets just retry the request
+    if (this.request.status === 429 && (this.retrys < this.maxRetrys)) {
+      if (this.request.getResponseHeader('Retry-After')) {
+        retryAfterTime = this.request.getResponseHeader('Retry-After') * 1000;
+      }
+
+      this.retrys++;
+      setTimeout(this.makeRequest.bind(this), retryAfterTime);
+      return;
+    }
+
     // Check if the final response code is valid
     if (this.isValidResponseCode(this.request.status)) {
       return this.requestComplete(this.request.responseText);

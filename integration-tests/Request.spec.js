@@ -210,6 +210,44 @@ describe('Ingest API : Request', function () {
 
   });
 
+  it('Should retry the request if it responds with a 429', function (done) {
+    var url, request, spy;
+
+    spy = spyOn(window, 'setTimeout').and.callFake(function (func) {
+      func();
+    });
+
+    spyOn(Request.prototype, 'makeRequest').and.callThrough();
+
+    mock.setup();
+
+    // Mock the response from the REST api.
+    mock.mock('GET', '/test', function (request, response) {
+      // Restore the XHR object.
+      mock.teardown();
+
+      return response.status(429)
+        .header('Content-Type', 'application/json')
+        .body('{}');
+    });
+
+    request = new Request({
+      url: '/test'
+    });
+
+    request.send().then(function (response) {
+      expect(response).not.toBeDefined();
+      done();
+    }, function (error) {
+      expect(error).toBeDefined();
+      done();
+    });
+
+    expect(window.setTimeout).toHaveBeenCalled();
+    expect(Request.prototype.makeRequest.calls.count()).toEqual(2);
+    expect(request.retrys).toEqual(1);
+  });
+
   it('Should fail if an invalid response code is returned.', function (done) {
 
     var url, request;

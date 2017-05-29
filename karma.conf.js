@@ -21,7 +21,8 @@ module.exports = function (config) {
     reporters: ['spec', 'coverage'],
 
     specReporter: {
-      suppressPassed: true  // do not print information about passed tests
+      suppressPassed: true,  // do not print information about passed tests
+      suppressSkipped: true
     },
 
     preprocessors: {
