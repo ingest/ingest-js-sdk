@@ -8,8 +8,15 @@ var api = new IngestAPI({
 });
 
 var mock = require('xhr-mock');
-
 var eventsResource;
+
+var event = {
+  "event_id": "eventid",
+  "network_id": "networkid",
+  "event_name": "eventname",
+  "created_at": "2017-05-29T14:40:30.807644Z",
+  "data": {}
+};
 
 describe('Ingest API : Resource : Events', function () {
   beforeEach(function () {
@@ -19,91 +26,169 @@ describe('Ingest API : Resource : Events', function () {
       tokenSource: api.getToken.bind(api),
       cache: api.cache
     });
-
-    // Re-enable cache each time.
-    eventsResource.cache.enabled = true;
   });
 
-  describe('getFilteredEvents', function () {
-    it('Should retrieve filtered results for the given params', function (done) {
-      var request;
+  describe('getAll', function () {
+    it('Should retrieve all events', function (done) {
+      var url, request;
 
-      // Mock the XHR Object.
       mock.setup();
 
+      mock.mock('GET', api.config.host + '/events',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify([event]));
+        });
+
+      request = eventsResource.getAll().then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should retrieve all events with a specific status', function (done) {
+      var url, request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
       mock.mock('GET', api.config.host + '/events?filter=new',
         function (request, response) {
-
-          var data = {
-            called: true
-          };
-
           // Restore the XHR object.
           mock.teardown();
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
+            .body(JSON.stringify([event]));
         });
 
-      request = eventsResource.filter('new').then(function (response) {
-
+      request = eventsResource.getAll(null, 'new').then(function (response) {
         expect(response).toBeDefined();
-        expect(response.data.called).toEqual(true);
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
         done();
-
       }, function (error) {
-
         expect(error).not.toBeDefined();
         done();
-
       });
 
-      // Ensure a promise is returned.
+      // Ensure a promise was returned.
       expect(request.then).toBeDefined();
+
     });
 
-  });
+    it('Should retrieve all events with a specific type', function (done) {
+      var url, request;
 
-  describe('getFilteredEventsByType', function () {
-    it('Should retrieve filtered results for the given params', function (done) {
-      var request;
-
-      // Mock the XHR Object.
       mock.setup();
 
-      mock.mock('GET', api.config.host + '/events?resource=videos',
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/events?resource=playlists',
         function (request, response) {
-
-          var data = {
-            called: true
-          };
-
           // Restore the XHR object.
           mock.teardown();
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
+            .body(JSON.stringify([event]));
         });
 
-      request = eventsResource.filterByType('videos').then(function (response) {
-
+      request = eventsResource.getAll(null, null, 'playlists').then(function (response) {
         expect(response).toBeDefined();
-        expect(response.data.called).toEqual(true);
-        done();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
 
+        done();
       }, function (error) {
-
-        expect(error).not.toBeDefined();
+        expect(error).toBeUndefined();
         done();
-
       });
 
-      // Ensure a promise is returned.
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve all events with a specific status AND type', function (done) {
+      var url, request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('GET', api.config.host + '/events?filter=new&resource=playlists',
+        function (request, response) {
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify([event]));
+        });
+
+      request = eventsResource.getAll(null, 'new', 'playlists').then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).toBeUndefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should error if it has a status that is not a string', function () {
+      var request = eventsResource.getAll(null, true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
       expect(request.then).toBeDefined();
     });
 
+    it('Should error if it has a type that is not a string', function () {
+      var request = eventsResource.getAll(null, 'new', true).then(function (response) {
+        expect(response).not.toBeDefined();
+        done();
+      }, function (error) {
+        expect(error).toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
   });
 
 });
