@@ -15,7 +15,7 @@ Events.prototype.constructor = Events;
 /**
  * Returns a list of the requested events for the current network
  *
- * @param {object} headers      - The heades to apply to the request
+ * @param {object} headers      - The headers to apply to the request
  * @param {string} filterStatus - A string of all the statuses to filter by, separated by commas
  * @param {string} filterType   - A string of all the types to filter by, separated by commas
  *
