@@ -191,4 +191,39 @@ describe('Ingest API : Resource : Events', function () {
     });
   });
 
+  describe('getTypes', function () {
+    it('Should retrieve all event types', function (done) {
+      var url, request;
+
+      mock.setup();
+
+      mock.mock('GET', api.config.host + '/events/types',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+            .header('Content-Type', 'application/json')
+            .body(JSON.stringify([]));
+        });
+
+      request = eventsResource.getTypes().then(function (response) {
+        expect(response).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
+
+        done();
+      }, function (error) {
+        expect(error).not.toBeDefined();
+        done();
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+  });
+
 });
