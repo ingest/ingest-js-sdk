@@ -3,8 +3,15 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 function Events (options) {
+  var overrides = {
+    'types': '/<%=resource%>/types',
+  };
+
+  options = extend(true, {}, overrides, options);
+
   Resource.call(this, options);
 };
 
@@ -59,6 +66,26 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
     url: url,
     token: this._tokenSource(),
     headers: headers
+  });
+
+  return request.send();
+};
+
+/**
+ * Gets a list of all event types
+ *
+ * @return {Promise}
+ */
+Events.prototype.getTypes = function () {
+  var url, request;
+
+  url = utils.parseTokens(this.config.host + this.config.types, {
+    resource: this.config.resource
+  });
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
   });
 
   return request.send();
