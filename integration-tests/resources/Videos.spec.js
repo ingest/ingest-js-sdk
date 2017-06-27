@@ -380,7 +380,6 @@ describe('Ingest API : Resource : Videos', function () {
         mock.teardown();
 
         return response.status(204)
-          .header('Content-Type', 'application/json')
           .header('Resource-Count', 5);
 
       });
@@ -416,7 +415,6 @@ describe('Ingest API : Resource : Videos', function () {
         mock.teardown();
 
         return response.status(204)
-          .header('Content-Type', 'application/json')
           .header('Resource-Count', 5);
 
       });
@@ -476,7 +474,44 @@ describe('Ingest API : Resource : Videos', function () {
         mock.teardown();
 
         return response.status(204)
-          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 11);
+      });
+
+      request = videosResource.count(status, _private).then(function (response) {
+
+        expect(typeof response).toBe('number');
+        expect(response).toEqual(11);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should add both a status and a query parameter.', function (done) {
+
+      var request, status, _private;
+
+      status = 'created,published';
+      _private = true;
+
+      mock.setup();
+
+      mock.mock('HEAD', api.config.host + '/videos?status=created,published&private=true', function (req, res) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return res.status(204)
           .header('Resource-Count', 11);
       });
 

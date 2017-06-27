@@ -144,8 +144,11 @@ Videos.prototype.publish = function (ids) {
  * @return {promise} A promise which resolves when the request is complete.
  */
 Videos.prototype.count = function (status, _private) {
-  var request;
-  var url = utils.parseTokens(this.config.host + this.config.all, {
+  var request, url, isStatusSet;
+
+  isStatusSet = false;
+
+  url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
 
@@ -156,11 +159,21 @@ Videos.prototype.count = function (status, _private) {
         'IngestAPI Videos count requires a valid status to be passed as a string.');
     }
 
-    url = url + '?status=' + status;
+    url += '?status=' + status;
+    isStatusSet = true;
   }
 
+  // If private videos were requested, add the `private` query parameter to the url.
   if (_private === true) {
-    url += '?private=true';
+
+    // If a status has been set, then we need to append the next parameter with '&'.
+    if (isStatusSet) {
+      url += '&';
+    } else {
+      url += '?';
+    }
+
+    url += 'private=true';
   }
 
   request = new Request({
