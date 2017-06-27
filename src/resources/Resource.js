@@ -387,16 +387,6 @@ Resource.prototype.count = function (status) {
     resource: this.config.resource
   });
 
-  // If there is a status and it
-  if (status) {
-    if (typeof status !== 'string') {
-      return utils.promisify(false,
-        'IngestAPI Resource count requires a valid status to be passed as a string.');
-    }
-
-    url = url + '?status=' + status;
-  }
-
   request = new Request({
     url: url,
     token: this._tokenSource(),

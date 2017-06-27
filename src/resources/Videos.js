@@ -135,4 +135,56 @@ Videos.prototype.publish = function (ids) {
   return request.send();
 };
 
+/**
+ * Gets the total count of videos.
+ *
+ * @param {string}  status   - [Optional] A comma seperated string of video statuses to filter by.
+ * @param {boolean} _private - [Optional] If true, private videos will be included in the response.
+ *
+ * @return {promise} A promise which resolves when the request is complete.
+ */
+Videos.prototype.count = function (status, _private) {
+  var request, url, isStatusSet;
+
+  isStatusSet = false;
+
+  url = utils.parseTokens(this.config.host + this.config.all, {
+    resource: this.config.resource
+  });
+
+  // If there is a status and it is a string, use it as the status filter.
+  if (status) {
+    if (typeof status !== 'string') {
+      return utils.promisify(false,
+        'IngestAPI Videos count requires a valid status to be passed as a string.');
+    }
+
+    url += '?status=' + status;
+    isStatusSet = true;
+  }
+
+  // If private videos were requested, add the `private` query parameter to the url.
+  if (_private === true) {
+
+    // If a status has been set, then we need to append the next parameter with '&'.
+    if (isStatusSet) {
+      url += '&';
+    } else {
+      url += '?';
+    }
+
+    url += 'private=true';
+  }
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'HEAD'
+  });
+
+  return request.send()
+    .then(this._handleCountResponse);
+};
+
+
 module.exports = Videos;
