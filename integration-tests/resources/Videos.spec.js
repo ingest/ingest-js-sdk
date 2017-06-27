@@ -361,4 +361,144 @@ describe('Ingest API : Resource : Videos', function () {
 
     });
   });
+
+  describe('count', function () {
+
+    it('Should retrieve a count of all the videos.', function (done) {
+
+      var url, request;
+
+      url = api.utils.parseTokens(api.config.host + videosResource.config.all, {
+        resource: videosResource.config.resource
+      });
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('HEAD', url, function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 5);
+
+      });
+
+      request = videosResource.count().then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response).toBe('number');
+        expect(response).toEqual(5);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should retrieve a count of all the videos with the specified status.', function (done) {
+      var request;
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('HEAD', api.config.host + '/videos?status=all', function (request, response) {
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 5);
+
+      });
+
+      request = videosResource.count('all').then(function (response) {
+
+        expect(response).toBeDefined();
+        expect(typeof response).toBe('number');
+        expect(response).toEqual(5);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should error if it has a status that is not a string.', function (done) {
+      var status = true;  // Not a string.
+
+      var request = videosResource.count(status).then(function (response) {
+
+        expect(response).not.toBeDefined();
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should add a `private` query parameter to the url if private videos are requested.', function (done) {
+
+      var request, status, _private;
+
+      status = '';  // No status filters.
+      _private = true;
+
+      mock.setup();
+
+      mock.mock('HEAD', api.config.host + '/videos?private=true', function (request, response) {
+
+        // Restore the XHR object.
+        mock.teardown();
+
+        return response.status(204)
+          .header('Content-Type', 'application/json')
+          .header('Resource-Count', 11);
+      });
+
+      request = videosResource.count(status, _private).then(function (response) {
+
+        expect(typeof response).toBe('number');
+        expect(response).toEqual(11);
+
+        done();
+
+      }, function (error) {
+
+        expect(error).not.toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+  });
 });
