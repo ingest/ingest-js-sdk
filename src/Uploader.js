@@ -4,7 +4,6 @@ var extend = require('extend');
 var Request = require('./Request');
 var Promise = require('pinkyswear');
 var utils = require('./Utils');
-var JWTUtils = require('./JWTUtils');
 
 /**
  * Create a new upload wrapper.  Manages the entire upload of a file.
@@ -193,11 +192,11 @@ Upload.prototype._prepareUpload = function () {
     // Singlepart.
     return this._uploadFile()
       .then(this._onCompleteUpload.bind(this));
-  } else {
-    // Multipart.
-    return this._createChunks()
-      .then(this._completeUpload.bind(this));
   }
+
+  // Multipart.
+  return this._createChunks()
+    .then(this._completeUpload.bind(this));
 };
 
 /**
@@ -387,7 +386,7 @@ Upload.prototype._completeChunk = function (chunk, promise) {
 
   progress = this.uploadedBytes / this.fileRecord.size;
   // 0 - 99 for actual upload progress, 1% for the complete call.
-  progress = progress * 99;
+  progress *= 99;
   progress = Math.round(progress);
 
   this._updateProgress(progress, chunk.data.size);
@@ -465,11 +464,11 @@ Upload.prototype.abort = function () {
       // If the input has been created simply return early with a
       // promise to delete the created input record.
       return this.api.inputs.delete(this.fileRecord.id);
-    } else {
-      // Resolve as a successful promise. This case would be fulfilled when an upload
-      // has been created but save() hasn't yet been called.
-      return utils.promisify(true);
     }
+
+    // Resolve as a successful promise. This case would be fulfilled when an upload
+    // has been created but save() hasn't yet been called.
+    return utils.promisify(true);
 
   }
 
@@ -481,7 +480,7 @@ Upload.prototype.abort = function () {
 
   if (this.singlePartPromise) {
     this.singlePartPromise = null;
-    // return here because there is no need to abort a single part upload.
+    // Return here because there is no need to abort a single part upload.
     return this._abortComplete();
   }
 
@@ -528,12 +527,12 @@ Upload.prototype.abortSync = function (callback) {
       // If the input has been created simply return early and delete the input.
       this.api.inputs.deleteSync(this.fileRecord.id, callback);
       return;
-    } else {
-      // Resolve as a successful promise. This case would be fulfilled when an upload
-      // has been created but save() hasn't yet been called.
-      callback(null);
-      return;
     }
+
+    // Resolve as a successful promise. This case would be fulfilled when an upload
+    // has been created but save() hasn't yet been called.
+    callback(null);
+    return;
 
   }
 
@@ -545,7 +544,7 @@ Upload.prototype.abortSync = function (callback) {
 
   if (this.singlePartPromise) {
     this.singlePartPromise = null;
-    // return here because there is no need to abort a single part upload.
+    // Return here because there is no need to abort a single part upload.
     this.api.inputs.deleteSync(this.fileRecord.id, callback);
     return;
   }
@@ -576,11 +575,11 @@ Upload.prototype.abortSync = function (callback) {
 
 /**
  * Delete the input when the abort call completes and then execute the callback.
- * @param  {Function} callback Synchronous callback
- * @param  {object}   error    Error from abort call.
- * @param  {object}   response Response from abort call.
+ *
+ * @param {Function} callback - Synchronous callback
+ * @param {object}   error    - Error from abort call.
  */
-Upload.prototype.abortSyncComplete = function (callback, error, response) {
+Upload.prototype.abortSyncComplete = function (callback, error) {
 
   if (!error) {
     this.api.inputs.deleteSync(this.fileRecord.id, callback);
@@ -632,9 +631,8 @@ Upload.prototype.pause = function () {
 Upload.prototype.resume = function () {
   this.paused = false;
 
-  // resume the series if its multi part.
   if (this.multiPartPromise) {
-    // resume the series if its multipart.
+    // Resume the series if it's multipart.
     this.multiPartPromise.resume();
   } else if (this.requestPromise) {
     // Restart the file upload.
@@ -646,15 +644,17 @@ Upload.prototype.resume = function () {
 /**
  * Check the file size to determine if it should be a multipart upload, returns false for singlepart uploads.
  * @private
- * @param  {file}   file  The file to evaluate.
- * @return {boolean}      True if the file will be uploading using mutlipart upload.
+ *
+ * @param {File} file - The file to evaluate.
+ *
+ * @return {boolean} - True if the file will be uploading using mutlipart upload.
  */
 Upload.prototype._checkMultipart = function (file) {
   if (!file) {
-    return;
+    throw new Error('Upload::_checkMultipart - A file object is required.');
   }
 
-  return (file.size <= (5 * 1024 * 1024) ? false : true);
+  return file.size > (5 * 1024 * 1024);
 };
 
 /**

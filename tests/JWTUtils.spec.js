@@ -1,5 +1,7 @@
 'use strict';
 
+var IngestAPI = require('../src/index');
+
 // Token will need to be re-generated every 24 hours.
 var valid_token = 'Bearer ' + window.token;
 

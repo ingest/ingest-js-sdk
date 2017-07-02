@@ -5,6 +5,13 @@ var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
 
+/**
+ * Abstract PlaybackContent Class
+ *
+ * @param {object} options - SDK Options.
+ * @class
+ * @extends Resource
+ */
 function PlaybackContent (options) {
 
   var overrides = {

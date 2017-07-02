@@ -1,4 +1,8 @@
+// TODO: Remove all usage of jasmine.Ajax
+
 'use strict';
+
+var IngestAPI = require('../src/index');
 
 var api;
 
@@ -1125,8 +1129,10 @@ describe('Ingest API : Uploader', function () {
 
     });
 
-    it('Should return undefined if a file is not passed.', function () {
-      expect(upload._checkMultipart()).not.toBeDefined();
+    it('Should throw an error if a file is not passed.', function () {
+      var fn = upload._checkMultipart.bind(upload);
+
+      expect(fn).toThrow();
     });
 
   });

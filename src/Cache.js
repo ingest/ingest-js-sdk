@@ -3,7 +3,7 @@
 /**
  * A management layer for storing app cache in session storage.
  */
-var Cache = function (cacheAge) {
+function Cache (cacheAge) {
   this.cacheAge = cacheAge;
   this.enabled = this._checkCacheSupport();
 };
@@ -35,7 +35,6 @@ Cache.prototype._checkCacheSupport = function () {
 Cache.prototype.retrieve = function (cacheKey) {
   var data;
   var value = null;
-  var expiry;
 
   try {
 
@@ -127,7 +126,7 @@ Cache.prototype.save = function (cacheKey, value) {
  */
 Cache.prototype.diff = function (cacheKey, item, forced) {
   var property, properties, propertiesLength, i;
-  var force, forcedLength, n;
+  var forcedLength, n;
   var original = this.retrieve(cacheKey);
   var diff = null;
 
@@ -139,7 +138,7 @@ Cache.prototype.diff = function (cacheKey, item, forced) {
   propertiesLength = properties.length;
 
   if (!original) {
-    // return the compare object if the original item wasn't found.
+    // Return the compare object if the original item wasn't found.
     return item;
   }
 

@@ -5,6 +5,13 @@ var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
 
+/**
+ * Events Resource
+ *
+ * @param {object} options - SDK Options.
+ * @class
+ * @extends Resource
+ */
 function Events (options) {
   var overrides = {
     'types': '/<%=resource%>/types',
@@ -60,7 +67,7 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
     }
   }
 
-  url = url + filterString;
+  url += filterString;
 
   request = new Request({
     url: url,

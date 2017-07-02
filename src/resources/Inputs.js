@@ -5,6 +5,13 @@ var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
 
+/**
+ * Inputs Resource
+ *
+ * @param {object} options - SDK Options.
+ * @class
+ * @extends Resource
+ */
 function Inputs (options) {
 
   var overrides = {

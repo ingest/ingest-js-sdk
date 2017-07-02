@@ -1,4 +1,8 @@
+// TODO: Remove all usage of jasmine.Ajax
+
 'use strict';
+
+var IngestAPI = require('../src/index');
 
 var api;
 

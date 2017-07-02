@@ -1,70 +1,76 @@
 var webpackConfig = require('./webpack.config.js');
-var path = require('path');
+var path          = require('path');
+
+// Adding in the test-specific loader, on top of the default webpack configuration.
+webpackConfig.module.rules.unshift({
+  test: /^((?!spec).)*\.js/,
+  enforce: 'pre',
+  include: path.join(__dirname, 'src/'),
+  use: 'istanbul-instrumenter-loader'
+});
+
+// Remove es-lint.
+webpackConfig.module.rules.splice(1, 1);
 
 module.exports = function (config) {
   config.set({
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
+    // Base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: __dirname,
 
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+    // For list of available frameworks, see: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-    // list of files / patterns to load in the browser
+    // List of files / patterns to load in the browser.
     files: [
-      'authToken.js',
-      './dist/ingest.js',
-      './integration-tests/**/*.spec.js'
+      './demo/authToken.js',
+      './tests/index.js'
     ],
 
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['spec', 'coverage'],
+    // For list of available reporters, see: https://npmjs.org/browse/keyword/karma-reporter
+    reporters: ['progress', 'coverage'],
 
-    specReporter: {
-      suppressPassed: true,  // do not print information about passed tests
-      suppressSkipped: true
-    },
-
+    // Hash of patterns to process with the given plugins.
+    // Plugin names are assumed to be prefixed with 'karma-'.
     preprocessors: {
-      './integration-tests/**/*.js': ['webpack']
+      './tests/index.js': ['webpack', 'sourcemap'],
     },
 
-    webpack: {
-      resolve: {
-        alias: {
-          'xhr-mock': path.resolve(__dirname, 'node_modules/xhr-mock/index.js')
-        }
-      },
-    },
-
+    // Configuration specific to the karma-webpack plugin.
     webpackMiddleware: {
-      noInfo: true
+      noInfo: true,
+      stats: 'errors-only'
     },
+
+    // Configuration specific to webpack itself.
+    webpack: webpackConfig,
 
     coverageReporter: {
-      dir: './dist/integration-coverage',
+      dir: './coverage',
+
+      /**
+       * Function invoked when determining the sub-directory to create.
+       *
+       * @param {string} browser - The full browser name and version.
+       *
+       * @example
+       * var normalized = subdir('Chrome 59.0.3071 (Mac OS X 10.12.5)');
+       * console.log(normalized);  // 'chrome'
+       */
+      subdir: function (browser) {
+        // Normalization process to keep a consistent browser name across different platforms.
+        // Ex: 'chrome', 'firefox'.
+        return browser.toLowerCase().split(/[ /-]/)[0];
+      },
       reporters: [
-        {
-          type: 'html',
-          subdir: '.'
-        }
+        { type: 'text-summary' },  // Output a small summary in the terminal once complete.
+        { type: 'html' }           // Output a full analysis in HTML format.
       ],
-      includeAllSources: true
+      includeAllSources: true      // Include all files, even if they do not have unit tests.
     },
 
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
-
-    customLaunchers: {
-      ChromeBackground: {
-        base: 'Chrome',
-        flags: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding']
-      }
-    },
-
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeBackground']
-
+    browsers: [
+      'Chrome'  // Test with the Chrome stable browser. See docs for `karma-chrome-launcher`.
+    ]
   });
 };

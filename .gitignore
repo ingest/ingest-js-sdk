@@ -15,8 +15,4 @@ Thumbs.db
 # Folders to ignore
 bower_components
 node_modules
-
-.coverrun
-
-dist/integration-coverage
-dist/unit-test-coverage
+coverage

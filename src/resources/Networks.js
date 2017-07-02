@@ -5,6 +5,13 @@ var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
 
+/**
+ * Networks Resource
+ *
+ * @param {object} options - SDK Options.
+ * @class
+ * @extends Resource
+ */
 function Networks (options) {
 
   var overrides = {

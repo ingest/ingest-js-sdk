@@ -1,9 +1,9 @@
-<!DOCTYPE html/>
+<!DOCTYPE html>
 <html>
     <head>
         <title>IngestAPI Test Coverage</title>
         <script src="authToken.js"></script>
-        <script src="./dist/ingest.js"></script>
+        <script src="ingest-sdk.js"></script>
 
     </head>
     <body>
@@ -63,7 +63,7 @@
 
       <script>
         var ingest = new IngestAPI({
-          host: 'http://weasley.teamspace.ad:8080'
+          host: 'https://weasley.teamspace.ad:8081'
         });
 
         ingest.setToken('Bearer ' + window.token);

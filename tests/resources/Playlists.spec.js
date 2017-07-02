@@ -1,3 +1,7 @@
+'use strict';
+
+var IngestAPI = require('../../src/index');
+
 var access_token = 'Bearer ' + window.token;
 
 var api = new IngestAPI({
@@ -264,7 +268,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
     it('Should add the given video if the optional "position" parameter is not supplied as a number.', function (done) {
 
-      var playlistId, videoId, requestURL;
+      var playlistId, videoId, requestURL, position;
 
       playlistId = playlists[0].id;
       videoId = [videos[0].id];
@@ -309,7 +313,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
     it('Should add the given video to the given playlist at the given position.', function (done) {
 
-      var playlistId, videoId, requestURL;
+      var playlistId, videoId, requestURL, position;
 
       playlistId = playlists[0].id;
       videoId = [videos[0].id];

@@ -1,5 +1,7 @@
 'use strict';
 
+var IngestAPI = require('../src/index');
+
 var api;
 var utils;
 var Promise = require('pinkyswear');

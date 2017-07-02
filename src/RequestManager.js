@@ -3,7 +3,7 @@
 /**
  * Manages request objects in a queueing system
  */
-var RequestManager = function () {
+function RequestManager () {
   this.pending = [];
   this.activeRequests = 0;
   this.currentSetRequests = 0;
@@ -99,7 +99,7 @@ RequestManager.prototype.sendNextRequest = function (response) {
 
     // If i don't have a timer already and have no active requests
     if (!this.resetTimer && this.activeRequests === 0) {
-      // set the reset timer so new calls are in sync
+      // Set the reset timer so new calls are in sync
       this.resetTimer = setTimeout(this._resetCurrentSet, this.XRatelimitLimit * 1000);
     }
 

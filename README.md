@@ -1,7 +1,7 @@
 # Ingest.IO Javascript API
 
 #### Build Tools
-* [Webpack](http://webpack.github.io/) - Code Bundler & Loader
+* [Webpack](https://webpack.js.org/) - Code Bundler & Loader
 
 #### Testing Tools
 * [Karma](http://karma-runner.github.io/) - Test Runner
@@ -15,9 +15,10 @@
 * [JSDoc](https://esdoc.org/) - Generate documents from JavaScript code.
 
 #### Build Tasks
-* $ webpack
-* $ gulp development
-* $ gulp release
+* $ npm run start - Begin active development
+* $ npm run release - Create a production-ready distributible file
+* $ npm test - Run all unit tests once.
+* $ npm test:watch - Run all unit tests and run again on file changes.
 
 
 
