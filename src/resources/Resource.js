@@ -5,7 +5,9 @@ var Request = require('../Request');
 var utils = require('../Utils');
 
 /**
- * Resource Object
+ * Abstract Resource Class
+ *
+ * @param {object} options - SDK Options.
  * @class
  */
 function Resource (options) {
@@ -84,7 +86,7 @@ Resource.prototype.getById = function (id) {
   });
 
   if (this.cache && this.cache.enabled) {
-    // retrieve the cached item.
+    // Retrieve the cached item.
     cachedResult = this.cache.retrieve(id);
   }
 
@@ -93,17 +95,16 @@ Resource.prototype.getById = function (id) {
     return utils.promisify(true, {
       data: cachedResult
     });
-  } else {
-
-    request = new Request({
-      url: url,
-      token: this._tokenSource()
-    });
-
-    return request.send()
-      .then(this._updateCachedResource.bind(this));
-
   }
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource()
+  });
+
+  return request.send()
+    .then(this._updateCachedResource.bind(this));
+
 };
 
 /**
@@ -381,7 +382,7 @@ Resource.prototype.searchTrash = function (input, headers) {
  * Get the total count of resources.
  * @return {promise} A promise which resolves when the request is complete.
  */
-Resource.prototype.count = function (status) {
+Resource.prototype.count = function () {
   var request;
   var url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource

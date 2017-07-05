@@ -1,8 +1,17 @@
+'use strict';
+
 var PlaybackContent = require('./PlaybackContent');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
 
+/**
+ * Playlists Resource
+ *
+ * @param {object} options - SDK options.
+ * @class
+ * @extends PlaybackContent
+ */
 function Playlists (options) {
 
   var overrides = {
@@ -27,7 +36,7 @@ Playlists.prototype.constructor = Playlists;
  * @return {promise}        A promise which resolves when the request is complete.
  */
 Playlists.prototype.getById = function (id, status) {
-  var url, cachedResult, request;
+  var url, request;
 
   if (typeof id !== 'string' || id.length <= 0) {
     return utils.promisify(false,
@@ -107,7 +116,7 @@ Playlists.prototype.addVideos = function (playlistId, videoIds, position) {
  * @return  {promise}                A promise which resolves when the request is complete.
  */
 Playlists.prototype.removeVideos = function (playlistId, videos) {
-  var request, url, data;
+  var request, url;
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,

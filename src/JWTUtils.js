@@ -9,7 +9,8 @@
  * @param  {string} token JWT Token.
  * @return {object}       Parsed payload object.
  */
-var parseTokenPayload = function (token) {
+function parseTokenPayload (token) {
+  var payload;
   var parts = token.split('.');
 
   // Return false if the token is invalid.
@@ -17,10 +18,10 @@ var parseTokenPayload = function (token) {
     return false;
   }
 
-  // decode the payload portion.
-  var payload = window.atob(parts[1]);
+  // Decode the payload portion.
+  payload = window.atob(parts[1]);
 
-  // parse it as JSON
+  // Parse it as JSON
   payload = JSON.parse(payload);
 
   return payload;

@@ -2,6 +2,7 @@
 
 var Promise = require('pinkyswear');
 var Utils = {};
+
 /**
  * Replace all tokens within a given template based on the given key/value pair.
  * @param  {string}     template    Template for the url.
@@ -19,13 +20,14 @@ var Utils = {};
  * @return {string}                 Parsed string.
  */
 Utils.parseTokens = function (template, hash) {
+  var keys, i, length;
+
   if (!template) {
     return null;
   }
 
-  var keys = Object.keys(hash);
-  var i;
-  var length = keys.length;
+  keys = Object.keys(hash);
+  length = keys.length;
 
   for (i = 0; i < length; i++) {
     template = template.replace('<%=' + keys[i] + '%>', hash[keys[i]]);
@@ -86,7 +88,7 @@ Utils.series = function (promises, paused) {
  * @param  {Object} state   Persistent state of the series of promises.
  */
 Utils._seriesCallPromise = function (promise, state, all) {
-  // call the promise;
+  // Call the promise.
   if (!state.paused) {
     promise().then(Utils._seriesComplete.bind(undefined, all, state),
       Utils._seriesError.bind(undefined, all, state));

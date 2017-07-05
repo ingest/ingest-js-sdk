@@ -1,34 +1,38 @@
-var config = require('./gulp/gulp.config.js');
-var path = require('path');
-var _ = require('lodash');
+var path    = require('path');
+var webpack = require('webpack');
 
-// Base config for webpack.
-module.exports = {
+var config = {
   devtool: 'source-map',
   entry: {
-    ingest: './index.js'
+    ingest: './src/index.js'
   },
   output: {
-    path: config.path.dist,
-    filename: '[name].js',
-    library: 'IngestAPI',
-    libraryTarget: 'umd'
+    path: path.join(__dirname, 'dist'),
+    filename: 'ingest-sdk.js',
+    library: 'IngestAPI'
   },
   module: {
-    preLoaders: [
-      {
-        test: /^((?!spec).)*\.js$/,
-        loader: 'isparta-instrumenter-loader',
-        exclude: [/node_modules/, /src\/vendor_components/]
-      },
-    ]
+    rules: [{
+      test: /\.js$/,
+      loader: 'eslint-loader',
+      include: path.join(__dirname, 'src')
+    }]
   },
-  resolve: {
-    alias: {
-      pinkyswear: path.resolve(__dirname, 'node_modules/pinkyswear/pinkyswear.js'),
-      extend: path.resolve(__dirname, 'node_modules/extend/index.js')
-    }
-  },
-  target: 'web',
-  watch: false
+  plugins: [
+    // Enable scope hoisting.
+    // For more information, see: https://medium.com/webpack/brief-introduction-to-scope-hoisting-in-webpack-8435084c171f
+    new webpack.optimize.ModuleConcatenationPlugin()
+  ]
 };
+
+// Transform the configuration in the case of a release build type.
+if (process.env.BUILDTYPE === 'production') {
+  // Enable minification with source mapping.
+  // More options: https://webpack.js.org/plugins/uglifyjs-webpack-plugin/
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    sourceMap: true
+  }))
+}
+
+module.exports = config;
+

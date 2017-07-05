@@ -15,7 +15,7 @@ var VALID_RESPONSE_CODES = [200, 201, 202, 204];
  * @param {string}  options.method  REST verb to use for the request.
  * @param {string}  options.url     URL for the request.
  */
-var Request = function (options) {
+function Request (options) {
 
   this.defaults = {
     async: true,
@@ -70,9 +70,9 @@ Request.prototype.sendSync = function (callback) {
   if (this.options.url) {
     // Add the request to the queue and send it
     return this.makeRequest();
-  } else {
-    this.requestError('Request Error : a url is required to make the request.');
   }
+
+  this.requestError('Request Error : a url is required to make the request.');
 };
 
 /**
@@ -256,6 +256,7 @@ Request.prototype.processResponse = function (response) {
  */
 Request.prototype.requestError = function (message) {
   var error;
+
   // If there isn't a promise, in the case of a synchronous request, handle the error.
   if (!this.promise) {
 
@@ -264,9 +265,9 @@ Request.prototype.requestError = function (message) {
     if (typeof this.callback === 'function') {
       this.callback(error);
       return;
-    } else {
-      throw error;
     }
+
+    throw error;
 
   }
 
@@ -282,7 +283,9 @@ Request.prototype.requestError = function (message) {
  * Handle ready state change events.
  */
 Request.prototype.readyStateChange = function () {
-  var retryAfterTime = 1000;
+  var resp, retryAfterTime;
+
+  retryAfterTime = 1000;
 
   switch (this.request.readyState) {
   case 4:
@@ -306,11 +309,11 @@ Request.prototype.readyStateChange = function () {
     }
 
     // Special case error handling with response body
-    var resp = this.processResponse(this.request.response);
+    resp = this.processResponse(this.request.response);
     this.requestError(resp.data);
     break;
   default:
-    // silence is golden
+    // Silence is golden
   }
 };
 

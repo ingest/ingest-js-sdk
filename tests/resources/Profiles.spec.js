@@ -1,5 +1,9 @@
 'use strict';
 
+var IngestAPI = require('../../src/index');
+
+'use strict';
+
 var access_token = 'Bearer ' + window.token;
 
 var api = new IngestAPI({

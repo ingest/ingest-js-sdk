@@ -1,5 +1,7 @@
 'use strict';
 
+var IngestAPI = require('../src/index');
+
 var utils;
 var Request;
 

@@ -3,8 +3,14 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
-var extend = require('extend');
 
+/**
+ * Profiles Resource
+ *
+ * @param {object} options - SDK Options.
+ * @class
+ * @extends Resource
+ */
 function Profiles (options) {
 
   Resource.call(this, options);
