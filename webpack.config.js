@@ -9,7 +9,8 @@ var config = {
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'ingest-sdk.js',
-    library: 'IngestAPI'
+    library: 'IngestAPI',
+    libraryTarget: 'umd'
   },
   module: {
     rules: [{
