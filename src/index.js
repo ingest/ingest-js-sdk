@@ -18,6 +18,7 @@ var Jobs = require('./resources/Jobs');
 var Profiles = require('./resources/Profiles');
 var Inputs = require('./resources/Inputs');
 var Events = require('./resources/Events');
+var Roles = require('./resources/Roles');
 
 /**
  * IngestAPI Object
@@ -31,7 +32,7 @@ function IngestAPI (options) {
   this.defaults = {
     'maxRequests': 6, // Active Requests
     'host': 'https://api.ingest.io',
-    'cacheAge': 300000, // 5 minutes
+    'cacheAge': 300000 // 5 minutes
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -59,6 +60,7 @@ function IngestAPI (options) {
   this.inputsResource = Inputs;
   this.uploader = Uploader;
   this.eventsResource = Events;
+  this.rolesResource = Roles;
 
   // Construct my cache
   this.cache = new Cache(this.config.cacheAge);
@@ -122,6 +124,11 @@ function IngestAPI (options) {
     cache: this.cache
   });
 
+  this.roles = new Roles({
+    host: this.config.host,
+    resource: 'roles',
+    tokenSource: this._getToken
+  });
 }
 
 /** Token **/
