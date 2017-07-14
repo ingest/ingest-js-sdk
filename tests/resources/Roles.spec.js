@@ -19,13 +19,10 @@ describe('Ingest API : Resource : Roles', function () {
   beforeEach(function () {
     rolesResource = new api.rolesResource({
       host: api.config.host,
-      resource: 'encoding/roles',
+      resource: 'roles',
       tokenSource: api.getToken.bind(api),
-      cache: api.cache
     });
 
-    // Re-enable cache each time.
-    rolesResource.cache.enabled = true;
   });
 
   describe('update', function () {
@@ -60,7 +57,7 @@ describe('Ingest API : Resource : Roles', function () {
       // Mock the XHR object
       mock.setup();
 
-      mock.mock('PUT', api.config.host + '/encoding/roles/test-role',
+      mock.mock('PUT', api.config.host + '/roles/test-role',
         function (request, response) {
 
           var _role = JSON.stringify(role);
@@ -119,10 +116,6 @@ describe('Ingest API : Resource : Roles', function () {
 
       var request;
 
-      api.cache.enabled = false;
-
-      spyOn(api.cache, 'diff');
-
       // Mock request data.
       var data = {
         'id': '3fc358b0-630e-43f2-85f9-69195b346312',
@@ -133,7 +126,7 @@ describe('Ingest API : Resource : Roles', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('PUT', api.config.host + '/encoding/roles/3fc358b0-630e-43f2-85f9-69195b346312',
+      mock.mock('PUT', api.config.host + '/roles/3fc358b0-630e-43f2-85f9-69195b346312',
         function (request, response) {
 
           // Restore the XHR object.
@@ -149,7 +142,6 @@ describe('Ingest API : Resource : Roles', function () {
       request = rolesResource.update(data).then(function (response) {
 
         expect(response).toBeDefined();
-        expect(api.cache.diff).not.toHaveBeenCalled();
 
         done();
 
