@@ -107,52 +107,6 @@ describe('Ingest API : Resource : Roles', function () {
 
         });
 
-        // Ensure a promise was returned.
-        expect(request.then).toBeDefined();
-
-      });
-
-    it('Should not perform a diff if caching is disabled.', function (done) {
-
-      var request;
-
-      // Mock request data.
-      var data = {
-        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-        'title': 'my role'
-      };
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PUT', api.config.host + '/roles/3fc358b0-630e-43f2-85f9-69195b346312',
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
-            .body(JSON.stringify(data));
-
-        });
-
-      request = rolesResource.update(data).then(function (response) {
-
-        expect(response).toBeDefined();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
 
