@@ -3,17 +3,21 @@
   "version": "1.9.1",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "./dist/ingest-sdk.js",
-  "homepage": "https://ingest.io",
+  "author": {
+    "name": "Ingest",
+    "email": "",
+    "url": "https://www.ingest.io/"
+  },
+  "homepage": "https://github.com/ingest/ingest-js-sdk",
   "bugs": {
-    "url": "https://jira.redspace.com/secure/RapidBoard.jspa?rapidView=568",
+    "url": "https://github.com/ingest/ingest-js-sdk/issues",
     "email": "support@ingest.io"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@stash.redspace.com/ing/ingest-js-sdk.git"
+    "url": "git://github.com/ingest/ingest-js-sdk"
   },
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
   "engines": {
     "node": ">=8.0.0",
     "npm": ">=5.0.0"
@@ -37,12 +41,9 @@
     "karma-webpack": "2.0.3",
     "pre-commit": "1.2.2",
     "webpack": "3.0.0",
-    "webpack-dashboard": "0.4.0",
-    "webpack-dev-server": "2.5.0",
     "xhr-mock": "1.9.0"
   },
   "scripts": {
-    "start": "BUILDTYPE=dev node_modules/.bin/webpack-dashboard -c red -t 'Ingest JS SDK' -- node webpack.server.js",
     "release": "BUILDTYPE=production node_modules/.bin/webpack --config webpack.config.js",
     "test": "node_modules/.bin/karma start --single-run",
     "test:watch": "node_modules/.bin/karma start"

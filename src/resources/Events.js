@@ -48,7 +48,7 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
   if (filterStatus) {
     if (typeof filterStatus !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter status to be passed as a string.');
+        'IngestSDK Events.getAll requires a valid filter status to be passed as a string.');
     }
 
     filterString = '?filter=' + filterStatus;
@@ -57,7 +57,7 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
   if (filterType) {
     if (typeof filterType !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter type to be passed as a string.');
+        'IngestSDK Events.getAll requires a valid filter type to be passed as a string.');
     }
 
     if (!filterString) {

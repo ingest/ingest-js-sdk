@@ -57,8 +57,7 @@ Inputs.prototype.getAll = function (headers, filters) {
     headers: headers
   });
 
-  return request.send()
-    .then(this._updateCachedResources.bind(this));
+  return request.send();
 };
 
 /**
@@ -75,7 +74,7 @@ Inputs.prototype.search = function (input, headers, filters) {
 
   if (typeof input !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Inputs search requires search input to be passed as a string.');
+      'IngestSDK Inputs search requires search input to be passed as a string.');
   }
 
   tokens = { resource: this.config.resource, input: encodeURIComponent(input) };

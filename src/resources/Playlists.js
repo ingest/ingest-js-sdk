@@ -40,7 +40,7 @@ Playlists.prototype.getById = function (id, status) {
 
   if (typeof id !== 'string' || id.length <= 0) {
     return utils.promisify(false,
-      'IngestAPI Playlist getById requires a valid id passed as a string.');
+      'IngestSDK Playlist getById requires a valid id passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
@@ -51,7 +51,7 @@ Playlists.prototype.getById = function (id, status) {
   if (status) {
     if (typeof status !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Videos.getAll requires a valid status to be passed as a string.');
+        'IngestSDK Videos.getAll requires a valid status to be passed as a string.');
     }
 
     url = url + '?video.status=' + status;
@@ -78,12 +78,12 @@ Playlists.prototype.addVideos = function (playlistId, videoIds, position) {
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists addVideo requires "playlistId" be a string.');
+      'IngestSDK Playlists addVideo requires `playlistId` be a string.');
   }
 
   if (!Array.isArray(videoIds)) {
     return utils.promisify(false,
-      'IngestAPI Playlists addVideo requires "videoId" be an array of videoIds.');
+      'IngestSDK Playlists addVideo requires `videoId` be an array of videoIds.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlistAddRemove, {
@@ -106,7 +106,7 @@ Playlists.prototype.addVideos = function (playlistId, videoIds, position) {
     data: data
   });
 
-  return request.send().then(this._updateCachedResources.bind(this));
+  return request.send();
 };
 
 /**
@@ -120,12 +120,12 @@ Playlists.prototype.removeVideos = function (playlistId, videos) {
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires "playlistId" to be a string.');
+      'IngestSDK Playlists removeVideo requires `playlistId` to be a string.');
   }
 
   if (!Array.isArray(videos)) {
     return utils.promisify(false,
-      'IngestAPI Playlists removeVideo requires "videos" be an array of video objects.');
+      'IngestSDK Playlists removeVideo requires `videos` be an array of video objects.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlistAddRemove, {
@@ -140,8 +140,7 @@ Playlists.prototype.removeVideos = function (playlistId, videos) {
     data: videos
   });
 
-  return request.send().then(this._updateCachedResources.bind(this));
-
+  return request.send();
 };
 
 /**
@@ -156,17 +155,17 @@ Playlists.prototype.reorderVideo = function (playlistId, videoId, oldPosition, n
 
   if (typeof playlistId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists reorderVideo requires "playlistId" to be a string');
+      'IngestSDK Playlists reorderVideo requires `playlistId` to be a string');
   }
 
   if (typeof videoId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Playlists reorderVideo requires "videoId" to be a string');
+      'IngestSDK Playlists reorderVideo requires `videoId` to be a string');
   }
 
   if (typeof oldPosition !== 'number' || typeof newPosition !== 'number') {
     return utils.promisify(false,
-      'IngestAPI Playlists reorderVideo requires "oldPosition" and "newPosition" to be numbers.');
+      'IngestSDK Playlists reorderVideo requires `oldPosition` and `newPosition` to be numbers.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlistReorder, {
@@ -187,8 +186,7 @@ Playlists.prototype.reorderVideo = function (playlistId, videoId, oldPosition, n
     data: data
   });
 
-  return request.send().then(this._updateCachedResources.bind(this));
-
+  return request.send();
 };
 
 module.exports = Playlists;

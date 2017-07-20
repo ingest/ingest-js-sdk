@@ -1,23 +1,17 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var playbackContent;
 
 var image = 'https://mango.blender.org/wp-content/gallery/4k-renders/02_dome.jpg?5421dd';
 
 var thumbnail = {
-  "thumbnail_id": "2eee6343-490e-49c5-9437-47fb09f27b7b",
-  "thumbnail_url": "https://play-dev.ingest.io/redspace/16742b43-ad2e-4949-b532-a7cab654d7d6/poster_3f611f09-7fd4-45b4-bbbf-7233e4f51f9c",
-  "thumbnail_type": "user"
+  'thumbnail_id': '2eee6343-490e-49c5-9437-47fb09f27b7b',
+  'thumbnail_url': 'https://www.someurl.com',
+  'thumbnail_type': 'user'
 };
 
 describe('Ingest API : Resource : Videos', function () {
@@ -27,8 +21,7 @@ describe('Ingest API : Resource : Videos', function () {
     playbackContent = new api.playbackContent({
       host: api.config.host,
       resource: 'videos',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
 
   });
@@ -62,22 +55,22 @@ describe('Ingest API : Resource : Videos', function () {
       var data = [
         {
           'thumbnail_id':'a7d6da39-5d2e-4ff7-a5a1-b6b5da0ba124',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster01.jpg',
+          'thumbnail_url':'https://www.someurl.com/poster01.jpg',
           'thumbnail_type':'system'
         },
         {
           'thumbnail_id':'969620c5-ea68-4b54-bdec-3300242b5eeb',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster02.jpg',
+          'thumbnail_url':'https://www.someurl.com/poster02.jpg',
           'thumbnail_type':'system'
         },
         {
           'thumbnail_id':'6f5dbf2f-f9e5-406c-8856-aaf6daa9947e',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster03.jpg',
+          'thumbnail_url':'https://www.someurl.com/poster03.jpg',
           'thumbnail_type':'system'
         },
         {
           'thumbnail_id':'5bf0fddc-39dd-4630-913c-2e3582c781ad',
-          'thumbnail_url':'https://play-dev.ingest.io/redspace/065764b6-093c-4c2d-b347-4b37e73320dd/poster04.jpg',
+          'thumbnail_url':'https://www.someurl.com/poster04.jpg',
           'thumbnail_type':'system'
         }
       ];

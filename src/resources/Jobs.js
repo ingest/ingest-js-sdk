@@ -39,17 +39,12 @@ Jobs.prototype.add = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Jobs `add` requires a resource passed as an object.');
+      'IngestSDK Jobs `add` requires a resource passed as an object.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.all, {
     resource: this.config.resource
   });
-
-  // Deletes the cached version of the associated video.
-  if (resource.hasOwnProperty('video') && typeof resource.video === 'string') {
-    this._deleteCachedResource(resource.video);
-  }
 
   request = new Request({
     url: url,
@@ -58,9 +53,7 @@ Jobs.prototype.add = function (resource) {
     data: resource
   });
 
-  return request.send()
-      .then(this._updateCachedResource.bind(this));
-
+  return request.send();
 };
 
 /**
@@ -74,7 +67,7 @@ Jobs.prototype.progress = function (id) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Jobs `progress` requires "jobId" to be passed as a string.');
+      'IngestSDK Jobs `progress` requires `jobId` to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.progress, {
@@ -88,8 +81,7 @@ Jobs.prototype.progress = function (id) {
     method: 'GET'
   });
 
-  return request.send()
-      .then(this._updateCachedResource.bind(this));
+  return request.send();
 };
 
 module.exports = Jobs;

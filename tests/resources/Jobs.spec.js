@@ -1,15 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var jobsResource;
 
 describe('Ingest API : Resource : Jobs', function () {
@@ -19,12 +13,8 @@ describe('Ingest API : Resource : Jobs', function () {
     jobsResource = new api.jobsResource({
       host: api.config.host,
       resource: 'encoding/jobs',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
-
-    // Re-enable cache each time.
-    jobsResource.cache.enabled = true;
   });
 
   describe('add', function () {
@@ -41,10 +31,10 @@ describe('Ingest API : Resource : Jobs', function () {
 
     it('Should add a new job.', function (done) {
       var jobRequest = {
-        "inputs": [
-          "4844c970-c1a9-4fd6-9948-031229ef7e68"
+        'inputs': [
+          '4844c970-c1a9-4fd6-9948-031229ef7e68'
         ],
-        "profile": "a5c71711-8c60-440a-9878-3cdf32ce3676"
+        'profile': 'a5c71711-8c60-440a-9878-3cdf32ce3676'
       };
 
       // Mock the XHR object.
@@ -60,13 +50,9 @@ describe('Ingest API : Resource : Jobs', function () {
 
       });
 
-      spyOn(jobsResource, '_deleteCachedResource');
-
       var request = jobsResource.add(jobRequest).then(function (response) {
 
         expect(response).toBeDefined();
-        expect(jobsResource._deleteCachedResource).not.toHaveBeenCalled();
-
         done();
 
       }, function (error) {
@@ -81,34 +67,34 @@ describe('Ingest API : Resource : Jobs', function () {
 
     });
 
-    it('Should remove cached version of linked video and add a new job.', function (done) {
+    it('Should add a new job.', function (done) {
 
       var jobRequest = {
-        "video": "7539e3c0-9aec-4ee4-bcec-f11efc9b95ba",
-        "inputs": [
-          "4844c970-c1a9-4fd6-9948-031229ef7e68"
+        'video': '7539e3c0-9aec-4ee4-bcec-f11efc9b95ba',
+        'inputs': [
+          '4844c970-c1a9-4fd6-9948-031229ef7e68'
         ],
-        "profile": "a5c71711-8c60-440a-9878-3cdf32ce3676"
+        'profile': 'a5c71711-8c60-440a-9878-3cdf32ce3676'
       };
 
       var jobResponse = {
-        "id": "99b2ff4b-30e5-49df-87a7-e6f6899e8755",
-        "url": "http://weasley.teamspace.ad:8080/encoding/jobs/99b2ff4b-30e5-49df-87a7-e6f6899e8755",
-        "status": 0,
-        "progress": 0,
-        "profile": {
-          "id": "a5c71711-8c60-440a-9878-3cdf32ce3676",
-          "url": "http://weasley.teamspace.ad:8080/encoding/profiles/a5c71711-8c60-440a-9878-3cdf32ce3676",
-          "name": "New Valid Profile for meeee-copy",
-          "text_tracks": [],
-          "data": {
-            "playlists": [
+        'id': '99b2ff4b-30e5-49df-87a7-e6f6899e8755',
+        'url': 'https://www.someurl.com',
+        'status': 0,
+        'progress': 0,
+        'profile': {
+          'id': 'a5c71711-8c60-440a-9878-3cdf32ce3676',
+          'url': 'https://www.someurl.com',
+          'name': 'New Valid Profile for meeee-copy',
+          'text_tracks': [],
+          'data': {
+            'playlists': [
               {
-                "name": "low",
-                "version": 3,
-                "byte_range": true,
-                "renditions": [1, 2],
-                "iframe_playlist": true
+                'name': 'low',
+                'version': 3,
+                'byte_range': true,
+                'renditions': [1, 2],
+                'iframe_playlist': true
               }
             ]
           }
@@ -129,8 +115,6 @@ describe('Ingest API : Resource : Jobs', function () {
 
       });
 
-      spyOn(jobsResource, '_deleteCachedResource');
-
       var request = jobsResource.add(jobRequest).then(function (response) {
 
         expect(response).toBeDefined();
@@ -138,9 +122,6 @@ describe('Ingest API : Resource : Jobs', function () {
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
-
-        expect(jobsResource._deleteCachedResource).toHaveBeenCalledWith(jobRequest.video);
-
         done();
 
       }, function (error) {
@@ -172,9 +153,9 @@ describe('Ingest API : Resource : Jobs', function () {
       var progressResponse, url;
 
       progressResponse = {
-        "job_id": "6a928bac-d108-41f9-a0ee-e34181ac6119",
-        "status": "CREATED",
-        "progress": 58
+        'job_id': '6a928bac-d108-41f9-a0ee-e34181ac6119',
+        'status': 'CREATED',
+        'progress': 58
       }
 
       mock.setup();
@@ -194,7 +175,7 @@ describe('Ingest API : Resource : Jobs', function () {
 
       });
 
-      var request = jobsResource.progress("6a928bac-d108-41f9-a0ee-e34181ac6119").then(function (response) {
+      var request = jobsResource.progress('6a928bac-d108-41f9-a0ee-e34181ac6119').then(function (response) {
 
         expect(response).toBeDefined();
         done();

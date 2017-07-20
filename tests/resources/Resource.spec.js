@@ -1,16 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
 
+var api = new IngestSDK();
 var resource;
 var validVideoId;
 var createdVideo;
@@ -19,17 +12,17 @@ var nextRange;
 var video = {
   author: {
     deleted_at: null,
-    email: "shawn.gillam-wright@redspace.com",
+    email: 'user@domain.com',
     first_time_user: true,
-    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    id: '7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df',
     profile: {},
-    timezone: "UTC",
-    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    timezone: 'UTC',
+    url: 'https://www.someurl.com',
   },
-  created_at: "2015-12-18T15:54:53.085423Z",
+  created_at: '2015-12-18T15:54:53.085423Z',
   deleted_at: null,
-  description: "sdf",
-  id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+  description: 'sdf',
+  id: '8dee6bee-cb45-4c49-989b-cf9c70601567',
   playback_url: null,
   poster: null,
   private: null,
@@ -38,19 +31,19 @@ var video = {
   schedule_start: null,
   size: 0,
   status: 0,
-  tags: ["sdf"],
-  title: "ad",
-  updated_at: "2015-12-18T15:54:53.085423Z",
+  tags: ['sdf'],
+  title: 'ad',
+  updated_at: '2015-12-18T15:54:53.085423Z',
   updater: {
     deleted_at: null,
-    email: "shawn.gillam-wright@redspace.com",
+    email: 'user@domain.com',
     first_time_user: true,
-    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    id: '7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df',
     profile: {},
-    timezone: "UTC",
-    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    timezone: 'UTC',
+    url: 'https://www.someurl.com',
   },
-  url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+  url: 'https://www.someurl.com'
 };
 
 describe('Ingest API : Resource', function () {
@@ -59,12 +52,11 @@ describe('Ingest API : Resource', function () {
     resource = new api.resource({
       host: api.config.host,
       resource: 'videos',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
 
-    // Re-enable cache each time.
-    resource.cache.enabled = true;
+    // Set my token to empty
+    api.setToken('');
   });
 
   describe('parse resource', function () {
@@ -120,57 +112,12 @@ describe('Ingest API : Resource', function () {
 
       });
 
-      resource.cache.enabled = false;
-
       request = resource.getAll().then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
-
-        done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should retrieve all resources and cache the result', function (done) {
-
-      var url, request;
-
-      url = api.utils.parseTokens(api.config.host + resource.config.all, {
-        resource: resource.config.resource
-      });
-
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('GET', url, function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify([video]));
-
-      });
-
-      spyOn(resource.cache, 'save').and.callThrough();
-
-      request = resource.getAll().then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-        expect(response.headers).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBeDefined();
-
-        expect(resource.cache.save).toHaveBeenCalled();
 
         done();
       }, function (error) {
@@ -200,7 +147,7 @@ describe('Ingest API : Resource', function () {
         expect(error).toBeDefined();
 
         // Reset the token;
-        api.setToken(access_token);
+        api.setToken('Bearer somevalidtoken');
 
         done();
 
@@ -214,17 +161,12 @@ describe('Ingest API : Resource', function () {
   });
 
   describe('getById', function () {
-
     it('Should return a single resource.', function (done) {
       var url, request;
 
       url = api.utils.parseTokens(api.config.host + resource.config.byId, {
         resource: resource.config.resource,
         id: '12345'
-      });
-
-      spyOn(resource.cache, 'retrieve').and.callFake(function () {
-        return true;
       });
 
       mock.setup();
@@ -241,7 +183,6 @@ describe('Ingest API : Resource', function () {
       });
 
       request = resource.getById('12345').then(function (response) {
-
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
 
@@ -292,62 +233,11 @@ describe('Ingest API : Resource', function () {
 
       expect(request.then).toBeDefined();
     });
-
-    it('Should ignore the cache if it is disabled.', function (done) {
-
-      var url, request;
-
-      url = api.utils.parseTokens(api.config.host + resource.config.byId, {
-        resource: resource.config.resource,
-        id: '12345'
-      });
-
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('GET', url, function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify({data: video}));
-
-      });
-
-      spyOn(resource.cache, 'retrieve').and.callThrough();
-
-      resource.cache.enabled = false;
-
-      request = resource.getById('12345').then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-
-        expect(resource.cache.retrieve).not.toHaveBeenCalled();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
   });
 
   describe('add', function () {
 
     it('Should add a resource.', function (done) {
-
-      resource.cache.enabled = false;
-
       var video = {
         'title': 'an-example.mkve.mkv',
         'size': 0,
@@ -375,57 +265,6 @@ describe('Ingest API : Resource', function () {
         expect(response.headers).toBeDefined();
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBeDefined();
-
-        // Store the video to use later with the delete test.
-        createdVideo = response.data.id;
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should add a resource and cache the result.', function (done) {
-
-      var video = {
-        'title': 'an-example.mkve.mkv',
-        'size': 0,
-        'description': 'Test video.'
-      };
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('POST', api.config.host + '/videos' , function (request, response) {
-        // Restore the XHR object.
-        mock.teardown();
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify(video));
-
-      });
-
-      spyOn(resource.cache, 'save').and.callThrough();
-
-      var request = resource.add(video).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-        expect(response.headers).toBeDefined();
-        expect(typeof response.headers).toBe('function');
-        expect(response.statusCode).toBeDefined();
-
-        expect(resource.cache.save).toHaveBeenCalled();
 
         // Store the video to use later with the delete test.
         createdVideo = response.data.id;
@@ -473,8 +312,6 @@ describe('Ingest API : Resource', function () {
 
     it('Should delete a resource.', function (done) {
 
-      resource.cache.enabled = false;
-
       // Mock the XHR object
       mock.setup();
 
@@ -517,8 +354,6 @@ describe('Ingest API : Resource', function () {
 
     it('Should delete a resource synchronously.', function (done) {
 
-      resource.cache.enabled = false;
-
       spyOn(resource, '_deleteResource').and.callFake(function (resource, permanent, async) {
         expect(async).toEqual(false);
         return api.utils.promisify(true, 'deleted');
@@ -545,7 +380,7 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should delete a resource and remove it from cache.', function (done) {
+    it('Should delete a resource.', function (done) {
 
       // Mock the XHR object
       mock.setup();
@@ -567,14 +402,10 @@ describe('Ingest API : Resource', function () {
 
         });
 
-      spyOn(resource.cache, 'remove').and.callThrough();
-
       var request = resource.delete('1234').then(function (response) {
 
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
-
-        expect(resource.cache.remove).toHaveBeenCalled();
 
         done();
 
@@ -670,13 +501,11 @@ describe('Ingest API : Resource', function () {
 
     });
 
-    it('Should soft-delete the resource and remove it from the cache.', function (done) {
+    it('Should soft-delete the resource.', function (done) {
 
       var data, request, id;
 
       id = '3fc358b0-630e-43f2-85f9-69195b346312';
-
-      spyOn(resource.cache, 'remove').and.callThrough();
 
       // Mock the XHR object.
       mock.setup();
@@ -698,8 +527,6 @@ describe('Ingest API : Resource', function () {
         expect(typeof response.headers).toBe('function');
         expect(response.statusCode).toBe(202);
         expect(response.data).toBeFalsy();
-
-        expect(resource.cache.remove).toHaveBeenCalled();
 
         done();
 
@@ -790,9 +617,6 @@ describe('Ingest API : Resource', function () {
       expect(request.then).toBeDefined();
     });
 
-  });
-
-  describe('search', function () {
     it('Should retrieve search results for the given input, from the trash.', function (done) {
       // Mock the XHR Object.
       mock.setup();
@@ -832,7 +656,7 @@ describe('Ingest API : Resource', function () {
 
       // Ensure a promise is returned.
       expect(request.then).toBeDefined();
-    })
+    });
   });
 
   describe('count', function () {
@@ -1096,93 +920,6 @@ describe('Ingest API : Resource', function () {
         expect(request.then).toBeDefined();
 
       });
-
-    it('Should not perform a diff if caching is disabled.', function (done) {
-
-      var request;
-
-      api.cache.enabled = false;
-
-      spyOn(api.cache, 'diff');
-
-      // Mock request data.
-      var data = {
-        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-        'title': 'an-exampleMODIFIED.mkve.mkv'
-      };
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PATCH', api.config.host + '/videos/3fc358b0-630e-43f2-85f9-69195b346312',
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      request = resource.update(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(api.cache.diff).not.toHaveBeenCalled();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should return the cached object if there were no changes detected.', function (done) {
-
-      var called = false;
-
-      // Mock the retrieve and return a different cached value for the first test object.
-      spyOn(api.cache, 'retrieve').and.returnValue({
-        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-        'value': 'test'
-      });
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PATCH', api.config.host + '/videos/3fc358b0-630e-43f2-85f9-69195b346312',
-        function (request, response) {
-          called = true;
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-        });
-
-      resource.update({'id': '3fc358b0-630e-43f2-85f9-69195b346312', 'value': 'test'})
-        .then(function (response) {
-          expect(response).toBeDefined();
-          expect(called).toEqual(false);
-          mock.teardown();
-          done();
-        }, function (error) {
-          expect(error).toBeUndefined();
-          mock.teardown();
-          done();
-        });
-
-    });
-
   });
 
   describe('permanentDelete', function () {

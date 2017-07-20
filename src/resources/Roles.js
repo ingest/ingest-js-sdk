@@ -29,7 +29,7 @@ Roles.prototype.update = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Roles update requires a role to be passed as an object.');
+      'IngestSDK Roles update requires a role to be passed as an object.');
   }
 
   data = resource;

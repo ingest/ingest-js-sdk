@@ -1,23 +1,15 @@
 'use strict';
 
-var IngestAPI = require('../src/index');
-
-var api;
-
-// Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer ' + window.token;
-
+var IngestSDK = require('../src/index');
 var mock = require('xhr-mock');
-var Request, RequestManager;
+
+var api, Request, RequestManager;
 
 describe('Ingest API : RequestManager', function () {
 
   // Reset the auth token.
   beforeEach(function () {
-    api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:3000',
-      token: access_token
-    });
+    api = new IngestSDK();
 
     Request = api.request;
     RequestManager = api.requestManager;

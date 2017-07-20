@@ -1,15 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var networksResource;
 
 describe('Ingest API : Resource : Networks', function () {
@@ -19,12 +13,8 @@ describe('Ingest API : Resource : Networks', function () {
     networksResource = new api.networksResource({
       host: api.config.host,
       resource: 'networks',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
-
-    // Re-enable cache each time.
-    networksResource.cache.enabled = true;
   });
 
   describe('linkUser', function () {
@@ -37,20 +27,20 @@ describe('Ingest API : Resource : Networks', function () {
       userId = 'c33a7fb6-1246-4634-9c02-a29149ee3954';
 
       network = {
-        "network_id": "fed6e925-dee4-41cc-be4a-479cabc149a5",
-        "name": "Redspace",
-        "key": "redspace",
-        "members": [
+        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+        'name': 'Redspace',
+        'key': 'redspace',
+        'members': [
           {
-            "id": "c33a7fb6-1246-4634-9c02-a29149ee3954",
-            "url": "http://weasley.teamspace.ad:8080/users/c33a7fb6-1246-4634-9c02-a29149ee3954",
-            "email": "THISNEWUSER@redspace.com",
-            "profile": {
-              "display_name": "",
-              "title": "Geek Yo"
+            'id': 'c33a7fb6-1246-4634-9c02-a29149ee3954',
+            'url': 'https://www.someurl.com',
+            'email': 'user@domain.com',
+            'profile': {
+              'display_name': '',
+              'title': 'Geek Yo'
             },
-            "timezone": "America/Halifax",
-            "deleted_at": null
+            'timezone': 'America/Halifax',
+            'deleted_at': null
           }
         ]
       };
@@ -153,10 +143,10 @@ describe('Ingest API : Resource : Networks', function () {
       userId = 'c33a7fb6-1246-4634-9c02-a29149ee3954';
 
       network = {
-        "network_id": "fed6e925-dee4-41cc-be4a-479cabc149a5",
-        "name": "Redspace",
-        "key": "redspace",
-        "members": []
+        'network_id': 'fed6e925-dee4-41cc-be4a-479cabc149a5',
+        'name': 'Redspace',
+        'key': 'redspace',
+        'members': []
       };
 
       mock.setup();
@@ -255,8 +245,8 @@ describe('Ingest API : Resource : Networks', function () {
       var networkId, email, name, request;
 
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
-      email = 'michael.cunningham@redspace.com';
-      name = 'Michael Cunningham';
+      email = 'user@domain.com';
+      name = 'Test Name';
 
       mock.setup();
 
@@ -335,12 +325,12 @@ describe('Ingest API : Resource : Networks', function () {
 
     });
 
-    it('Should fail if no "email" is passed in.', function (done) {
+    it('Should fail if no `email` is passed in.', function (done) {
 
       var request, name, networkId;
 
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
-      name = 'Michael Cunningham';
+      name = 'Test Name';
 
       request = networksResource.inviteUser(networkId, null, name).then(function (response) {
 
@@ -361,12 +351,12 @@ describe('Ingest API : Resource : Networks', function () {
 
     });
 
-    it('Should fail if no "name" is passed in.', function (done) {
+    it('Should fail if no `name` is passed in.', function (done) {
 
       var request, email, networkId;
 
       networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
-      email = 'michael.cunningham@redspace.com';
+      email = 'user@domain.com';
 
       request = networksResource.inviteUser(networkId, email, null).then(function (response) {
 
@@ -387,12 +377,12 @@ describe('Ingest API : Resource : Networks', function () {
 
     });
 
-    it('Should fail if no "networkId" is passed in.', function (done) {
+    it('Should fail if no `networkId` is passed in.', function (done) {
 
       var request, email, name;
 
-      name = 'Michael Cunningham';
-      email = 'michael.cunningham@redspace.com';
+      name = 'Test Name';
+      email = 'user@domain.com';
 
       request = networksResource.inviteUser(null, email, name).then(function (response) {
 
@@ -1249,13 +1239,13 @@ describe('Ingest API : Resource : Networks', function () {
       var networkId = 'fed6e925-dee4-41cc-be4a-479cabc149a5';
 
       var requestData = {
-        "stripeToken": "tok_notarealtoken"
+        'stripeToken': 'tok_notarealtoken'
       };
 
       var responseData = {
-        "networkID": networkId,
-        "networkName": "Redspace",
-        "stripeCustomerID": "cus_abcdefghijklmnopqrstuvwxyz"
+        'networkID': networkId,
+        'networkName': 'Redspace',
+        'stripeCustomerID': 'cus_abcdefghijklmnopqrstuvwxyz'
       };
 
       var request;
@@ -1378,9 +1368,9 @@ describe('Ingest API : Resource : Networks', function () {
       var stripeToken = 'tok_notarealtoken';
 
       var responseData = {
-        "networkID": networkId,
-        "networkName": networkName,
-        "stripeCustomerID": cusId
+        'networkID': networkId,
+        'networkName': networkName,
+        'stripeCustomerID': cusId
       };
 
       var request, url;
@@ -1563,9 +1553,9 @@ describe('Ingest API : Resource : Networks', function () {
       var cusId = 'cus_abcdefghijklmnopqrstuvwxyz';
 
       var responseData = {
-        "brand": "Visa",
-        "last4": "1234",
-        "type": "card"
+        'brand': 'Visa',
+        'last4': '1234',
+        'type': 'card'
       };
 
       var request, url;

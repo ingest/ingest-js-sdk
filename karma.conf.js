@@ -23,7 +23,6 @@ module.exports = function (config) {
 
     // List of files / patterns to load in the browser.
     files: [
-      './demo/authToken.js',
       './tests/index.js'
     ],
 

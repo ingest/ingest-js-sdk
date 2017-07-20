@@ -40,7 +40,7 @@ PlaybackContent.prototype.getThumbnails = function (id) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent getThumbnails requires an id to be passed as a string.');
+      'IngestSDK PlaybackContent getThumbnails requires an id to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.thumbnails, {
@@ -70,13 +70,13 @@ PlaybackContent.prototype.addExternalThumbnails = function (id, images) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent addExternal requires an id to be passed as a string.');
+      'IngestSDK PlaybackContent addExternal requires an id to be passed as a string.');
   }
 
   // Early return if the types do not match what we are expecting.
   if (!Array.isArray(images) && typeof images !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent addExternal requires images as a string or an array of strings.');
+      'IngestSDK PlaybackContent addExternal requires images as a string or an array of strings.');
   }
 
   // If we already have an array replace the outgoing array, otherwise push the image path to the array.
@@ -115,13 +115,13 @@ PlaybackContent.prototype.uploadThumbnail = function (id, image) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent uploadThumbnail requires an id to be passed as a string.');
+      'IngestSDK PlaybackContent uploadThumbnail requires an id to be passed as a string.');
   }
 
   // Early return if the types do not match what we are expecting.
   if (!image || !(image instanceof File) || !utils.isImage(image)) {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent uploadThumbnail requires a valid image.');
+      'IngestSDK PlaybackContent uploadThumbnail requires a valid image.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.thumbnail, {
@@ -157,12 +157,12 @@ PlaybackContent.prototype.deleteThumbnail = function (id, thumbnailId) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent deleteThumbnail requires an id to be passed as a string.');
+      'IngestSDK PlaybackContent deleteThumbnail requires an id to be passed as a string.');
   }
 
   if (typeof thumbnailId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI PlaybackContent deleteThumbanil requires a thumbnailId to be passed as a string.');
+      'IngestSDK PlaybackContent deleteThumbanil requires a thumbnailId to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.deleteThumbnail, {

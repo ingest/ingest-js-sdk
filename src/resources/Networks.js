@@ -51,12 +51,12 @@ Networks.prototype.linkUser = function (networkId, userId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI linkUser requires "networkId" to be passed as a string.');
+      'IngestSDK linkUser requires `networkId` to be passed as a string.');
   }
 
   if (typeof userId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI linkUser requires "userId" to be passed as a string.');
+      'IngestSDK linkUser requires `userId` to be passed as a string.');
   }
 
   data = {
@@ -91,12 +91,12 @@ Networks.prototype.unlinkUser = function (networkId, userId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI unlinkUser requires "networkId" to be passed as a string.');
+      'IngestSDK unlinkUser requires `networkId` to be passed as a string.');
   }
 
   if (typeof userId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI unlinkUser requires "userId" to be passed as a string.');
+      'IngestSDK unlinkUser requires `userId` to be passed as a string.');
   }
 
   data = {
@@ -133,17 +133,17 @@ Networks.prototype.inviteUser = function (networkId, email, name, resend) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI inviteUser requires "networkId" to be passed as a string.');
+      'IngestSDK inviteUser requires `networkId` to be passed as a string.');
   }
 
   if (typeof email !== 'string') {
     return utils.promisify(false,
-      'IngestAPI inviteUser requires "email" to be passed as a string.');
+      'IngestSDK inviteUser requires `email` to be passed as a string.');
   }
 
   if (typeof name !== 'string') {
     return utils.promisify(false,
-      'IngestAPI inviteUser requires "name" to be passed as a string.');
+      'IngestSDK inviteUser requires `name` to be passed as a string.');
   }
 
   data = {
@@ -182,7 +182,7 @@ Networks.prototype.getSecureKeys = function (networkId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getSecureKeys requires "networkId" to be passed as a string.');
+      'IngestSDK getSecureKeys requires `networkId` to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.keys, {
@@ -213,17 +213,17 @@ Networks.prototype.addSecureKey = function (networkId, data) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI addSecureKey requires "networkId" to be passed as a string.');
+      'IngestSDK addSecureKey requires `networkId` to be passed as a string.');
   }
 
   if (typeof data !== 'object') {
     return utils.promisify(false,
-      'IngestAPI addSecureKey requires "data" to be passed as an object.');
+      'IngestSDK addSecureKey requires `data` to be passed as an object.');
   }
 
   if (typeof data.key !== 'string') {
     return utils.promisify(false,
-      'IngestAPI addSecureKey requires that the key be a string in RSA public key format.');
+      'IngestSDK addSecureKey requires that the key be a string in RSA public key format.');
   }
 
   // The title must be a string.
@@ -259,12 +259,12 @@ Networks.prototype.getSecureKeyById = function (networkId, keyId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getSecureKeyById requires a "networkId" to be passed as a string.');
+      'IngestSDK getSecureKeyById requires a `networkId` to be passed as a string.');
   }
 
   if (typeof keyId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getSecureKeyById requires a "keyId" to be passed as a string.');
+      'IngestSDK getSecureKeyById requires a `keyId` to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.keysById, {
@@ -295,17 +295,17 @@ Networks.prototype.updateSecureKey = function (networkId, data) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI updateSecureKeyById requires "networkId" to be passed as a string.');
+      'IngestSDK updateSecureKeyById requires `networkId` to be passed as a string.');
   }
 
   if (typeof data !== 'object') {
     return utils.promisify(false,
-      'IngestAPI updateSecureKeyById requires "data" to be passed as an object.');
+      'IngestSDK updateSecureKeyById requires `data` to be passed as an object.');
   }
 
   if (typeof data.id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI updateSecureKeyById requires param "data.id" to be a string.');
+      'IngestSDK updateSecureKeyById requires param `data.id` to be a string.');
   }
 
   if (typeof data.title !== 'string') {
@@ -341,12 +341,12 @@ Networks.prototype.deleteSecureKey = function (networkId, keyId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI deleteSecureKeyById requires a "networkId" to be passed as a string.');
+      'IngestSDK deleteSecureKeyById requires a `networkId` to be passed as a string.');
   }
 
   if (typeof keyId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI deleteSecureKeyById requires a "keyId" to be passed as a string.');
+      'IngestSDK deleteSecureKeyById requires a `keyId` to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.keysById, {
@@ -378,7 +378,7 @@ Networks.prototype.createCustomer = function (stripeToken, networkId) {
 
   if (typeof stripeToken !== 'string' || typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks createCustomer requires stripeToken and networkId to be strings.');
+      'IngestSDK Networks createCustomer requires stripeToken and networkId to be strings.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customers, {
@@ -416,12 +416,12 @@ Networks.prototype.updateCustomer = function (networkId, cusId, networkName, str
 
   if (typeof networkId !== 'string' || typeof cusId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks updateCustomer requires `networkId` and `cusID` to be a string.');
+      'IngestSDK Networks updateCustomer requires `networkId` and `cusID` to be a string.');
   }
 
   if (typeof networkName !== 'string' && typeof stripeToken !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks updateCustomer requires either networkName or stripeToken passed as a string.');
+      'IngestSDK Networks updateCustomer requires either networkName or stripeToken passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customerById, {
@@ -460,7 +460,7 @@ Networks.prototype.deleteCustomer = function (networkId, cusId) {
 
   if (typeof networkId !== 'string' || typeof cusId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks deleteCustomer requires `networkId` and `cusId` to be strings.');
+      'IngestSDK Networks deleteCustomer requires `networkId` and `cusId` to be strings.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customerById, {
@@ -493,7 +493,7 @@ Networks.prototype.getCustomerCardInformation = function (networkId, customerId)
 
   if (typeof customerId !== 'string' || typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks getCustomerCardInformation requires networkId and customerId to be strings');
+      'IngestSDK Networks getCustomerCardInformation requires networkId and customerId to be strings');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customerCardInformation, {
@@ -522,7 +522,7 @@ Networks.prototype.deleteCustomerCard = function (networkId, customerId) {
 
   if (typeof customerId !== 'string' || typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Networks deleteCustomerCard requires networkId and customerId to be strings');
+      'IngestSDK Networks deleteCustomerCard requires networkId and customerId to be strings');
   }
 
   url = utils.parseTokens(this.config.host + this.config.customerCardInformation, {
@@ -552,7 +552,7 @@ Networks.prototype.getInvoices = function (networkId) {
   var url, request;
 
   if (typeof networkId !== 'string') {
-    return utils.promisify(false, 'IngestAPI Networks getInvoices requires networkId to be a string');
+    return utils.promisify(false, 'IngestSDK Networks getInvoices requires networkId to be a string');
   }
 
   url = utils.parseTokens(this.config.host + this.config.invoices, {
@@ -582,12 +582,12 @@ Networks.prototype.getInvoiceById = function (networkId, invoiceId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getInvoiceById requires networkId to be passed as a string.');
+      'IngestSDK getInvoiceById requires networkId to be passed as a string.');
   }
 
   if (typeof invoiceId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getInvoiceById requires invoiceId to be passed as a string.');
+      'IngestSDK getInvoiceById requires invoiceId to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.invoicesById, {
@@ -617,7 +617,7 @@ Networks.prototype.getCurrentUsage = function (networkId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getCurrentUsage requires networkId to be passed as a string.');
+      'IngestSDK getCurrentUsage requires networkId to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.currentUsage, {
@@ -645,7 +645,7 @@ Networks.prototype.getPendingUsers = function (networkId) {
 
   if (typeof networkId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI getPendingUsers requires networkId to be passed as a string.');
+      'IngestSDK getPendingUsers requires networkId to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.getPendingUsers, {
@@ -674,7 +674,7 @@ Networks.prototype.deletePendingUser = function (networkId, pendingUserId) {
 
   if (typeof networkId !== 'string' || typeof pendingUserId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI deletePendingUser requires networkId and pendingUserId to be passed as strings.');
+      'IngestSDK deletePendingUser requires networkId and pendingUserId to be passed as strings.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.deletePendingUser, {
