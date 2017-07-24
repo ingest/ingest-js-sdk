@@ -65,6 +65,28 @@ npm install ingest-js-sdk
     });
 ```
 
+Uploading a file
+---------------
+
+Uploading a file is slightly different then using the other resources. To upload a file and start the upload, grab your file and use the `Ingest.upload` functionality:
+
+```javascript
+  upload = Ingest.upload(file);
+  upload.save();
+```
+
+The `Ingest.upload` function returns an upload object, with the following functions available:
+
+Method | Endpoint
+-------|---------
+abort | `Allows you to abort the upload.`
+abortSync | `Allows you to abort the upload synchronously. Takes a callback function to invoke when complete.`
+pause | `Pauses the upload.`
+progress | `Takes a callback function that is invoked anytime progress on the upload occurs.`
+resume | `Resumes a paused upload.`
+save | `Starts the upload.`
+
+
 API Documentation
 ---------------
 
