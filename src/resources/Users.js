@@ -15,6 +15,7 @@ var extend = require('extend');
 function Users (options) {
 
   var overrides = {
+    resource: 'users',
     currentUser: '/users/me',
     transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
     revoke: '/revoke'

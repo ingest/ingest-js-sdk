@@ -14,7 +14,8 @@ var extend = require('extend');
  */
 function Events (options) {
   var overrides = {
-    'types': '/<%=resource%>/types',
+    resource: 'events',
+    types: '/<%=resource%>/types',
   };
 
   options = extend(true, {}, overrides, options);

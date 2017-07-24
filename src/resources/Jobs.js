@@ -15,6 +15,7 @@ var extend = require('extend');
 function Jobs (options) {
 
   var overrides = {
+    resource: 'encoding/jobs',
     progress: '/<%=resource%>/<%=id%>/progress'
   };
 

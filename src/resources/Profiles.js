@@ -3,6 +3,7 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 /**
  * Profiles Resource
@@ -12,6 +13,11 @@ var utils = require('../Utils');
  * @extends Resource
  */
 function Profiles (options) {
+  var overrides = {
+    resource: 'encoding/profiles'
+  };
+
+  options = extend(true, {}, overrides, options);
 
   Resource.call(this, options);
 

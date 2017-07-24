@@ -26,14 +26,14 @@ npm install ingest-js-sdk
 
 3. Initialize the SDK:
 ```javascript
-  var sdk = new IngestSDK({
+  var Ingest = new IngestSDK({
     token: 'Bearer ...'
   });
 ```
 
 4. Start making calls:
 ```javascript
-  sdk.videos.getAll()
+  Ingest.videos.getAll()
     .then(function (response) {
       // Handle Response
     });
@@ -52,14 +52,14 @@ npm install ingest-js-sdk
 4. Initialize the SDK:
 
 ```javascript
-  var sdk = new IngestSDK({
+  var Ingest = new IngestSDK({
     token: 'Bearer ...'
   });
 ```
 
 5. Start making calls:
 ```javascript
-  sdk.videos.getAll()
+  Ingest.videos.getAll()
     .then(function (response) {
       // Handle Response
     });

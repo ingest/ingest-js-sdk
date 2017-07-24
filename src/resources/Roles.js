@@ -3,6 +3,7 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
 
 /**
  * Roles Resource
@@ -12,7 +13,14 @@ var utils = require('../Utils');
  * @extends Resource
  */
 function Roles (options) {
+  var overrides = {
+    resource: 'roles'
+  };
+
+  options = extend(true, {}, overrides, options);
+
   Resource.call(this, options);
+
 };
 
 // This extends the base class of 'Resource'.

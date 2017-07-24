@@ -27,6 +27,7 @@ var Roles = require('./resources/Roles');
  * @param {string}  options.token  Auth token to use for requests.
  */
 function IngestSDK (options) {
+  var resourceConfig;
 
   this.defaults = {
     'maxRequests': 6, // Active Requests
@@ -64,61 +65,20 @@ function IngestSDK (options) {
   this.requestManager = RequestManager;
   this.setMaxRequests(this.config.maxRequests);
 
-  this._getToken = this.getToken.bind(this);
-
-  this.videos = new Videos({
+  resourceConfig = {
     host: this.config.host,
-    resource: 'videos',
-    tokenSource: this._getToken
-  });
+    tokenSource: this.getToken.bind(this)
+  };
 
-  this.playlists = new Playlists({
-    host: this.config.host,
-    resource: 'playlists',
-    tokenSource: this._getToken
-  });
-
-  this.inputs = new Inputs({
-    host: this.config.host,
-    resource: 'encoding/inputs',
-    tokenSource: this._getToken
-  });
-
-  this.users = new Users({
-    host: this.config.host,
-    resource: 'users',
-    tokenSource: this._getToken
-  });
-
-  this.networks = new Networks({
-    host: this.config.host,
-    resource: 'networks',
-    tokenSource: this._getToken
-  });
-
-  this.profiles = new Profiles({
-    host: this.config.host,
-    resource: 'encoding/profiles',
-    tokenSource: this._getToken
-  });
-
-  this.jobs = new Jobs({
-    host: this.config.host,
-    resource: 'encoding/jobs',
-    tokenSource: this._getToken
-  });
-
-  this.events = new Events({
-    host: this.config.host,
-    resource: 'events',
-    tokenSource: this._getToken
-  });
-
-  this.roles = new Roles({
-    host: this.config.host,
-    resource: 'roles',
-    tokenSource: this._getToken
-  });
+  this.videos = new Videos(resourceConfig);
+  this.playlists = new Playlists(resourceConfig);
+  this.inputs = new Inputs(resourceConfig);
+  this.users = new Users(resourceConfig);
+  this.networks = new Networks(resourceConfig);
+  this.profiles = new Profiles(resourceConfig);
+  this.jobs = new Jobs(resourceConfig);
+  this.events = new Events(resourceConfig);
+  this.roles = new Roles(resourceConfig);
 }
 
 /** Token **/

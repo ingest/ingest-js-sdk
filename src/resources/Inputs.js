@@ -15,8 +15,9 @@ var extend = require('extend');
 function Inputs (options) {
 
   var overrides = {
-    'allWithFilters'   : '/<%=resource%>?filter=<%=filterChain%>',
-    'searchWithFilters': '/<%=resource%>?search=<%=input%>&filter=<%=filterChain%>'
+    resource: 'encoding/inputs',
+    allWithFilters: '/<%=resource%>?filter=<%=filterChain%>',
+    searchWithFilters: '/<%=resource%>?search=<%=input%>&filter=<%=filterChain%>'
   };
 
   options = extend(true, {}, overrides, options);

@@ -15,6 +15,7 @@ var extend = require('extend');
 function Networks (options) {
 
   var overrides = {
+    resource: 'networks',
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
     invite: '/<%=resource%>/<%=networkId%>/invite',

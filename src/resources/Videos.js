@@ -13,8 +13,8 @@ var extend = require('extend');
  * @extends PlaybackContent
  */
 function Videos (options) {
-
   var overrides = {
+    resource: 'videos',
     playlists: '/<%=resource%>/<%=id%>/playlists',
     variants: '/<%=resource%>/<%=id%>/variants',
     publish: '/<%=resource%>/publish'

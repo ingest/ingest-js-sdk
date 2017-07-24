@@ -15,9 +15,10 @@ var extend = require('extend');
 function Playlists (options) {
 
   var overrides = {
-    'playlistVideoById': '/<%=resource%>/<%=playlistId%>/video/<%=videoId%>',
-    'playlistReorder': '/<%=resource%>/<%=playlistId%>/reorder/<%=videoId%>',
-    'playlistAddRemove': '/<%=resource%>/<%=playlistId%>/videos'
+    resource: 'playlists',
+    playlistVideoById: '/<%=resource%>/<%=playlistId%>/video/<%=videoId%>',
+    playlistReorder: '/<%=resource%>/<%=playlistId%>/reorder/<%=videoId%>',
+    playlistAddRemove: '/<%=resource%>/<%=playlistId%>/videos'
   };
 
   options = extend(true, {}, overrides, options);
