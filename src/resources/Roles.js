@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Roles Resource
@@ -14,7 +15,7 @@ var extend = require('extend');
  */
 function Roles (options) {
   var overrides = {
-    resource: 'roles'
+    resource: ResourceTypes.ROLES
   };
 
   options = extend(true, {}, overrides, options);

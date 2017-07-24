@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Users Resource
@@ -15,7 +16,7 @@ var extend = require('extend');
 function Users (options) {
 
   var overrides = {
-    resource: 'users',
+    resource: ResourceTypes.USERS,
     currentUser: '/users/me',
     transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
     revoke: '/revoke'

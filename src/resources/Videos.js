@@ -4,6 +4,7 @@ var PlaybackContent = require('./PlaybackContent');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Videos Resource
@@ -14,7 +15,7 @@ var extend = require('extend');
  */
 function Videos (options) {
   var overrides = {
-    resource: 'videos',
+    resource: ResourceTypes.VIDEOS,
     playlists: '/<%=resource%>/<%=id%>/playlists',
     variants: '/<%=resource%>/<%=id%>/variants',
     publish: '/<%=resource%>/publish'

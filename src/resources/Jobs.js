@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Jobs Resource
@@ -15,7 +16,7 @@ var extend = require('extend');
 function Jobs (options) {
 
   var overrides = {
-    resource: 'encoding/jobs',
+    resource: ResourceTypes.JOBS,
     progress: '/<%=resource%>/<%=id%>/progress'
   };
 

@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Inputs Resource
@@ -15,7 +16,7 @@ var extend = require('extend');
 function Inputs (options) {
 
   var overrides = {
-    resource: 'encoding/inputs',
+    resource: ResourceTypes.INPUTS,
     allWithFilters: '/<%=resource%>?filter=<%=filterChain%>',
     searchWithFilters: '/<%=resource%>?search=<%=input%>&filter=<%=filterChain%>'
   };

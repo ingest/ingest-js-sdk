@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Events Resource
@@ -14,7 +15,7 @@ var extend = require('extend');
  */
 function Events (options) {
   var overrides = {
-    resource: 'events',
+    resource: ResourceTypes.EVENTS,
     types: '/<%=resource%>/types',
   };
 

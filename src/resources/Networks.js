@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Networks Resource
@@ -15,7 +16,7 @@ var extend = require('extend');
 function Networks (options) {
 
   var overrides = {
-    resource: 'networks',
+    resource: ResourceTypes.NETWORKS,
     keys: '/<%=resource%>/<%=networkId%>/keys',
     keysById: '/<%=resource%>/<%=networkId%>/keys/<%=keyId%>',
     invite: '/<%=resource%>/<%=networkId%>/invite',
