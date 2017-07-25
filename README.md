@@ -16,7 +16,7 @@ There are 2 main ways to utilize it.
 1. Install the SDK via npm:
 
 ```sh
-npm install ingest-js-sdk
+npm install @ingest/ingest-js-sdk
 ```
 
 2. Require it in your project:

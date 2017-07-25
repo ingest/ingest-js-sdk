@@ -1,13 +1,9 @@
 {
-  "name": "ingest-js-sdk",
+  "name": "@ingest/ingest-js-sdk",
   "version": "1.10.0",
   "description": "Javascript SDK for communicating with Ingest's REST API.",
   "main": "./dist/ingest-sdk.js",
-  "author": {
-    "name": "Ingest",
-    "email": "",
-    "url": "https://www.ingest.io/"
-  },
+  "author": "Ingest (https://www.ingest.io/)",
   "homepage": "https://github.com/ingest/ingest-js-sdk",
   "bugs": {
     "url": "https://github.com/ingest/ingest-js-sdk/issues",
@@ -15,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/ingest/ingest-js-sdk"
+    "url": "git://github.com/ingest/ingest-js-sdk.git"
   },
   "license": "MIT",
   "engines": {
