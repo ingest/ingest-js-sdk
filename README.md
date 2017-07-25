@@ -1,8 +1,6 @@
 # Ingest.IO Javascript SDK
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/ingest/ingest-js-sdk.svg)](https://greenkeeper.io/)
-
-[![Build Status](https://travis-ci.org/ingest/ingest-js-sdk.svg?branch=master)](https://travis-ci.org/ingest/ingest-js-sdk)
+[![Build Status](https://travis-ci.org/ingest/ingest-js-sdk.svg?branch=master)](https://travis-ci.org/ingest/ingest-js-sdk) [![Greenkeeper badge](https://badges.greenkeeper.io/ingest/ingest-js-sdk.svg)](https://greenkeeper.io/)
 
 The official Ingest.IO Javascript SDK for interfacing with Ingest.
 
