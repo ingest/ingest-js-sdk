@@ -1,11 +1,8 @@
 'use strict';
 
-var IngestAPI = require('../src/index');
+var IngestSDK = require('../src/index');
 
 var api;
-
-var access_token = 'Bearer ' + window.token;
-
 var validVideoId;
 var createdVideo;
 var nextRange;
@@ -17,16 +14,13 @@ describe('Ingest API', function () {
 
   // Reset the auth token.
   beforeEach(function () {
-    api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:8080',
-      token: access_token
-    });
+    api = new IngestSDK();
 
     RequestManager = api.requestManager;
   });
 
   it('Should exist on the window object.', function () {
-    expect(IngestAPI).toBeDefined();
+    expect(IngestSDK).toBeDefined();
   });
 
   it('Should expose the required functions.', function () {
@@ -42,7 +36,7 @@ describe('Ingest API', function () {
 
     for (i = 0; i < requiredLength; i++) {
       func = required[i];
-      expect(IngestAPI.prototype[func]).toBeDefined();
+      expect(IngestSDK.prototype[func]).toBeDefined();
     }
 
   });
@@ -57,13 +51,25 @@ describe('Ingest API', function () {
     var testAPI;
 
     try {
-      testAPI = new IngestAPI();
+      testAPI = new IngestSDK();
     } catch (error) {
       expect(error).toBeUndefined();
     }
 
-    expect(testAPI instanceof IngestAPI).toBe(true);
+    expect(testAPI instanceof IngestSDK).toBe(true);
 
+  });
+
+  it('Should set the api token to whatever was passed in as an option', function () {
+    var testToken, testAPI;
+
+    testToken = 'Bearer abcdefg';
+
+    testAPI = new IngestSDK({
+      token: testToken
+    });
+
+    expect(testAPI.token).toEqual(testToken);
   });
 
   it('Should parse the id out of a template string', function () {
@@ -72,6 +78,10 @@ describe('Ingest API', function () {
   });
 
   it('Should override the default config object values.', function () {
+    api = new IngestSDK({
+      host: 'some host'
+    });
+
     expect(api.config.host).not.toEqual(api.defaults.host);
   });
 
@@ -82,17 +92,13 @@ describe('Ingest API', function () {
   });
 
   it('Should return the token.', function () {
-    var token = api.getToken(api);
+    var token;
+
+    api.setToken('test-token');
+    token = api.getToken();
+
     expect(token).toBeDefined();
-    expect(token).toEqual(access_token);
-  });
-
-  it('Should return the currently configured token.', function () {
-
-    var token = api.getToken();
-
-    expect(token).toEqual(access_token);
-
+    expect(token).toEqual('test-token');
   });
 
   it('Should throw an error if no token is set.', function () {
@@ -128,7 +134,7 @@ describe('Ingest API', function () {
   describe('upload', function () {
     it('Should return an upload object', function () {
 
-      var file = new File([""], "testfile");
+      var file = new File([''], 'testfile');
 
       var upload = api.upload(file);
 

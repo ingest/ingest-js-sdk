@@ -26,9 +26,6 @@ function Resource (options) {
   };
 
   this.config = extend(true, {}, this.defaults, options);
-
-  this.cache = this.config.cache;
-
 }
 
 /**
@@ -63,8 +60,7 @@ Resource.prototype.getAll = function (headers) {
     headers: headers
   });
 
-  return request.send()
-          .then(this._updateCachedResources.bind(this));
+  return request.send();
 };
 
 /**
@@ -73,11 +69,11 @@ Resource.prototype.getAll = function (headers) {
  * @return {promise}        A promise which resolves when the request is complete.
  */
 Resource.prototype.getById = function (id) {
-  var url, cachedResult, request;
+  var url, request;
 
   if (typeof id !== 'string' || id.length <= 0) {
     return utils.promisify(false,
-      'IngestAPI Resource getById requires a valid id passed as a string.');
+      'IngestSDK Resource getById requires a valid id passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.byId, {
@@ -85,26 +81,12 @@ Resource.prototype.getById = function (id) {
     id: id
   });
 
-  if (this.cache && this.cache.enabled) {
-    // Retrieve the cached item.
-    cachedResult = this.cache.retrieve(id);
-  }
-
-  // Return a cached result if we've found one.
-  if (cachedResult) {
-    return utils.promisify(true, {
-      data: cachedResult
-    });
-  }
-
   request = new Request({
     url: url,
     token: this._tokenSource()
   });
 
-  return request.send()
-    .then(this._updateCachedResource.bind(this));
-
+  return request.send();
 };
 
 /**
@@ -137,7 +119,7 @@ Resource.prototype.add = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Resource add requires a resource passed as an object.');
+      'IngestSDK Resource add requires a resource passed as an object.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.all, {
@@ -151,8 +133,7 @@ Resource.prototype.add = function (resource) {
     data: resource
   });
 
-  return request.send()
-          .then(this._updateCachedResource.bind(this));
+  return request.send();
 };
 
 /**
@@ -165,7 +146,7 @@ Resource.prototype.update = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Resource update requires a resource to be passed as an object.');
+      'IngestSDK Resource update requires a resource to be passed as an object.');
   }
 
   data = resource;
@@ -175,18 +156,6 @@ Resource.prototype.update = function (resource) {
     id: resource.id
   });
 
-  if (this.cache && this.cache.enabled) {
-    data = this.cache.diff(resource.id, resource);
-  }
-
-  // Null is returned in the case that the two objects match.
-  if (!data) {
-    // Return a fulfilled promise with the cached object.
-    return utils.promisify(true, {
-      data: this.cache.retrieve(resource.id)
-    });
-  }
-
   request = new Request({
     url: url,
     token: this._tokenSource(),
@@ -194,8 +163,7 @@ Resource.prototype.update = function (resource) {
     data: data
   });
 
-  return request.send()
-          .then(this._updateCachedResource.bind(this));
+  return request.send();
 };
 
 /**
@@ -212,7 +180,7 @@ Resource.prototype.delete = function (resource, async) {
 
   if (typeof resource !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Resource delete requires a resource to be passed as a string.');
+      'IngestSDK Resource delete requires a resource to be passed as a string.');
   }
 
   return this._deleteResource(resource, false, async);
@@ -232,7 +200,7 @@ Resource.prototype.permanentDelete = function (resource, async) {
 
   if (typeof resource !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Resource delete requires a resource to be passed as a string.');
+      'IngestSDK Resource delete requires a resource to be passed as a string.');
   }
 
   return this._deleteResource(resource, true, async);
@@ -263,8 +231,7 @@ Resource.prototype._deleteResource = function (resource, permanent) {
     method: 'DELETE'
   });
 
-  return request.send()
-    .then(this._deleteCachedResource.bind(this, resource));
+  return request.send();
 };
 
 /**
@@ -275,7 +242,7 @@ Resource.prototype._deleteResource = function (resource, permanent) {
 Resource.prototype.deleteSync = function (resource, callback) {
 
   if (typeof resource !== 'string') {
-    callback(new Error('IngestAPI Resource delete requires a resource to be passed as a string.'));
+    callback(new Error('IngestSDK Resource delete requires a resource to be passed as a string.'));
     return;
   }
 
@@ -291,7 +258,7 @@ Resource.prototype.deleteSync = function (resource, callback) {
 Resource.prototype.permanentDeleteSync = function (resource, callback) {
 
   if (typeof resource !== 'string') {
-    callback(new Error('IngestAPI Resource delete requires a resource to be passed as a string.'));
+    callback(new Error('IngestSDK Resource delete requires a resource to be passed as a string.'));
     return;
   }
 
@@ -326,7 +293,6 @@ Resource.prototype._deleteResourceSync = function (resource, permanent, callback
   });
 
   request.sendSync(callback);
-
 };
 
 /**
@@ -341,7 +307,7 @@ Resource.prototype.search = function (input, headers, status) {
 
   if (typeof input !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Resource search requires search input to be passed as a string.');
+      'IngestSDK Resource search requires search input to be passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.search, {
@@ -353,7 +319,7 @@ Resource.prototype.search = function (input, headers, status) {
   if (status) {
     if (typeof status !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Resource search requires a valid status to be passed as a string.');
+        'IngestSDK Resource search requires a valid status to be passed as a string.');
     }
 
     url = url + '&status=' + status;
@@ -395,7 +361,7 @@ Resource.prototype.count = function () {
   });
 
   return request.send()
-          .then(this._handleCountResponse);
+    .then(this._handleCountResponse);
 };
 
 /**
@@ -415,7 +381,7 @@ Resource.prototype.trashCount = function () {
   });
 
   return request.send()
-          .then(this._handleCountResponse);
+    .then(this._handleCountResponse);
 };
 
 /**
@@ -426,53 +392,6 @@ Resource.prototype.trashCount = function () {
  */
 Resource.prototype._handleCountResponse = function (response) {
   return parseInt(response.headers('Resource-Count'), 10);
-};
-
-/**
- * Update a single cached resource based on the response data.
- * @param  {object}   response   Response object from the getAll request.
- * @return {response}            Response object from the getAll request.
- */
-Resource.prototype._updateCachedResource = function (response) {
-  if (this.cache && this.cache.enabled) {
-    this.cache.save(response.data.id, response.data);
-  }
-
-  return response;
-};
-
-/**
- * Store the returned items in cache.
- * @param  {object}   response   Response object from the getAll request.
- * @return {response}            Response object from the getAll request.
- */
-Resource.prototype._updateCachedResources = function (response) {
-  var data = response.data;
-  var dataLength = data.length;
-  var i;
-
-  if (this.cache && this.cache.enabled) {
-    for (i = 0; i < dataLength; i++) {
-      this.cache.save(data[i].id, data[i]);
-    }
-
-  }
-
-  return response;
-};
-
-/**
- * Delete a single cached resource.
- * @param  {string} id            ID of the resource to remove.
- * @param  {object}   response    Response object from the getAll request.
- * @return {response}             Response object from the getAll request.
- */
-Resource.prototype._deleteCachedResource = function (id, response) {
-  if (this.cache && this.cache.enabled) {
-    this.cache.remove(id);
-  }
-
-  return response;
 };
 
 module.exports = Resource;

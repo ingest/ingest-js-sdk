@@ -1,23 +1,18 @@
 'use strict';
 
-var IngestAPI = require('../src/index');
+var IngestSDK = require('../src/index');
+var JWTUtils;
 
-// Token will need to be re-generated every 24 hours.
-var valid_token = 'Bearer ' + window.token;
-
+// This valid tokens expiry is in the year 2999
+var valid_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIzMjUwMzU5MzYwMCIsInN1YiI6IjEyMzQ1Njc4OTAiLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZX0.SRJ8AvhOJyJPfcl5Aqf8-ZiKVoDy72h0RwJQJzx28nI'; // eslint-disable-line
 var invalid_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNDUwMzY2NzkxIiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.MGdv4o_sNc84OsRlsitw6D933A3zBqEEacEdp30IQeg';  //eslint-disable-line
 var malformed_token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.xuEv8qrfXu424LZk8bVgr9MQJUIrp1rHcPyZw_KSsds' //eslint-disable-line
-
-var JWTUtils;
 
 describe('Ingest API : JWTUtils', function () {
 
   // Reset the auth token.
   beforeEach(function () {
-    var api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:3000',
-      token: valid_token
-    });
+    var api = new IngestSDK();
 
     JWTUtils = api.JWTUtils;
   });

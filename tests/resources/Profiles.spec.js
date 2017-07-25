@@ -1,17 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-'use strict';
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var profilesResource;
 
 describe('Ingest API : Resource : Profiles', function () {
@@ -20,12 +12,8 @@ describe('Ingest API : Resource : Profiles', function () {
     profilesResource = new api.profilesResource({
       host: api.config.host,
       resource: 'encoding/profiles',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
-
-    // Re-enable cache each time.
-    profilesResource.cache.enabled = true;
   });
 
   describe('update', function () {
@@ -114,95 +102,5 @@ describe('Ingest API : Resource : Profiles', function () {
         expect(request.then).toBeDefined();
 
       });
-
-    it('Should not perform a diff if caching is disabled.', function (done) {
-
-      var request;
-
-      api.cache.enabled = false;
-
-      spyOn(api.cache, 'diff');
-
-      // Mock request data.
-      var data = {
-        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-        'title': 'my profile'
-      };
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PUT', api.config.host + '/encoding/profiles/3fc358b0-630e-43f2-85f9-69195b346312',
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
-            .body(JSON.stringify(data));
-
-        });
-
-      request = profilesResource.update(data).then(function (response) {
-
-        expect(response).toBeDefined();
-        expect(api.cache.diff).not.toHaveBeenCalled();
-
-        done();
-
-      }, function (error) {
-
-        expect(error).toBeUndefined();
-
-        done();
-
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-
-    });
-
-    it('Should return the cached object if there were no changes detected.', function (done) {
-
-      var called = false;
-
-      // Mock the retrieve and return a different cached value for the first test object.
-      spyOn(api.cache, 'retrieve').and.returnValue({
-        'id': '3fc358b0-630e-43f2-85f9-69195b346312',
-        'value': 'test'
-      });
-
-      // Mock the XHR object.
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('PUT', api.config.host + '/encoding/profiles/3fc358b0-630e-43f2-85f9-69195b346312',
-        function (request, response) {
-          called = true;
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .header('Content-Length', 1)
-            .body(JSON.stringify(data));
-        });
-
-      profilesResource.update({'id': '3fc358b0-630e-43f2-85f9-69195b346312', 'value': 'test'})
-        .then(function (response) {
-          expect(response).toBeDefined();
-          expect(called).toEqual(false);
-          mock.teardown();
-          done();
-        }, function (error) {
-          expect(error).toBeUndefined();
-          mock.teardown();
-          done();
-        });
-
-    });
-
   });
-
 });

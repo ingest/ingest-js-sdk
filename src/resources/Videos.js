@@ -4,6 +4,7 @@ var PlaybackContent = require('./PlaybackContent');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Videos Resource
@@ -13,8 +14,8 @@ var extend = require('extend');
  * @extends PlaybackContent
  */
 function Videos (options) {
-
   var overrides = {
+    resource: ResourceTypes.VIDEOS,
     playlists: '/<%=resource%>/<%=id%>/playlists',
     variants: '/<%=resource%>/<%=id%>/variants',
     publish: '/<%=resource%>/publish'
@@ -45,7 +46,7 @@ Videos.prototype.getAll = function (headers, status) {
   if (status) {
     if (typeof status !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Videos.getAll requires a valid status to be passed as a string.');
+        'IngestSDK Videos.getAll requires a valid status to be passed as a string.');
     }
 
     url = url + '?status=' + status;
@@ -70,7 +71,7 @@ Videos.prototype.getPlaylists = function (id) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Resource getPlaylists requires a valid video id passed as a string.');
+      'IngestSDK Resource getPlaylists requires a valid video id passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.playlists, {
@@ -84,7 +85,6 @@ Videos.prototype.getPlaylists = function (id) {
   });
 
   return request.send();
-
 };
 
 /**
@@ -97,7 +97,7 @@ Videos.prototype.getVariants = function (id) {
 
   if (typeof id !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Resource getPlaylists requires a valid video id passed as a string.');
+      'IngestSDK Resource getPlaylists requires a valid video id passed as a string.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.variants, {
@@ -125,7 +125,7 @@ Videos.prototype.publish = function (ids) {
   // Check to make sure the ids are in an array
   if (!Array.isArray(ids) || ids.length === 0) {
     return utils.promisify(false,
-      'IngestAPI Videos publish requires an array of ids to be passed in.');
+      'IngestSDK Videos publish requires an array of ids to be passed in.');
   }
 
   url = utils.parseTokens(this.config.host + this.config.publish, {
@@ -163,7 +163,7 @@ Videos.prototype.count = function (status, _private) {
   if (status) {
     if (typeof status !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Videos count requires a valid status to be passed as a string.');
+        'IngestSDK Videos count requires a valid status to be passed as a string.');
     }
 
     url += '?status=' + status;

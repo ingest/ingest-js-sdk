@@ -2,36 +2,25 @@
 
 'use strict';
 
-var IngestAPI = require('../src/index');
-
-var api;
-
-// Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer ' + window.token;
-
-require('jasmine-ajax');
-
+var IngestSDK = require('../src/index');
 var mock = require('xhr-mock');
-var utils;
-var Request;
+var jasmineAjax = require('jasmine-ajax');
 
+var api, utils, Request;
 var Uploader, file, upload;
 
 describe('Ingest API : Uploader', function () {
 
   // Reset the auth token.
   beforeEach(function () {
-    api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:3000',
-      token: access_token
-    });
+    api = new IngestSDK();
 
     utils = api.utils;
 
     Uploader = api.uploader;
 
     // Create a mock file.
-    file = new File(["testfilewithsometestcontent"], "testfile", {
+    file = new File(['testfilewithsometestcontent'], 'testfile', {
       type: 'video/mp4'
     });
 

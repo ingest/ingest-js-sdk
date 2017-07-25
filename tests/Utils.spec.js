@@ -1,15 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../src/index');
-
-var api;
-var utils;
+var IngestSDK = require('../src/index');
 var Promise = require('pinkyswear');
 
-// Token will need to be re-generated every 24 hours.
-var access_token = 'Bearer ' + window.token;
-
-var promises;
+var api, utils, promises;
 
 function testPromise () {
   return utils.promisify(true, 'Test Promise Resolve.');
@@ -22,10 +16,7 @@ function promiseError () {
 describe('Utils:Series', function () {
 
   beforeEach(function () {
-    api = new IngestAPI({
-      host: 'http://weasley.teamspace.ad:3000',
-      token: access_token
-    });
+    api = new IngestSDK();
 
     utils = api.utils;
 

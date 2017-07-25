@@ -5,7 +5,6 @@ var Request = require('./Request');
 var JWTUtils = require('./JWTUtils');
 var utils = require('./Utils');
 var Uploader = require('./Uploader');
-var Cache = require('./Cache');
 var RequestManager = require('./RequestManager');
 
 var Resource = require('./resources/Resource');
@@ -27,12 +26,12 @@ var Roles = require('./resources/Roles');
  * @param {string}  options.host   Override the default live host.
  * @param {string}  options.token  Auth token to use for requests.
  */
-function IngestAPI (options) {
+function IngestSDK (options) {
+  var resourceConfig;
 
   this.defaults = {
     'maxRequests': 6, // Active Requests
-    'host': 'https://api.ingest.io',
-    'cacheAge': 300000 // 5 minutes
+    'host': 'https://api.ingest.io'
   };
 
   // Create a config object by extending the defaults with the pass options.
@@ -62,73 +61,24 @@ function IngestAPI (options) {
   this.eventsResource = Events;
   this.rolesResource = Roles;
 
-  // Construct my cache
-  this.cache = new Cache(this.config.cacheAge);
-  this.cache.enabled = false;
-
   // Set my max requests
   this.requestManager = RequestManager;
   this.setMaxRequests(this.config.maxRequests);
 
-  this._getToken = this.getToken.bind(this);
-
-  this.videos = new Videos({
+  resourceConfig = {
     host: this.config.host,
-    resource: 'videos',
-    tokenSource: this._getToken,
-    cache: this.cache
-  });
+    tokenSource: this.getToken.bind(this)
+  };
 
-  this.playlists = new Playlists({
-    host: this.config.host,
-    resource: 'playlists',
-    tokenSource: this._getToken
-  });
-
-  this.inputs = new Inputs({
-    host: this.config.host,
-    resource: 'encoding/inputs',
-    tokenSource: this._getToken,
-    cache: this.cache
-  });
-
-  this.users = new Users({
-    host: this.config.host,
-    resource: 'users',
-    tokenSource: this._getToken
-  });
-
-  this.networks = new Networks({
-    host: this.config.host,
-    resource: 'networks',
-    tokenSource: this._getToken
-  });
-
-  this.profiles = new Profiles({
-    host: this.config.host,
-    resource: 'encoding/profiles',
-    tokenSource: this._getToken
-  });
-
-  this.jobs = new Jobs({
-    host: this.config.host,
-    resource: 'encoding/jobs',
-    tokenSource: this._getToken,
-    cache: this.cache
-  });
-
-  this.events = new Events({
-    host: this.config.host,
-    resource: 'events',
-    tokenSource: this._getToken,
-    cache: this.cache
-  });
-
-  this.roles = new Roles({
-    host: this.config.host,
-    resource: 'roles',
-    tokenSource: this._getToken
-  });
+  this.videos = new Videos(resourceConfig);
+  this.playlists = new Playlists(resourceConfig);
+  this.inputs = new Inputs(resourceConfig);
+  this.users = new Users(resourceConfig);
+  this.networks = new Networks(resourceConfig);
+  this.profiles = new Profiles(resourceConfig);
+  this.jobs = new Jobs(resourceConfig);
+  this.events = new Events(resourceConfig);
+  this.roles = new Roles(resourceConfig);
 }
 
 /** Token **/
@@ -136,11 +86,11 @@ function IngestAPI (options) {
  * Set the auth token to use.
  * @param   {String}        token Auth token to use.
  */
-IngestAPI.prototype.setToken = function (token) {
+IngestSDK.prototype.setToken = function (token) {
 
   // Make sure a valid value is passed.
   if (typeof token !== 'string') {
-    throw new Error('IngestAPI requires an authentication token passed as a string.');
+    throw new Error('IngestSDK requires an authentication token passed as a string.');
   }
 
   this.token = token;
@@ -150,10 +100,10 @@ IngestAPI.prototype.setToken = function (token) {
  * Sets the maxrequests in the Request Manager
  * @param {number} max - The max amount of requests at once
  */
-IngestAPI.prototype.setMaxRequests = function (max) {
+IngestSDK.prototype.setMaxRequests = function (max) {
   // Make sure we have a valid number.
   if (typeof max !== 'number' || max < 1) {
-    throw new Error('IngestAPI requires a maxRequest count to be passed as a positive number.');
+    throw new Error('IngestSDK requires a maxRequest count to be passed as a positive number.');
   }
 
   RequestManager.setMaxRequests(max);
@@ -163,7 +113,7 @@ IngestAPI.prototype.setMaxRequests = function (max) {
  * Return the current auth token.
  * @return  {String}        Current auth token, or null if a token has not been set.
  */
-IngestAPI.prototype.getToken = function () {
+IngestSDK.prototype.getToken = function () {
   return this.token;
 };
 
@@ -172,7 +122,7 @@ IngestAPI.prototype.getToken = function () {
  * @param  {File}   file    File to upload.
  * @return {Promise} A promise which resolves when the upload is complete.
  */
-IngestAPI.prototype.upload = function (file) {
+IngestSDK.prototype.upload = function (file) {
   return new Uploader({
     file: file,
     api: this,
@@ -180,4 +130,4 @@ IngestAPI.prototype.upload = function (file) {
   });
 };
 
-module.exports = IngestAPI;
+module.exports = IngestSDK;

@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Inputs Resource
@@ -15,8 +16,9 @@ var extend = require('extend');
 function Inputs (options) {
 
   var overrides = {
-    'allWithFilters'   : '/<%=resource%>?filter=<%=filterChain%>',
-    'searchWithFilters': '/<%=resource%>?search=<%=input%>&filter=<%=filterChain%>'
+    resource: ResourceTypes.INPUTS,
+    allWithFilters: '/<%=resource%>?filter=<%=filterChain%>',
+    searchWithFilters: '/<%=resource%>?search=<%=input%>&filter=<%=filterChain%>'
   };
 
   options = extend(true, {}, overrides, options);
@@ -57,8 +59,7 @@ Inputs.prototype.getAll = function (headers, filters) {
     headers: headers
   });
 
-  return request.send()
-    .then(this._updateCachedResources.bind(this));
+  return request.send();
 };
 
 /**
@@ -75,7 +76,7 @@ Inputs.prototype.search = function (input, headers, filters) {
 
   if (typeof input !== 'string') {
     return utils.promisify(false,
-      'IngestAPI Inputs search requires search input to be passed as a string.');
+      'IngestSDK Inputs search requires search input to be passed as a string.');
   }
 
   tokens = { resource: this.config.resource, input: encodeURIComponent(input) };

@@ -1,17 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-'use strict';
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var rolesResource;
 
 describe('Ingest API : Resource : Roles', function () {

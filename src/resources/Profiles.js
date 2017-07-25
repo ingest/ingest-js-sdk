@@ -3,6 +3,8 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Profiles Resource
@@ -12,6 +14,11 @@ var utils = require('../Utils');
  * @extends Resource
  */
 function Profiles (options) {
+  var overrides = {
+    resource: ResourceTypes.PROFILES
+  };
+
+  options = extend(true, {}, overrides, options);
 
   Resource.call(this, options);
 
@@ -31,7 +38,7 @@ Profiles.prototype.update = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Profiles update requires a resource to be passed as an object.');
+      'IngestSDK Profiles update requires a resource to be passed as an object.');
   }
 
   data = resource;
@@ -41,18 +48,6 @@ Profiles.prototype.update = function (resource) {
     id: resource.id
   });
 
-  if (this.cache && this.cache.enabled) {
-    data = this.cache.diff(resource.id, resource);
-  }
-
-  // Null is returned in the case that the two objects match.
-  if (!data) {
-    // Return a fulfilled promise with the cached object.
-    return utils.promisify(true, {
-      data: this.cache.retrieve(resource.id)
-    });
-  }
-
   request = new Request({
     url: url,
     token: this._tokenSource(),
@@ -60,9 +55,7 @@ Profiles.prototype.update = function (resource) {
     data: data
   });
 
-  return request.send()
-    .then(this._updateCachedResource.bind(this));
-
+  return request.send();
 };
 
 module.exports = Profiles;

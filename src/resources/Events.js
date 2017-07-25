@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Events Resource
@@ -14,7 +15,8 @@ var extend = require('extend');
  */
 function Events (options) {
   var overrides = {
-    'types': '/<%=resource%>/types',
+    resource: ResourceTypes.EVENTS,
+    types: '/<%=resource%>/types',
   };
 
   options = extend(true, {}, overrides, options);
@@ -48,7 +50,7 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
   if (filterStatus) {
     if (typeof filterStatus !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter status to be passed as a string.');
+        'IngestSDK Events.getAll requires a valid filter status to be passed as a string.');
     }
 
     filterString = '?filter=' + filterStatus;
@@ -57,7 +59,7 @@ Events.prototype.getAll = function (headers, filterStatus, filterType) {
   if (filterType) {
     if (typeof filterType !== 'string') {
       return utils.promisify(false,
-        'IngestAPI Events.getAll requires a valid filter type to be passed as a string.');
+        'IngestSDK Events.getAll requires a valid filter type to be passed as a string.');
     }
 
     if (!filterString) {

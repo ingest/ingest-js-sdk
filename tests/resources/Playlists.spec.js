@@ -1,36 +1,30 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var playlistsResource;
 
 var playlists = [
   {
     'id': '5f76ff01-24e4-4188-86b1-a626eb893840',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/08628e63-5b49-4870-9daa-9cd87366350f',
+    'url': 'https://www.someurl.com/1',
     'title': 'More than 50 Videos'
   },
   {
     'id': 'e24d0457-a783-40a1-af57-7475d34d7381',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/e24d0457-a783-40a1-af57-7475d34d7381',
+    'url': 'https://www.someurl.com/2',
     'title': 'Example Search'
   },
   {
     'id': '5f76ff01-24e4-4188-86b1-a626eb893840',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/5f76ff01-24e4-4188-86b1-a626eb893840',
+    'url': 'https://www.someurl.com/3',
     'title': 'Example Playlist'
   },
   {
     'id': '74016323-37db-462a-9ff9-6898bb6cfe31',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/74016323-37db-462a-9ff9-6898bb6cfe31',
+    'url': 'https://www.someurl.com/4',
     'title': 'Another Example Playlist'
   }
 ];
@@ -93,8 +87,7 @@ describe('Ingest API : Resource : Playlists', function () {
     playlistsResource = new api.playlistsResource({
       host: api.config.host,
       resource: 'playlists',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
 
   });
@@ -222,7 +215,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('addVideos', function () {
 
-    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
+    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
 
       var playlistId, videoId;
 
@@ -237,14 +230,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires "playlistId" be a string./);
+        expect(error).toMatch(/addVideo requires `playlistId` be a string./);
         done();
 
       });
 
     });
 
-    it('Should fail if "videoId" is not supplied as an array.', function (done) {
+    it('Should fail if `videoId` is not supplied as an array.', function (done) {
 
       var playlistId, videoId;
 
@@ -259,14 +252,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/addVideo requires "videoId" be an array of videoIds./);
+        expect(error).toMatch(/addVideo requires `videoId` be an array of videoIds./);
         done();
 
       });
 
     });
 
-    it('Should add the given video if the optional "position" parameter is not supplied as a number.', function (done) {
+    it('Should add the given video if the optional `position` parameter is not supplied as a number.', function (done) {
 
       var playlistId, videoId, requestURL, position;
 
@@ -360,7 +353,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('removeVideo', function () {
 
-    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
+    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -376,14 +369,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires "playlistId" to be a string./);
+        expect(error).toMatch(/removeVideo requires `playlistId` to be a string./);
         done();
 
       });
 
     });
 
-    it('Should fail if "videoId" is not supplied as an array.', function (done) {
+    it('Should fail if `videoId` is not supplied as an array.', function (done) {
 
       var playlistId, videoId, position;
 
@@ -399,7 +392,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/removeVideo requires "videos" be an array of video objects./);
+        expect(error).toMatch(/removeVideo requires `videos` be an array of video objects./);
         done();
 
       });
@@ -449,7 +442,7 @@ describe('Ingest API : Resource : Playlists', function () {
 
   describe('reorderVideo', function () {
 
-    it('Should fail if "playlistId" is not supplied as a string.', function (done) {
+    it('Should fail if `playlistId` is not supplied as a string.', function (done) {
 
       var playlistId, videoId, oldPosition, newPosition;
 
@@ -466,14 +459,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires "playlistId" to be a string/);
+        expect(error).toMatch(/reorderVideo requires `playlistId` to be a string/);
         done();
 
       });
 
     });
 
-    it('Should fail if "videoId" is not supplied as a string.', function (done) {
+    it('Should fail if `videoId` is not supplied as a string.', function (done) {
 
       var playlistId, videoId, oldPosition, newPosition;
 
@@ -490,14 +483,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires "videoId" to be a string/);
+        expect(error).toMatch(/reorderVideo requires `videoId` to be a string/);
         done();
 
       });
 
     });
 
-    it('Should fail if "oldPosition" is not supplied as a number.', function (done) {
+    it('Should fail if `oldPosition` is not supplied as a number.', function (done) {
 
       var playlistId, videoId, oldPosition, newPosition;
 
@@ -514,14 +507,14 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
+        expect(error).toMatch(/reorderVideo requires `oldPosition` and `newPosition` to be numbers/);
         done();
 
       });
 
     });
 
-    it('Should fail if "newPosition" is not supplied as a number.', function (done) {
+    it('Should fail if `newPosition` is not supplied as a number.', function (done) {
 
       var playlistId, videoId, oldPosition, newPosition;
 
@@ -538,7 +531,7 @@ describe('Ingest API : Resource : Playlists', function () {
       }, function (error) {
 
         expect(error).toBeDefined();
-        expect(error).toMatch(/reorderVideo requires "oldPosition" and "newPosition" to be numbers/);
+        expect(error).toMatch(/reorderVideo requires `oldPosition` and `newPosition` to be numbers/);
         done();
 
       });

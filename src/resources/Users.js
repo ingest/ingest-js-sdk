@@ -4,6 +4,7 @@ var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
 var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Users Resource
@@ -15,6 +16,7 @@ var extend = require('extend');
 function Users (options) {
 
   var overrides = {
+    resource: ResourceTypes.USERS,
     currentUser: '/users/me',
     transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
     revoke: '/revoke'
@@ -59,12 +61,12 @@ Users.prototype.transferUserAuthorship = function (oldId, newId) {
 
   if (typeof oldId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI transferUserAuthorship requires "oldId" to be passed as a string.');
+      'IngestSDK transferUserAuthorship requires `oldId` to be passed as a string.');
   }
 
   if (typeof newId !== 'string') {
     return utils.promisify(false,
-      'IngestAPI transferUserAuthorship requires "newId" to be passed as a string');
+      'IngestSDK transferUserAuthorship requires `newId` to be passed as a string');
   }
 
   tokens = {

@@ -1,23 +1,17 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var eventsResource;
 
 var event = {
-  "event_id": "eventid",
-  "network_id": "networkid",
-  "event_name": "eventname",
-  "created_at": "2017-05-29T14:40:30.807644Z",
-  "data": {}
+  'event_id': 'eventid',
+  'network_id': 'networkid',
+  'event_name': 'eventname',
+  'created_at': '2017-05-29T14:40:30.807644Z',
+  'data': {}
 };
 
 describe('Ingest API : Resource : Events', function () {
@@ -25,8 +19,7 @@ describe('Ingest API : Resource : Events', function () {
     eventsResource = new api.eventsResource({
       host: api.config.host,
       resource: 'events',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
   });
 

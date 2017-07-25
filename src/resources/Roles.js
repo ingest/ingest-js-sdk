@@ -3,6 +3,8 @@
 var Resource = require('./Resource');
 var Request = require('../Request');
 var utils = require('../Utils');
+var extend = require('extend');
+var ResourceTypes = require('../constants/resourceTypes');
 
 /**
  * Roles Resource
@@ -12,7 +14,14 @@ var utils = require('../Utils');
  * @extends Resource
  */
 function Roles (options) {
+  var overrides = {
+    resource: ResourceTypes.ROLES
+  };
+
+  options = extend(true, {}, overrides, options);
+
   Resource.call(this, options);
+
 };
 
 // This extends the base class of 'Resource'.
@@ -29,7 +38,7 @@ Roles.prototype.update = function (resource) {
 
   if (typeof resource !== 'object') {
     return utils.promisify(false,
-      'IngestAPI Roles update requires a role to be passed as an object.');
+      'IngestSDK Roles update requires a role to be passed as an object.');
   }
 
   data = resource;

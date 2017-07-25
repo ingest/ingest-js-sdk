@@ -1,31 +1,25 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var videosResource;
 
 var video = {
   author: {
     deleted_at: null,
-    email: "shawn.gillam-wright@redspace.com",
+    email: 'user@domain.com',
     first_time_user: true,
-    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    id: '7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df',
     profile: {},
-    timezone: "UTC",
-    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    timezone: 'UTC',
+    url: 'https://www.someurl.com',
   },
-  created_at: "2015-12-18T15:54:53.085423Z",
+  created_at: '2015-12-18T15:54:53.085423Z',
   deleted_at: null,
-  description: "sdf",
-  id: "8dee6bee-cb45-4c49-989b-cf9c70601567",
+  description: 'sdf',
+  id: '8dee6bee-cb45-4c49-989b-cf9c70601567',
   playback_url: null,
   poster: null,
   private: null,
@@ -34,40 +28,40 @@ var video = {
   schedule_start: null,
   size: 0,
   status: 0,
-  tags: ["sdf"],
-  title: "ad",
-  updated_at: "2015-12-18T15:54:53.085423Z",
+  tags: ['sdf'],
+  title: 'ad',
+  updated_at: '2015-12-18T15:54:53.085423Z',
   updater: {
     deleted_at: null,
-    email: "shawn.gillam-wright@redspace.com",
+    email: 'user@domain.com',
     first_time_user: true,
-    id: "7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    id: '7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df',
     profile: {},
-    timezone: "UTC",
-    url: "http://weasley.teamspace.ad:8080/users/7bcdd37d-4c2a-473d-9fdf-ac0a5ac778df",
+    timezone: 'UTC',
+    url: 'https://www.someurl.com',
   },
-  url: "http://weasley.teamspace.ad:8080/videos/8dee6bee-cb45-4c49-989b-cf9c70601567"
+  url: 'https://www.someurl.com'
 };
 
 var playlists = [
   {
     'id': '08628e63-5b49-4870-9daa-9cd87366350f',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/08628e63-5b49-4870-9daa-9cd87366350f',
+    'url': 'https://www.someurl.com',
     'title': 'More than 50 Videos'
   },
   {
     'id': 'e24d0457-a783-40a1-af57-7475d34d7381',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/e24d0457-a783-40a1-af57-7475d34d7381',
+    'url': 'https://www.someurl.com',
     'title': 'Example Search'
   },
   {
     'id': '5f76ff01-24e4-4188-86b1-a626eb893840',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/5f76ff01-24e4-4188-86b1-a626eb893840',
+    'url': 'https://www.someurl.com',
     'title': 'Example Playlist'
   },
   {
     'id': '74016323-37db-462a-9ff9-6898bb6cfe31',
-    'url': 'http://weasley.teamspace.ad:8080/playlist/74016323-37db-462a-9ff9-6898bb6cfe31',
+    'url': 'https://www.someurl.com',
     'title': 'Another Example Playlist'
   }
 ];
@@ -98,8 +92,7 @@ describe('Ingest API : Resource : Videos', function () {
     videosResource = new api.videosResource({
       host: api.config.host,
       resource: 'videos',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
 
   });

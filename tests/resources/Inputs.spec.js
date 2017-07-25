@@ -1,15 +1,9 @@
 'use strict';
 
-var IngestAPI = require('../../src/index');
-
-var access_token = 'Bearer ' + window.token;
-
-var api = new IngestAPI({
-  host: 'http://weasley.teamspace.ad:8080',
-  token: access_token
-});
-
+var IngestSDK = require('../../src/index');
 var mock = require('xhr-mock');
+
+var api = new IngestSDK();
 var inputsResource;
 
 describe('Ingest API : Resource : Inputs', function () {
@@ -19,12 +13,8 @@ describe('Ingest API : Resource : Inputs', function () {
     inputsResource = new api.inputsResource({
       host: api.config.host,
       resource: 'encoding/inputs',
-      tokenSource: api.getToken.bind(api),
-      cache: api.cache
+      tokenSource: api.getToken.bind(api)
     });
-
-    // Re-enable cache each time.
-    inputsResource.cache.enabled = true;
   });
 
   describe('getAll', function () {
@@ -116,7 +106,7 @@ describe('Ingest API : Resource : Inputs', function () {
 
       }, function (error) {
 
-        expect(error).toBe('IngestAPI Inputs search requires search input to be passed as a string.');
+        expect(error).toBe('IngestSDK Inputs search requires search input to be passed as a string.');
         done();
 
       });
@@ -126,7 +116,7 @@ describe('Ingest API : Resource : Inputs', function () {
 
     });
 
-    it('Should search for Inputs matching query "test" without a filter chain.', function (done) {
+    it('Should search for Inputs matching query `test` without a filter chain.', function (done) {
 
       var input = 'test';
       var headers = {};
@@ -164,7 +154,7 @@ describe('Ingest API : Resource : Inputs', function () {
 
   });
 
-  it('Should search for Inputs matching query "test" with a filter chain of "audio-only" and "new".', function (done) {
+  it('Should search for Inputs matching query `test` with a filter chain of `audio-only` and `new`.', function (done) {
 
     var input = 'test';
     var headers = {};
