@@ -21,7 +21,7 @@ npm install @ingest/ingest-js-sdk
 
 2. Require it in your project:
 ```javascript
-  var IngestSDK = require('ingest-js-sdk');
+  var IngestSDK = require('@ingest/ingest-js-sdk');
 ```
 
 3. Initialize the SDK:
