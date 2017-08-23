@@ -48,7 +48,7 @@ Users.prototype.getCurrentUserInfo = function () {
 
 /**
  * Transfer all authorship currently under the specified user onto another.
- * This includes all videos & playlists.
+ * This includes all videos.
  * This task is commonly used in conjunction with permanently deleting a user.
  *
  * @param {string} oldId - The user who currently has authorship.

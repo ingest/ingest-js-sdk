@@ -8,7 +8,6 @@ module.exports = {
   'INPUTS': 'encoding/inputs',
   'JOBS': 'encoding/jobs',
   'NETWORKS': 'networks',
-  'PLAYLISTS': 'playlists',
   'PROFILES': 'encoding/profiles',
   'ROLES': 'roles',
   'USERS': 'users',

@@ -12,7 +12,6 @@ var Media = require('./resources/PlaybackContent');
 var Users = require('./resources/Users');
 var Networks = require('./resources/Networks');
 var Videos = require('./resources/Videos');
-var Playlists = require('./resources/Playlists');
 var Jobs = require('./resources/Jobs');
 var Profiles = require('./resources/Profiles');
 var Inputs = require('./resources/Inputs');
@@ -53,7 +52,6 @@ function IngestSDK (options) {
   this.usersResource = Users;
   this.networksResource = Networks;
   this.videosResource = Videos;
-  this.playlistsResource = Playlists;
   this.jobsResource = Jobs;
   this.profilesResource = Profiles;
   this.inputsResource = Inputs;
@@ -71,7 +69,6 @@ function IngestSDK (options) {
   };
 
   this.videos = new Videos(resourceConfig);
-  this.playlists = new Playlists(resourceConfig);
   this.inputs = new Inputs(resourceConfig);
   this.users = new Users(resourceConfig);
   this.networks = new Networks(resourceConfig);

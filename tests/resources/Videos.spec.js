@@ -43,29 +43,6 @@ var video = {
   url: 'https://www.someurl.com'
 };
 
-var playlists = [
-  {
-    'id': '08628e63-5b49-4870-9daa-9cd87366350f',
-    'url': 'https://www.someurl.com',
-    'title': 'More than 50 Videos'
-  },
-  {
-    'id': 'e24d0457-a783-40a1-af57-7475d34d7381',
-    'url': 'https://www.someurl.com',
-    'title': 'Example Search'
-  },
-  {
-    'id': '5f76ff01-24e4-4188-86b1-a626eb893840',
-    'url': 'https://www.someurl.com',
-    'title': 'Example Playlist'
-  },
-  {
-    'id': '74016323-37db-462a-9ff9-6898bb6cfe31',
-    'url': 'https://www.someurl.com',
-    'title': 'Another Example Playlist'
-  }
-];
-
 var variants = [
   {
     'id': 'b1ede429-c623-4713-8442-d73c66a963a4',
@@ -180,55 +157,6 @@ describe('Ingest API : Resource : Videos', function () {
 
       // Ensure a promise was returned.
       expect(request.then).toBeDefined();
-    });
-
-  });
-
-  describe('getPlaylists', function () {
-
-    it('Should retrieve the playlists that a video belongs to.', function (done) {
-      var url;
-
-      mock.setup();
-
-      url = api.utils.parseTokens(api.config.host + videosResource.config.playlists, {
-        resource: videosResource.config.resource,
-        id: 'test-id'
-      });
-
-      mock.mock('GET', url,
-        function (request, response) {
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(playlists));
-
-        });
-
-      videosResource.getPlaylists('test-id').then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data).toEqual(playlists);
-        done();
-      }, function (error) {
-        expect(error).not.toBeDefined();
-        done();
-      });
-
-    });
-
-    it('Should fail if an id is not supplied.', function (done) {
-
-      videosResource.getPlaylists().then(function (response) {
-        expect(response).not.toBeDefined();
-        done();
-      }, function (error) {
-        expect(error).toBeDefined();
-        done();
-      });
-
     });
 
   });
