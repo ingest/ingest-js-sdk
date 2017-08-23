@@ -97,7 +97,7 @@ describe('Ingest API : Resource : Events', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + '/events?resource=playlists',
+      mock.mock('GET', api.config.host + '/events?resource=videos',
         function (request, response) {
           // Restore the XHR object.
           mock.teardown();
@@ -107,7 +107,7 @@ describe('Ingest API : Resource : Events', function () {
             .body(JSON.stringify([event]));
         });
 
-      request = eventsResource.getAll(null, null, 'playlists').then(function (response) {
+      request = eventsResource.getAll(null, null, 'videos').then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
@@ -131,7 +131,7 @@ describe('Ingest API : Resource : Events', function () {
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('GET', api.config.host + '/events?filter=new&resource=playlists',
+      mock.mock('GET', api.config.host + '/events?filter=new&resource=videos',
         function (request, response) {
           // Restore the XHR object.
           mock.teardown();
@@ -141,7 +141,7 @@ describe('Ingest API : Resource : Events', function () {
             .body(JSON.stringify([event]));
         });
 
-      request = eventsResource.getAll(null, 'new', 'playlists').then(function (response) {
+      request = eventsResource.getAll(null, 'new', 'videos').then(function (response) {
         expect(response).toBeDefined();
         expect(response.data).toBeDefined();
         expect(response.headers).toBeDefined();
