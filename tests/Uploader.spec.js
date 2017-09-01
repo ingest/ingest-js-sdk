@@ -498,6 +498,10 @@ describe('Ingest API : Uploader', function () {
       };
 
       mock.setup();
+      // TODO(jstackhouse): Only required until xhr-mock v2 is out or xhr-mock@next has lib folder.
+      window.XMLHttpRequest.prototype.upload = {
+        onprogress: null
+      }
 
       mock.mock('PUT', 'http://test-server', function (request, response) {
 
@@ -522,26 +526,18 @@ describe('Ingest API : Uploader', function () {
   describe('completeChunk', function () {
 
     it('Should update the chunks complete and the current progress.', function () {
-
-      upload.fileRecord.size = 10000;
-
-      spyOn(upload, '_updateProgress').and.callFake(function (percent) {
-        expect(percent).toEqual(50);
-      });
-
       var chunk = {
         data: {
           size: 5000
-        }
+        },
+        complete: false
       };
 
       upload.chunkCount = 2;
       upload.chunksComplete = 0;
-
       upload._completeChunk(chunk, function () {});
-
-      expect(upload._updateProgress).toHaveBeenCalled();
-
+      expect(chunk.complete).toEqual(true);
+      expect(upload.chunksComplete).toEqual(1);
     });
   });
 
@@ -599,13 +595,10 @@ describe('Ingest API : Uploader', function () {
     it('Should abort a single part upload.', function (done) {
       upload.created = true;
       upload.initialized = true;
-
       upload.singlePartPromise = true;
-
       upload.requestPromise = {
         cancel: function () {}
       };
-
       upload.fileRecord.id = 'test-id';
       upload.fileRecord.method = false;
 
@@ -621,16 +614,7 @@ describe('Ingest API : Uploader', function () {
 
       mock.setup();
 
-      mock.mock('POST', url, function (request, response) {
-
-        return response.status(200)
-          .header('Content-Type', 'application/json')
-          .body(JSON.stringify('aborted'));
-
-      });
-
       mock.mock('DELETE', deleteUrl, function (request, response) {
-
         return response.status(200)
           .header('Content-Type', 'application/json')
           .body(JSON.stringify('deleted'));

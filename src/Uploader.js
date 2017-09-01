@@ -349,12 +349,28 @@ Upload.prototype._sendUpload = function (upload, response) {
     method: 'PUT',
     headers: headers,
     data: upload.data,
-    ignoreAcceptHeader: true
+    ignoreAcceptHeader: true,
+    requestProgress: this._requestProgress.bind(this),
   });
 
   this.requestPromise = request;
 
   return request.send();
+};
+
+/**
+ * Update the progress of requestProgress
+ */
+Upload.prototype._requestProgress = function (uploadedBytes, totalBytes) {
+  var progress;
+
+  // BUGWATCH: if we change this to upload multiple chunks at once this will have to be written
+  // other chunks completed data + the current chunk in the request
+  progress = (this.uploadedBytes + uploadedBytes) / this.fileRecord.size;
+  progress *= 99;
+  progress = Math.round(progress);
+
+  this._updateProgress(progress, totalBytes);
 };
 
 /**
@@ -372,24 +388,14 @@ Upload.prototype._sendSinglepartComplete = function () {
  *  @param {Promise}  promise The promise to resolve when the chunk is complete.
  */
 Upload.prototype._completeChunk = function (chunk, promise) {
-  var progress;
-
   this.chunksComplete++;
   chunk.complete = true;
-
   this.uploadedBytes += chunk.data.size;
 
   // Upload is complete.
   if (this.chunksComplete === this.chunkCount) {
     this.uploadComplete = true;
   }
-
-  progress = this.uploadedBytes / this.fileRecord.size;
-  // 0 - 99 for actual upload progress, 1% for the complete call.
-  progress *= 99;
-  progress = Math.round(progress);
-
-  this._updateProgress(progress, chunk.data.size);
 
   // Resolve the promise.
   promise(true, []);
