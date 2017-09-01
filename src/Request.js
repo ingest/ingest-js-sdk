@@ -20,17 +20,17 @@ function Request (options) {
   this.defaults = {
     async: true,
     method: 'GET',
-    ignoreAcceptHeader: false
+    ignoreAcceptHeader: false,
+    requestProgress: null,
   };
 
   // Create the XHR object for this request.
   this.request = new XMLHttpRequest();
-
+  // Todo, merge some defaults with this.
+  this.options = extend(true, this.defaults, options);
   // Set up event listeners for this request.
   this.setupListeners();
 
-  // Todo, merge some defaults with this.
-  this.options = extend(true, this.defaults, options);
   this.maxRetrys = 3;
   this.retrys = 0;
 };
@@ -80,6 +80,9 @@ Request.prototype.sendSync = function (callback) {
  */
 Request.prototype.setupListeners = function () {
   this.request.onreadystatechange = this.readyStateChange.bind(this);
+  if (this.options.requestProgress !== null) {
+    this.request.upload.onprogress = this.progressEvent.bind(this);
+  }
 };
 
 /**
@@ -277,6 +280,12 @@ Request.prototype.requestError = function (message) {
     headers: this.request.getAllResponseHeaders(),
     statusCode: this.request.status
   }]);
+};
+
+Request.prototype.progressEvent = function (e) {
+  if (e.lengthComputable) {
+    this.options.requestProgress(e.loaded, e.total);
+  }
 };
 
 /**
