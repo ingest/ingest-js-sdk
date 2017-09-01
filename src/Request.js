@@ -80,7 +80,7 @@ Request.prototype.sendSync = function (callback) {
  */
 Request.prototype.setupListeners = function () {
   this.request.onreadystatechange = this.readyStateChange.bind(this);
-  if (this.options.requestProgress !== null) {
+  if (typeof this.options.requestProgress === 'function') {
     this.request.upload.onprogress = this.progressEvent.bind(this);
   }
 };
