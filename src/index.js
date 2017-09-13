@@ -17,6 +17,7 @@ var Profiles = require('./resources/Profiles');
 var Inputs = require('./resources/Inputs');
 var Events = require('./resources/Events');
 var Roles = require('./resources/Roles');
+var Livestreams = require('./resources/Livestreams');
 
 /**
  * IngestAPI Object
@@ -58,6 +59,7 @@ function IngestSDK (options) {
   this.uploader = Uploader;
   this.eventsResource = Events;
   this.rolesResource = Roles;
+  this.livestreamsResource = Livestreams;
 
   // Set my max requests
   this.requestManager = RequestManager;
@@ -76,6 +78,7 @@ function IngestSDK (options) {
   this.jobs = new Jobs(resourceConfig);
   this.events = new Events(resourceConfig);
   this.roles = new Roles(resourceConfig);
+  this.livestreams = new Livestreams(resourceConfig);
 }
 
 /** Token **/

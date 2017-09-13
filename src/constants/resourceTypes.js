@@ -11,5 +11,6 @@ module.exports = {
   'PROFILES': 'encoding/profiles',
   'ROLES': 'roles',
   'USERS': 'users',
-  'VIDEOS': 'videos'
+  'VIDEOS': 'videos',
+  'LIVESTREAMS': 'live'
 };
