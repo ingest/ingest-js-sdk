@@ -218,4 +218,160 @@ describe('Ingest API : Resource : Users', function () {
 
   });
 
+  describe('updateUserRoles', function () {
+    it('Should successfully update a users roles.', function (done) {
+      var user, userID, roleIDs, request;
+
+      userID = 'user-id';
+      roleIDs = [
+        'id'
+      ];
+
+      user = {
+        roleids: [
+          'id'
+        ]
+      };
+
+      mock.setup();
+
+      // Mock the response from the REST api.
+      mock.mock('PUT', api.config.host + '/users/user-id/roles',
+        function (request, response) {
+
+          // Restore the XHR object.
+          mock.teardown();
+
+          return response.status(200)
+          .header('Content-Type', 'application/json')
+          .body(JSON.stringify(user));
+
+        });
+
+      request = usersResource.updateUserRoles(userID, roleIDs)
+        .then(function (response) {
+
+          expect(response).toBeDefined();
+          expect(response.statusCode).toBe(200);
+
+          done();
+
+        }, function (error) {
+
+          expect(error).not.toBeDefined();
+
+          done();
+
+        });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if roleIDs is not an array.', function (done) {
+      var request, ids;
+
+      ids = 'role-id'
+
+      var request = usersResource.updateUserRoles('userid', ids)
+        .then(function (response) {
+
+          expect(response).not.toBeDefined();
+
+          done();
+
+        }, function (error) {
+
+          expect(error).toEqual('IngestSDK updateUserRoles requires `roleIDs` to be passed as an array.');
+
+          done();
+
+        });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if roleIDs is an empty array.', function (done) {
+      var request, ids;
+
+      ids = [];
+
+      var request = usersResource.updateUserRoles('userid', ids)
+        .then(function (response) {
+
+          expect(response).not.toBeDefined();
+
+          done();
+
+        }, function (error) {
+
+          expect(error).toEqual('IngestSDK updateUserRoles requires `roleIDs` to be passed as an array.');
+
+          done();
+
+        });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if id is not a string.', function (done) {
+      var request, ids;
+
+      ids = [
+        'id1'
+      ];
+
+      var request = usersResource.updateUserRoles(true, ids)
+        .then(function (response) {
+
+          expect(response).not.toBeDefined();
+
+          done();
+
+        }, function (error) {
+
+          expect(error).toEqual('IngestSDK updateUserRoles requires `id` to be passed as a string.');
+
+          done();
+
+        });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+
+    it('Should fail if id is not passed in.', function (done) {
+      var request, ids;
+
+      ids = [
+        'id1'
+      ];
+
+      var request = usersResource.updateUserRoles(null, ids)
+        .then(function (response) {
+
+          expect(response).not.toBeDefined();
+
+          done();
+
+        }, function (error) {
+
+          expect(error).toEqual('IngestSDK updateUserRoles requires `id` to be passed as a string.');
+
+          done();
+
+        });
+
+      // Ensure a promise is returned.
+      expect(request.then).toBeDefined();
+
+    });
+  });
+
 });

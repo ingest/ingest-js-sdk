@@ -19,6 +19,7 @@ function Users (options) {
     resource: ResourceTypes.USERS,
     currentUser: '/users/me',
     transfer: '/users/<%=oldId%>/transfer/<%=newId%>',
+    updateRoles: '/users/<%=id%>/roles',
     revoke: '/revoke'
   };
 
@@ -95,6 +96,47 @@ Users.prototype.revokeCurrentUser = function () {
     url: this.config.host + this.config.currentUser + this.config.revoke,
     token: this._tokenSource(),
     method: 'DELETE'
+  });
+
+  return request.send();
+};
+
+/**
+ * Updates a user with the passed in roles
+ *
+ * @param {string} id      - The id of the user to update their roles
+ * @param {array}  roleIDs - The role ids of the roles you wish to assign to the user
+ *
+ * @return {Promise} A promise which resolves when the request is complete.
+ */
+Users.prototype.updateUserRoles = function (id, roleIDs) {
+  var request, url, data;
+
+  if (!Array.isArray(roleIDs) || roleIDs.length < 1) {
+    return utils.promisify(false,
+      'IngestSDK updateUserRoles requires `roleIDs` to be passed as an array.');
+  }
+
+  if (typeof id !== 'string') {
+    return utils.promisify(false,
+      'IngestSDK updateUserRoles requires `id` to be passed as a string.');
+  }
+
+  // Get the url
+  url = utils.parseTokens(this.config.host + this.config.updateRoles, {
+    id: id
+  });
+
+  // Set the data into a structure the api can use it
+  data = {
+    role_ids: roleIDs
+  };
+
+  request = new Request({
+    url: url,
+    token: this._tokenSource(),
+    method: 'PUT',
+    data: data
   });
 
   return request.send();
