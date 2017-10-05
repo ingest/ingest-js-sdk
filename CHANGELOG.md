@@ -1,3 +1,10 @@
+<a name="2.2.0"></a>
+# 2.2.0 (2017-10-05)
+
+## New Features
+- Added support for modifying a users role and permissions.
+  (https://github.com/ingest/ingest-js-sdk/pull/20)
+
 <a name="2.1.0"></a>
 # 2.1.0 (2017-09-13)
 
