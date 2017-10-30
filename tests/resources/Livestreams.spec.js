@@ -160,70 +160,32 @@ describe('Ingest API : Resource : Livestreams', function () {
     });
   });
 
-  describe('delete', function () {
+  describe('end', function () {
 
-    it('Should delete a livestream.', function (done) {
+    it('Should end a livestream.', function (done) {
       var request, url;
 
       // Mock the XHR object
       mock.setup();
 
       // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/live/live-id',
+      mock.mock('POST', api.config.host + '/live/live-id/stop',
         function (request, response) {
-
-          var data = {
-            ok: true
-          };
 
           // Restore the XHR object.
           mock.teardown();
 
           return response.status(200)
             .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
+            .body(JSON.stringify({}));
 
         });
 
-      request = livestreamResource.delete('live-id').then(function (response) {
+      request = livestreamResource.end('live-id', 'streamkey').then(function (response) {
         expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-        done();
-      }, function (error) {
-        expect(error).toBeUndefined();
-        done();
-      });
-
-      // Ensure a promise was returned.
-      expect(request.then).toBeDefined();
-    });
-
-    it('Should end a livestream.', function (done) {
-      var request;
-
-      // Mock the XHR object
-      mock.setup();
-
-      // Mock the response from the REST api.
-      mock.mock('DELETE', api.config.host + '/live/live-id?end=1',
-        function (request, response) {
-
-          var data = {
-            ok: true
-          };
-
-          // Restore the XHR object.
-          mock.teardown();
-
-          return response.status(200)
-            .header('Content-Type', 'application/json')
-            .body(JSON.stringify(data));
-
-        });
-
-      request = livestreamResource.delete('live-id', true).then(function (response) {
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
+        expect(response.headers).toBeDefined();
+        expect(typeof response.headers).toBe('function');
+        expect(response.statusCode).toBeDefined();
         done();
       }, function (error) {
         expect(error).toBeUndefined();
@@ -235,8 +197,25 @@ describe('Ingest API : Resource : Livestreams', function () {
     });
 
     it('Should fail if the id is not a string', function (done) {
+      var request = livestreamResource.end({test: true}).then(function (response) {
+        expect(response).not.toBeDefined();
 
-      var request = livestreamResource.delete({test: true}).then(function (response) {
+        done();
+
+      }, function (error) {
+
+        expect(error).toBeDefined();
+
+        done();
+
+      });
+
+      // Ensure a promise was returned.
+      expect(request.then).toBeDefined();
+    });
+
+    it('Should fail if the streamkey is not a string', function (done) {
+      var request = livestreamResource.end('id', {test: true}).then(function (response) {
         expect(response).not.toBeDefined();
 
         done();
