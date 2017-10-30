@@ -113,7 +113,7 @@ Livestreams.prototype.end = function (id, streamKey) {
 
   data = {
     stream_key: streamKey
-  }
+  };
 
   request = new Request({
     url: url,
