@@ -17,9 +17,7 @@ function Livestreams (options) {
   var overrides = {
     resource: ResourceTypes.LIVESTREAMS,
     status: '/<%=resource%>/<%=id%>/status',
-    deleteMethods: {
-      'end': '?end=1'
-    }
+    end: '/<%=resource%>/<%=id%>/stop'
   };
 
   options = extend(true, {}, overrides, options);
@@ -93,34 +91,35 @@ Livestreams.prototype.getStatus = function (id) {
 };
 
 /**
- * Delete/End a single livestream
+ * Ends a livestream
  *
- * @param  {string}  id  - Livestream id.
- * @param  {boolean} end - A flag to end the stream instead of remove it
+ * @param {string} id        - The id of the livestream to end
+ * @param {string} streamKey - The streamKey for the livestream you wish to end
  *
  * @return {promise} A promise which resolves when the request is complete.
  */
-Livestreams.prototype.delete = function (id, end) {
-  var request, url;
+Livestreams.prototype.end = function (id, streamKey) {
+  var request, url, data;
 
-  if (typeof id !== 'string') {
+  if (typeof id !== 'string' || typeof streamKey !== 'string') {
     return utils.promisify(false,
-      'IngestSDK Livestream.delete requires a valid id passed as a string.');
+      'IngestSDK Livestream.end requires a valid id and stream key passed as a string.');
   }
 
-  url = utils.parseTokens(this.config.host + this.config.byId, {
+  url = utils.parseTokens(this.config.host + this.config.end, {
     resource: this.config.resource,
     id: id
   });
 
-  if (end === true) {
-    url += this.config.deleteMethods.end;
+  data = {
+    stream_key: streamKey
   }
 
   request = new Request({
     url: url,
     token: this._tokenSource(),
-    method: 'DELETE'
+    method: 'POST',
+    data: data
   });
 
   return request.send();
