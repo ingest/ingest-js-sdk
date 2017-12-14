@@ -34,7 +34,7 @@
     "karma-coverage": "1.1.1",
     "karma-jasmine": "1.1.0",
     "karma-sourcemap-loader": "0.3.7",
-    "karma-webpack": "2.0.5",
+    "karma-webpack": "2.0.8",
     "pre-commit": "1.2.2",
     "webpack": "3.8.1",
     "xhr-mock": "1.9.1"
