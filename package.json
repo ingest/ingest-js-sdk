@@ -37,7 +37,7 @@
     "karma-webpack": "2.0.5",
     "pre-commit": "1.2.2",
     "webpack": "3.8.1",
-    "xhr-mock": "1.9.1"
+    "xhr-mock": "2.0.3"
   },
   "scripts": {
     "release": "BUILDTYPE=production node_modules/.bin/webpack --config webpack.config.js",
