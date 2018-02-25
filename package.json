@@ -36,7 +36,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "2.0.5",
     "pre-commit": "1.2.2",
-    "webpack": "3.8.1",
+    "webpack": "4.0.0",
     "xhr-mock": "1.9.1"
   },
   "scripts": {
